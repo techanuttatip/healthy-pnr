@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Establishment, EstablishmentStatus } from '../../types/publicHealth';
-import { Layers, Navigation, ChevronDown, ChevronUp, Satellite, Globe, Target } from 'lucide-react';
+import { Layers, Navigation, ChevronDown, ChevronUp, Satellite, Globe } from 'lucide-react';
 
 interface PublicHealthMapProps {
   establishments: Establishment[];
@@ -15,47 +15,6 @@ interface PublicHealthMapProps {
 }
 
 export type SatelliteMode = 'google_hybrid' | 'esri_sat';
-
-// World outer box for creating the spotlight cutout mask
-const WORLD_MASK_RING: [number, number][] = [
-  [85, -180],
-  [85, 180],
-  [-85, 180],
-  [-85, -180]
-];
-
-// Detailed boundary polygon for Tambon Pong Nam Ron, Fang District, Chiang Mai
-export const PONG_NAM_RON_BOUNDARY: [number, number][] = [
-  [19.9820, 99.1520], // เหนือสุด เขตรอยต่ออุทยานดอยผ้าห่มปก - ต.ม่อนปิ่น
-  [19.9780, 99.1660], // น้ำแม่ใจตอนบน
-  [19.9720, 99.1800], // รอยต่อบ้านป่าบง / เวียงฝาง
-  [19.9610, 99.1910], // แนวเขตรอยต่อเทศบาลเวียงฝาง
-  [19.9480, 99.1960], // ทิศตะวันออก รอยต่อ ต.สันทราย
-  [19.9360, 99.1970], // ฝั่งตะวันออก บ.ดอน / ท่าหัด
-  [19.9220, 99.1930], // หนองพนัง - สันต้นเปา
-  [19.9080, 99.1880], // รอยต่อ ต.แม่คะ
-  [19.8960, 99.1780], // รอยต่อ ต.แม่งอน
-  [19.8910, 99.1600], // ห้วยส้มป่อยตอนใต้
-  [19.8970, 99.1410], // แนวดอยผ้าห่มปกตอนล่าง
-  [19.9120, 99.1270], // แนวสันเขาตะวันตก
-  [19.9270, 99.1190], // สันเขาตะวันตก สันปันน้ำ
-  [19.9450, 99.1170], // สันเขาตะวันตก ชายแดนธรรมชาติ
-  [19.9620, 99.1240], // แนวป่าต้นน้ำดอยผ้าห่มปก
-  [19.9740, 99.1370], // บ่อน้ำพุร้อนฝาง - ต้นน้ำแม่ใจ
-  [19.9820, 99.1520]  // บรรจบจุดเริ่มต้น
-];
-
-// 7 Official Villages of Tambon Pong Nam Ron
-export const PONG_NAM_RON_VILLAGES = [
-  { id: 'v1', name: 'ม.๑ บ้านหนองพนัง', lat: 19.9240, lng: 99.1820 },
-  { id: 'v2', name: 'ม.๒ บ้านดอน', lat: 19.9370, lng: 99.1760 },
-  { id: 'v3', name: 'ม.๓ บ้านหัวฝาย', lat: 19.9470, lng: 99.1670 },
-  { id: 'v4', name: 'ม.๔ บ้านท่าหัด', lat: 19.9400, lng: 99.1860 },
-  { id: 'v5', name: 'ม.๕ บ้านต้นผึ้ง', lat: 19.9310, lng: 99.1610 },
-  { id: 'v6', name: 'ม.๖ บ้านเปียงกอก', lat: 19.9170, lng: 99.1710 },
-  { id: 'v7', name: 'ม.๗ บ้านต้นผึ้งใต้', lat: 19.9275, lng: 99.1665 },
-  { id: 'park', name: '♨️ อุทยานดอยผ้าห่มปก (น้ำพุร้อนฝาง)', lat: 19.9655, lng: 99.1545 }
-];
 
 export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
   establishments,
@@ -72,11 +31,6 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
   const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [satelliteMode, setSatelliteMode] = useState<SatelliteMode>('google_hybrid');
-  const [isSpotlightActive, setIsSpotlightActive] = useState<boolean>(true);
-  const [showVillages, setShowVillages] = useState<boolean>(true);
-  const maskLayerRef = useRef<L.Polygon | null>(null);
-  const boundaryStrokeRef = useRef<L.Polygon | null>(null);
-  const villageMarkersRef = useRef<L.Marker[]>([]);
 
   // Center on Tambon Pong Nam Ron, Fang District, Chiang Mai
   const PONG_NAM_RON_CENTER: [number, number] = [19.93283454266061, 99.17191325434383];
@@ -190,98 +144,6 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
       mapInstanceRef.current = null;
     };
   }, []);
-
-  // ๑. จัดการ Spotlight Mask & Boundary Stroke (เน้นเฉพาะเขตตำบลโป่งน้ำร้อน)
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    if (maskLayerRef.current) {
-      map.removeLayer(maskLayerRef.current);
-      maskLayerRef.current = null;
-    }
-    if (boundaryStrokeRef.current) {
-      map.removeLayer(boundaryStrokeRef.current);
-      boundaryStrokeRef.current = null;
-    }
-
-    if (isSpotlightActive) {
-      // Outer dimming mask covering outside world
-      const mask = L.polygon([WORLD_MASK_RING, PONG_NAM_RON_BOUNDARY], {
-        color: '#0284c7',
-        weight: 1,
-        fillColor: '#030712', // Deep dark backdrop
-        fillOpacity: 0.72,
-        interactive: false
-      }).addTo(map);
-      maskLayerRef.current = mask;
-
-      // Glowing Boundary Outline
-      const stroke = L.polygon(PONG_NAM_RON_BOUNDARY, {
-        color: '#38bdf8', // Neon Sky Blue
-        weight: 3.5,
-        opacity: 0.95,
-        dashArray: '8, 8',
-        lineCap: 'round',
-        lineJoin: 'round',
-        fill: false,
-        interactive: false
-      }).addTo(map);
-      boundaryStrokeRef.current = stroke;
-
-      // Restrict map panning to Pong Nam Ron area
-      const bounds = L.latLngBounds([19.8850, 99.1050], [19.9900, 99.2050]);
-      map.setMaxBounds(bounds.pad(0.08));
-    } else {
-      map.setMaxBounds(null as any);
-    }
-  }, [isSpotlightActive]);
-
-  // ๒. จัดการหมุดป้ายกำกับ ๗ หมู่บ้าน ในตำบลโป่งน้ำร้อน
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    villageMarkersRef.current.forEach((m) => m.remove());
-    villageMarkersRef.current = [];
-
-    if (showVillages) {
-      PONG_NAM_RON_VILLAGES.forEach((v) => {
-        const isPark = v.id === 'park';
-        const icon = L.divIcon({
-          className: `village-pin-${v.id}`,
-          html: `
-            <div style="
-              background: ${isPark ? 'linear-gradient(135deg, #059669, #064e3b)' : 'rgba(15, 23, 42, 0.88)'};
-              color: #ffffff;
-              padding: 3px 9px;
-              border-radius: 9999px;
-              border: 1.5px solid ${isPark ? '#34d399' : '#38bdf8'};
-              font-weight: 700;
-              font-size: 10px;
-              display: flex;
-              align-items: center;
-              gap: 4px;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-              white-space: nowrap;
-              backdrop-filter: blur(4px);
-              pointer-events: auto;
-            ">
-              <span>${v.name}</span>
-            </div>
-          `,
-          iconSize: [isPark ? 240 : 120, 24],
-          iconAnchor: [isPark ? 120 : 60, 12]
-        });
-
-        const marker = L.marker([v.lat, v.lng], { icon, interactive: true })
-          .bindTooltip(`<b>${v.name}</b><br/><span style="color:#64748b">ต.โป่งน้ำร้อน อ.ฝาง จ.เชียงใหม่</span>`, { direction: 'top' })
-          .addTo(map);
-
-        villageMarkersRef.current.push(marker);
-      });
-    }
-  }, [showVillages]);
 
   // Handle switching satellite mode (Google Hybrid vs Esri)
   const handleChangeSatelliteMode = (mode: SatelliteMode) => {
@@ -526,67 +388,34 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
         </div>
       </div>
 
-      {/* Top Right: GIS Controls & Layer Switcher */}
-      <div className="absolute top-4 right-4 z-20 flex flex-wrap items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-700/80 shadow-2xl backdrop-blur-md text-xs">
-        {/* Spotlight Focus Toggle Button */}
-        <button
-          type="button"
-          onClick={() => setIsSpotlightActive(!isSpotlightActive)}
-          className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
-            isSpotlightActive
-              ? 'bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 font-extrabold ring-2 ring-amber-400/50'
-              : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700'
-          }`}
-          title="สปอตไลท์โฟกัสเฉพาะเขตตำบลโป่งน้ำร้อน (คลุมเงามืดนอกเขต)"
-        >
-          <Target className="w-3.5 h-3.5" />
-          <span>{isSpotlightActive ? '✓ โฟกัสเฉพาะ ต.โป่งน้ำร้อน' : 'แสดงแผนที่ทั้งหมด'}</span>
-        </button>
-
-        {/* 7 Villages Label Toggle */}
-        <button
-          type="button"
-          onClick={() => setShowVillages(!showVillages)}
-          className={`px-2.5 py-1.5 rounded-xl font-bold flex items-center gap-1 transition-all cursor-pointer ${
-            showVillages
-              ? 'bg-blue-600 text-white shadow-xs'
-              : 'bg-slate-800 text-slate-400 hover:text-slate-200'
-          }`}
-          title="แสดง/ซ่อนป้ายชื่อ ๗ หมู่บ้าน"
-        >
-          <span>🏘️ ๗ หมู่บ้าน</span>
-        </button>
-
-        <div className="h-4 w-px bg-slate-700 mx-0.5 hidden sm:block" />
-
-        {/* Google Hybrid Satellite */}
+      {/* Top Right: Satellite Layer Switcher */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-700/80 shadow-lg backdrop-blur-md text-xs">
         <button
           type="button"
           onClick={() => handleChangeSatelliteMode('google_hybrid')}
-          className={`px-2.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
             satelliteMode === 'google_hybrid'
-              ? 'bg-slate-700 text-white shadow-xs'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800'
           }`}
           title="ภาพถ่ายดาวเทียม พร้อมชื่อถนน/หมู่บ้านภาษาไทย"
         >
           <Satellite className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">ดาวเทียมกูเกิล</span>
+          <span>ดาวเทียมกูเกิล (มีชื่อไทย)</span>
         </button>
 
-        {/* Esri Satellite */}
         <button
           type="button"
           onClick={() => handleChangeSatelliteMode('esri_sat')}
-          className={`px-2.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
             satelliteMode === 'esri_sat'
-              ? 'bg-slate-700 text-white shadow-xs'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800'
           }`}
           title="ภาพถ่ายดาวเทียมความคมชัดสูง Esri World Imagery"
         >
           <Globe className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">Esri</span>
+          <span>ดาวเทียม Esri</span>
         </button>
       </div>
 
