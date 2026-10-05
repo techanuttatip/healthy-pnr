@@ -1192,7 +1192,7 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
               {/* Action buttons inside card */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                 <span>เจ้าพนักงานสาธารณสุขผู้รับคำขอ:</span>
-                <span className="font-bold text-slate-800">นายนพดล สุขเกษม (จพง.ชำนาญงาน)</span>
+                <span className="font-bold text-slate-800">นางสาวรุ่งทิวา อุปนันท์ (นวก.สาธารณสุขปฏิบัติการ)</span>
               </div>
             </div>
           </div>

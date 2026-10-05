@@ -159,8 +159,8 @@ export const ReceiptDoc: React.FC<ReceiptDocProps> = ({
         <div className="flex items-end gap-8">
           <div className="text-center">
             <div className="text-[11px] text-slate-400 mb-6">...................................................</div>
-            <div className="font-bold text-slate-900">( {sig.officerName || 'นายนพดล สุขเกษม'} )</div>
-            <div className="text-[10px] text-slate-600">{sig.officerPosition || 'เจ้าพนักงานสาธารณสุขชำนาญงาน'} ผู้รับเงิน</div>
+            <div className="font-bold text-slate-900">( {sig.officerName || 'นางสาวรุ่งทิวา อุปนันท์'} )</div>
+            <div className="text-[10px] text-slate-600">{sig.officerPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'} ผู้รับเงิน</div>
           </div>
           <div className="text-center">
             <div className="text-[11px] text-slate-400 mb-6">...................................................</div>

@@ -165,7 +165,7 @@ export const FieldInspectionSlipModal: React.FC<FieldInspectionSlipModalProps> =
                 </div>
                 <div>
                   <span className="font-bold text-slate-800">เจ้าหน้าที่ผู้ตรวจ:</span>{' '}
-                  <span>{inspectionRecord?.inspectorName || establishment.inspectorName || 'นายนพดล สุขเกษม'}</span>
+                  <span>{inspectionRecord?.inspectorName || establishment.inspectorName || 'นางสาวรุ่งทิวา อุปนันท์'}</span>
                 </div>
               </div>
 
@@ -419,10 +419,10 @@ export const FieldInspectionSlipModal: React.FC<FieldInspectionSlipModalProps> =
                   )}
                 </div>
                 <div className="mt-2 font-medium text-slate-900">
-                  ({inspectionRecord?.inspectorName || establishment.inspectorName || 'นายนพดล สุขเกษม'})
+                  ({inspectionRecord?.inspectorName || establishment.inspectorName || 'นางสาวรุ่งทิวา อุปนันท์'})
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  {inspectionRecord?.inspectorPosition || 'เจ้าพนักงานสาธารณสุขชำนาญงาน'}
+                  {inspectionRecord?.inspectorPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'}
                 </div>
                 <div className="text-[10px] text-slate-400 mt-1 font-mono">
                   วันที่: {formatThaiDate(inspectionRecord?.inspectionDate || establishment.inspectionDate, false)}

@@ -385,8 +385,8 @@ export const SanitationInspectionTab: React.FC<SanitationInspectionTabProps> = (
   }, [inspectionCategory]);
 
   const [checklist, setChecklist] = useState<InspectionChecklistItem[]>(defaultItems);
-  const [inspectorName, setInspectorName] = useState<string>('นายนพดล สุขเกษม');
-  const [inspectorPosition, setInspectorPosition] = useState<string>('เจ้าพนักงานสาธารณสุขชำนาญงาน');
+  const [inspectorName, setInspectorName] = useState<string>('นางสาวรุ่งทิวา อุปนันท์');
+  const [inspectorPosition, setInspectorPosition] = useState<string>('นักวิชาการสาธารณสุขปฏิบัติการ');
   const [inspectionDate, setInspectionDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
