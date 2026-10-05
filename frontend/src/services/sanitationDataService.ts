@@ -484,8 +484,8 @@ class SanitationDataService {
     if (!this.isCloudActive || !this.supabase) return null;
     try {
       const fileExt = file.name.split('.').pop() || 'pdf';
-      const cleanReg = regNumber.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const filePath = `${cleanReg}/${year}/${slotType}_${Date.now()}.${fileExt}`;
+      const cleanReg = regNumber ? regNumber.replace(/[\/\\]/g, '-').trim() : 'general';
+      const filePath = `${cleanReg}/FY_${year}/${slotType}_${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await this.supabase.storage
         .from('pnr-documents')
@@ -568,33 +568,59 @@ class SanitationDataService {
                 .eq('document_type', doc.type)
                 .maybeSingle();
 
+              const enhancedPayload = {
+                reg_number: est.regNumber || null,
+                business_name: est.businessName || null,
+                fiscal_year: dossier.year,
+                title: doc.title,
+                file_name: doc.fileName,
+                file_size: doc.fileSize || '1.0 MB',
+                file_url: doc.fileUrl,
+                uploaded_by: doc.uploadedBy || 'เจ้าหน้าที่สาธารณสุข',
+                status: doc.status || 'verified',
+                notes: doc.notes || null
+              };
+
+              const fallbackPayload = {
+                title: doc.title,
+                file_name: doc.fileName,
+                file_size: doc.fileSize || '1.0 MB',
+                file_url: doc.fileUrl,
+                uploaded_by: doc.uploadedBy || 'เจ้าหน้าที่สาธารณสุข',
+                status: doc.status || 'verified',
+                notes: doc.notes || null
+              };
+
               if (existingDoc && existingDoc.id) {
-                await this.supabase
+                const { error: updErr } = await this.supabase
                   .from('archived_documents')
-                  .update({
-                    title: doc.title,
-                    file_name: doc.fileName,
-                    file_size: doc.fileSize || '1.0 MB',
-                    file_url: doc.fileUrl,
-                    uploaded_by: doc.uploadedBy || 'เจ้าหน้าที่สาธารณสุข',
-                    status: doc.status || 'verified',
-                    notes: doc.notes || null
-                  })
+                  .update(enhancedPayload)
                   .eq('id', existingDoc.id);
+
+                if (updErr) {
+                  await this.supabase
+                    .from('archived_documents')
+                    .update(fallbackPayload)
+                    .eq('id', existingDoc.id);
+                }
               } else {
-                await this.supabase
+                const { error: insErr } = await this.supabase
                   .from('archived_documents')
                   .insert({
                     archive_id: archId,
                     document_type: doc.type,
-                    title: doc.title,
-                    file_name: doc.fileName,
-                    file_size: doc.fileSize || '1.0 MB',
-                    file_url: doc.fileUrl,
-                    uploaded_by: doc.uploadedBy || 'เจ้าหน้าที่สาธารณสุข',
-                    status: doc.status || 'verified',
-                    notes: doc.notes || null
+                    ...enhancedPayload
                   });
+
+                if (insErr) {
+                  await this.supabase
+                    .from('archived_documents')
+                    .insert({
+                      archive_id: archId,
+                      document_type: doc.type,
+                      ...fallbackPayload
+                    });
+                }
               }
             }
           }

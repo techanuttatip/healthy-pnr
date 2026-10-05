@@ -105,7 +105,10 @@ CREATE TABLE IF NOT EXISTS public.yearly_archives (
 CREATE TABLE IF NOT EXISTS public.archived_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   archive_id UUID REFERENCES public.yearly_archives(id) ON DELETE CASCADE,
-  document_type TEXT NOT NULL,             -- application | id_card | inspection_slip | receipt | license | other
+  reg_number TEXT,                        -- เลขทะเบียนร้าน เช่น บทส-69-0044 (อ่านง่าย แยกร้านทันที)
+  business_name TEXT,                     -- ชื่อร้านค้า เช่น ปั๊มน้ำมันหยอดเหรียญ
+  fiscal_year INTEGER,                    -- ปีงบประมาณ พ.ศ. เช่น 2568, 2569, 2570
+  document_type TEXT NOT NULL,            -- application | id_card | inspection_slip | receipt | license | other
   title TEXT NOT NULL,
   file_name TEXT NOT NULL,
   file_size TEXT,
@@ -204,3 +207,39 @@ INSERT INTO public.establishments (
   'RCPT-00602/69', '2026-09-25', '2026-09-11', '2026-09-11',
   'เอกสารชุดจริง พ.ศ. ๒๕๖๙ ครบ ๕ รายการ (คำขอ อภ.๑, บัตร ปชช., ผลตรวจ, ใบเสร็จ ๑๐๐ บาท, ใบอนุญาต อภ.๒)'
 ) ON CONFLICT (reg_number) DO NOTHING;
+
+-- ๑๑. การอัปเกรดตาราง archived_documents ให้มีคอลัมน์ชื่อร้านและปีงบประมาณ (Migration)
+ALTER TABLE public.archived_documents 
+ADD COLUMN IF NOT EXISTS reg_number TEXT,
+ADD COLUMN IF NOT EXISTS business_name TEXT,
+ADD COLUMN IF NOT EXISTS fiscal_year INTEGER;
+
+-- อัปเดตข้อมูลเอกสารที่มีอยู่เดิมให้ดึงชื่อร้านและปีงบประมาณมาเติมทันที
+UPDATE public.archived_documents ad
+SET 
+  reg_number = e.reg_number,
+  business_name = e.business_name,
+  fiscal_year = ya.year
+FROM public.yearly_archives ya
+JOIN public.establishments e ON ya.establishment_id = e.id
+WHERE ad.archive_id = ya.id
+  AND (ad.reg_number IS NULL OR ad.fiscal_year IS NULL);
+
+-- ๑๒. สร้าง View รวมศูนย์ แยกร้าน แยกปีงบประมาณ ภาษาไทยชัดเจน
+CREATE OR REPLACE VIEW public.v_archived_documents_by_store AS
+SELECT 
+  e.reg_number AS "เลขทะเบียน",
+  e.business_name AS "ชื่อสถานประกอบการ",
+  e.owner_name AS "ผู้ประกอบการ",
+  ya.year AS "ปีงบประมาณ",
+  ad.document_type AS "รหัสประเภท",
+  ad.title AS "ชื่อเอกสาร",
+  ad.file_name AS "ชื่อไฟล์",
+  ad.file_size AS "ขนาดไฟล์",
+  ad.file_url AS "ลิงก์ไฟล์_PDF",
+  ad.uploaded_at AS "วันที่อัปโหลด",
+  ad.status AS "สถานะตรวจรับ"
+FROM public.archived_documents ad
+JOIN public.yearly_archives ya ON ad.archive_id = ya.id
+JOIN public.establishments e ON ya.establishment_id = e.id
+ORDER BY ya.year DESC, e.reg_number ASC;

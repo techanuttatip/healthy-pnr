@@ -935,7 +935,7 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
               <span className="text-xs font-bold text-slate-600 mr-1 flex items-center gap-1 shrink-0">
                 <Calendar className="w-3.5 h-3.5 text-blue-700" />
-                <span>แฟ้มรอบปี พ.ศ.:</span>
+                <span>แฟ้มประจำปีงบประมาณ พ.ศ.:</span>
               </span>
 
               {currentArchives.map((dossier) => {
