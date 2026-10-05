@@ -36,7 +36,9 @@ import {
   FileSpreadsheet,
   RotateCw,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { FieldRenewalKitModal } from '../inspection/FieldRenewalKitModal';
 import { exportDossierReportToExcel } from '../../utils/excelExport';
@@ -144,6 +146,7 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
   const [isUploadingCustom, setIsUploadingCustom] = useState(false);
   const [uploadingSlotNum, setUploadingSlotNum] = useState<number | null>(null);
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
+  const [isWorkflowGuideOpen, setIsWorkflowGuideOpen] = useState(false);
 
   const handleOpenPreview = (doc: ArchivedDocument) => {
     setPreviewRotation(0);
@@ -1024,172 +1027,216 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
           </div>
         </div>
 
-        {/* ================= FLOW STEPPER & COMPLETENESS TRACKING BAR ================= */}
-        <div className="gov-card p-4 shrink-0 border border-white/80 shadow-md bg-white/90 backdrop-blur-xl rounded-2xl space-y-3">
-          {/* Header Row: Title & Completeness Status */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-              <div className="font-bold text-xs sm:text-sm text-slate-900 font-heading">
-                ขั้นตอนการปฏิบัติงาน & ตรวจสอบความสมบูรณ์ของแฟ้ม (รอบปี พ.ศ. {toThaiDigits(selectedYear)})
-              </div>
-            </div>
-
+        {/* ================= COMPACT STATUS & WORKFLOW TOGGLE BAR ================= */}
+        <div className="gov-card px-4 py-2.5 shrink-0 border border-white/80 shadow-xs bg-white/90 backdrop-blur-xl rounded-xl flex flex-wrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Overall Completeness Pill */}
             {isDossierComplete ? (
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs shadow-2xs">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>✓ เสร็จสมบูรณ์ ๑๐๐% (ครบถ้วนตามระเบียบราชการ ไม่ขาดอะไร)</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>✓ แฟ้มปี {toThaiDigits(selectedYear)} เสร็จสมบูรณ์ ๑๐๐% (ครบถ้วนตามระเบียบ)</span>
               </div>
             ) : (
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs shadow-2xs">
-                <Clock className="w-4 h-4 text-amber-600" />
+                <Clock className="w-3.5 h-3.5 text-amber-600" />
                 <span>
-                  อยู่ระหว่างดำเนินการ (ครบแล้ว {toThaiDigits(fulfilledCount)}/๓ ช่อง — ขาดอีก {toThaiDigits(missingList.length)} รายการ)
+                  สถานะแฟ้ม: อยู่ระหว่างดำเนินการ (ครบแล้ว {toThaiDigits(fulfilledCount)}/๓ ช่อง — ขาดอีก {toThaiDigits(missingList.length)} รายการ)
                 </span>
               </div>
             )}
-          </div>
 
-          {/* Missing items warning pills */}
-          {!isDossierComplete && missingList.length > 0 && (
-            <div className="bg-amber-50/90 border border-amber-200/80 rounded-xl p-2.5 text-xs text-amber-900 flex flex-wrap items-center gap-2">
-              <span className="font-bold flex items-center gap-1 text-amber-800">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                <span>เอกสารที่ยังขาดในแฟ้มรอบปีนี้:</span>
-              </span>
-              <div className="flex flex-wrap gap-1.5">
+            {!isDossierComplete && missingList.length > 0 && (
+              <div className="hidden lg:flex items-center gap-1.5 text-xs text-amber-800">
+                <span className="font-semibold text-slate-500">ขาด:</span>
                 {missingList.map((m, idx) => (
                   <span
                     key={idx}
-                    className="px-2.5 py-0.5 rounded-md bg-amber-100/90 text-amber-900 border border-amber-300 font-bold text-[11px]"
+                    className="px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 text-[11px] font-medium"
                   >
                     ⚠️ {m}
                   </span>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* 5-Step Renewal Pipeline Visual Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 pt-1">
-            {/* Step 1: Pre-filled Kit */}
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between text-xs">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-[11px] text-slate-700">๑. ปริ้น Prefix ร้าน</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold">
-                  Pre-filled
-                </span>
+          {/* Toggle Button for Workflow Guide */}
+          <button
+            type="button"
+            onClick={() => setIsWorkflowGuideOpen(!isWorkflowGuideOpen)}
+            className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-700 hover:text-slate-900 border border-slate-300/80 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+            title="คลิกเพื่อเปิด/ปิดดูขั้นตอนการปฏิบัติงาน ๕ ขั้นตอน"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <span>{isWorkflowGuideOpen ? 'ซ่อนคู่มือขั้นตอนปฏิบัติงาน' : '📖 ดูขั้นตอนปฏิบัติงาน (๕ ขั้นตอน)'}</span>
+            {isWorkflowGuideOpen ? (
+              <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+            )}
+          </button>
+        </div>
+
+        {/* ================= COLLAPSIBLE 5-STEP RENEWAL PIPELINE (Hidden by default to save screen space) ================= */}
+        {isWorkflowGuideOpen && (
+          <div className="gov-card p-4 shrink-0 border border-blue-200/80 shadow-md bg-blue-50/40 backdrop-blur-xl rounded-2xl space-y-3 animate-fadeIn">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-200/60 pb-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                <div className="font-bold text-xs sm:text-sm text-slate-900 font-heading">
+                  คู่มือขั้นตอนการปฏิบัติงาน ๕ ขั้นตอน (รอบปีงบประมาณ พ.ศ. {toThaiDigits(selectedYear)})
+                </div>
               </div>
-              <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
-                พิมพ์คำขอ + แบบตรวจสุขลักษณะ ถือลงพื้นที่
-              </p>
               <button
                 type="button"
-                onClick={() => setIsFieldKitModalOpen(true)}
-                className="w-full py-1 px-2 rounded-lg bg-white hover:bg-amber-500 hover:text-white text-slate-700 border border-slate-200 hover:border-amber-500 text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+                onClick={() => setIsWorkflowGuideOpen(false)}
+                className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
               >
-                <Printer className="w-3 h-3" />
-                <span>พิมพ์ชุดตรวจสนาม</span>
+                <X className="w-3.5 h-3.5" />
+                <span>ปิดหน้าต่างนี้</span>
               </button>
             </div>
 
-            {/* Step 2: Field Visit */}
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between text-xs">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-[11px] text-slate-700">๒. ลงพื้นที่ตรวจจริง</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-bold">
-                  หน้างาน
+            {/* Missing items warning pills */}
+            {!isDossierComplete && missingList.length > 0 && (
+              <div className="bg-amber-50/90 border border-amber-200/80 rounded-xl p-2.5 text-xs text-amber-900 flex flex-wrap items-center gap-2">
+                <span className="font-bold flex items-center gap-1 text-amber-800">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                  <span>เอกสารที่ยังขาดในแฟ้มรอบปีนี้:</span>
                 </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {missingList.map((m, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2.5 py-0.5 rounded-md bg-amber-100/90 text-amber-900 border border-amber-300 font-bold text-[11px]"
+                    >
+                      ⚠️ {m}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
-                ตรวจสุขลักษณะ ๘๐ คะแนน + ให้ผู้ขอลงนามในคำขอ
-              </p>
-              <div className="text-[10px] text-slate-600 bg-white p-1 rounded border border-slate-100 text-center font-semibold">
-                🛵 ลงตรวจ {activeEst?.village.replace('หมู่ที่ ', 'ม.')}
-              </div>
-            </div>
+            )}
 
-            {/* Step 3: Upload Field Scans (1 file bundle) */}
-            <div
-              className={`p-2.5 rounded-xl border flex flex-col justify-between text-xs transition-colors ${
-                hasSlot1
-                  ? 'bg-emerald-50/80 border-emerald-300'
-                  : 'bg-slate-50 border-slate-200/80'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-[11px] text-slate-700">๓. อัปโหลดตรวจสนาม</span>
-                {hasSlot1 ? (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-800 font-bold flex items-center gap-0.5">
-                    <CheckCircle2 className="w-2.5 h-2.5" />
-                    <span>แนบแล้ว</span>
+            {/* 5-Step Renewal Pipeline Visual Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 pt-1">
+              {/* Step 1: Pre-filled Kit */}
+              <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 flex flex-col justify-between text-xs shadow-2xs">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-[11px] text-slate-700">๑. ปริ้น Prefix ร้าน</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold">
+                    Pre-filled
                   </span>
-                ) : (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-semibold">
-                    รอสแกน
-                  </span>
-                )}
+                </div>
+                <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
+                  พิมพ์คำขอ + แบบตรวจสุขลักษณะ ถือลงพื้นที่
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsFieldKitModalOpen(true)}
+                  className="w-full py-1 px-2 rounded-lg bg-white hover:bg-amber-500 hover:text-white text-slate-700 border border-slate-200 hover:border-amber-500 text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+                >
+                  <Printer className="w-3 h-3" />
+                  <span>พิมพ์ชุดตรวจสนาม</span>
+                </button>
               </div>
-              <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
-                สแกนรวม ๑ ไฟล์ (คำขอ + บัตร + ผลตรวจ)
-              </p>
-              <div className="text-[10px] text-center font-bold text-slate-600">
-                ช่องที่ ๑ ด้านล่าง
-              </div>
-            </div>
 
-            {/* Step 4: Print License for Mayor Signature */}
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between text-xs">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-[11px] text-slate-700">๔. ปริ้นให้นายกฯ เซ็น</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-800 font-bold">
-                  เสนอแฟ้ม
-                </span>
+              {/* Step 2: Field Visit */}
+              <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 flex flex-col justify-between text-xs shadow-2xs">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-[11px] text-slate-700">๒. ลงพื้นที่ตรวจจริง</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-bold">
+                    หน้างาน
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
+                  ตรวจสุขลักษณะ ๘๐ คะแนน + ให้ผู้ขอลงนามในคำขอ
+                </p>
+                <div className="text-[10px] text-slate-600 bg-slate-50 p-1 rounded border border-slate-100 text-center font-semibold">
+                  🛵 ลงตรวจ {activeEst?.village.replace('หมู่ที่ ', 'ม.')}
+                </div>
               </div>
-              <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
-                พิมพ์ใบอนุญาต ({isHazardous ? 'อภ.๒' : 'นจ.๓'}) เสนอนายก อบต.
-              </p>
-              <button
-                type="button"
-                onClick={() => onOpenPrint(activeEst, isHazardous ? 'hazardous_license' : 'garuda')}
-                className="w-full py-1 px-2 rounded-lg bg-white hover:bg-blue-600 hover:text-white text-slate-700 border border-slate-200 hover:border-blue-600 text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+
+              {/* Step 3: Upload Field Scans */}
+              <div
+                className={`p-2.5 rounded-xl border flex flex-col justify-between text-xs transition-colors shadow-2xs ${
+                  hasSlot1
+                    ? 'bg-emerald-50/80 border-emerald-300'
+                    : 'bg-white border-slate-200/80'
+                }`}
               >
-                <Award className="w-3 h-3" />
-                <span>พิมพ์ใบอนุญาต</span>
-              </button>
-            </div>
-
-            {/* Step 5: Upload Receipt & Signed Office Duplicate Copy */}
-            <div
-              className={`p-2.5 rounded-xl border flex flex-col justify-between text-xs transition-colors ${
-                hasSlot2 && hasSlot3
-                  ? 'bg-emerald-50/80 border-emerald-300'
-                  : 'bg-slate-50 border-slate-200/80'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-[11px] text-slate-700">๕. ใบเสร็จ & คู่ฉบับ</span>
-                {hasSlot2 && hasSlot3 ? (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-800 font-bold flex items-center gap-0.5">
-                    <CheckCircle2 className="w-2.5 h-2.5" />
-                    <span>สมบูรณ์</span>
-                  </span>
-                ) : (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-semibold">
-                    รอจัดเก็บ
-                  </span>
-                )}
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-[11px] text-slate-700">๓. อัปโหลดตรวจสนาม</span>
+                  {hasSlot1 ? (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-800 font-bold flex items-center gap-0.5">
+                      <CheckCircle2 className="w-2.5 h-2.5" />
+                      <span>แนบแล้ว</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-semibold">
+                      รอสแกน
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
+                  สแกนรวม ๑ ไฟล์ (คำขอ + บัตร + ผลตรวจ)
+                </p>
+                <div className="text-[10px] text-center font-bold text-emerald-700">
+                  ช่องที่ ๑ ด้านล่าง
+                </div>
               </div>
-              <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
-                แนบใบเสร็จ (RCPT) + สำเนาคู่ฉบับนายกฯ เซ็น
-              </p>
-              <div className="text-[10px] text-center font-bold text-slate-600">
-                ช่องที่ ๒ & ๓ ด้านล่าง
+
+              {/* Step 4: Print License */}
+              <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 flex flex-col justify-between text-xs shadow-2xs">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-[11px] text-slate-700">๔. ปริ้นให้นายกฯ เซ็น</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-800 font-bold">
+                    เสนอแฟ้ม
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
+                  พิมพ์ใบอนุญาต ({isHazardous ? 'อภ.๒' : 'นจ.๓'}) เสนอนายก อบต.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => onOpenPrint(activeEst, isHazardous ? 'hazardous_license' : 'garuda')}
+                  className="w-full py-1 px-2 rounded-lg bg-white hover:bg-blue-600 hover:text-white text-slate-700 border border-slate-200 hover:border-blue-600 text-[10px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+                >
+                  <Award className="w-3 h-3" />
+                  <span>พิมพ์ใบอนุญาต</span>
+                </button>
+              </div>
+
+              {/* Step 5: Upload Receipt & Signed Copy */}
+              <div
+                className={`p-2.5 rounded-xl border flex flex-col justify-between text-xs transition-colors shadow-2xs ${
+                  hasSlot2 && hasSlot3
+                    ? 'bg-emerald-50/80 border-emerald-300'
+                    : 'bg-white border-slate-200/80'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-[11px] text-slate-700">๕. ใบเสร็จ & คู่ฉบับ</span>
+                  {hasSlot2 && hasSlot3 ? (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-800 font-bold flex items-center gap-0.5">
+                      <CheckCircle2 className="w-2.5 h-2.5" />
+                      <span>สมบูรณ์</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-semibold">
+                      รอจัดเก็บ
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
+                  แนบใบเสร็จ (RCPT) + สำเนาคู่ฉบับนายกฯ เซ็น
+                </p>
+                <div className="text-[10px] text-center font-bold text-emerald-700">
+                  ช่องที่ ๒ & ๓ ด้านล่าง
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* ================= RENEWAL PIPELINE AUTOMATION BANNER ================= */}
         {isDossierComplete && (
@@ -1241,12 +1288,12 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
         <div className="gov-card flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 border border-white/80 shadow-md bg-white/85 backdrop-blur-xl rounded-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 font-heading">
-                <FolderOpen className="w-4 h-4 text-emerald-600" />
-                <span>ช่องจัดเก็บเอกสารทางการ (รอบปี พ.ศ. {toThaiDigits(selectedYear)})</span>
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 font-heading">
+                <FolderOpen className="w-5 h-5 text-emerald-600" />
+                <span>ช่องจัดเก็บและอัปโหลดเอกสาร (ปีงบประมาณ พ.ศ. {toThaiDigits(selectedYear)})</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                จัดเก็บชุดเอกสารตรวจสนามรวม ๑ ไฟล์ + ช่องใบเสร็จรับเงิน อปท. + ช่องสำเนาคู่ฉบับใบอนุญาตที่นายก อบต. ลงนามแล้ว
+                เลือกคลิกปุ่มสีเขียวในช่องที่ ๑, ๒ หรือ ๓ ด้านล่างเพื่ออัปโหลดไฟล์ได้ทันทีโดยไม่ต้องเลื่อนหา
               </p>
             </div>
 
