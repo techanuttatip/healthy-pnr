@@ -1,0 +1,18 @@
+{
+  "name": "ระบบทะเบียนใบอนุญาต e-Service อบต.โป่งน้ำร้อน",
+  "short_name": "e-Service อบต.โป่งน้ำร้อน",
+  "description": "ระบบสารบรรณและทะเบียนใบอนุญาต พ.ร.บ. สาธารณสุข ๒๕๓๕ องค์การบริหารส่วนตำบลโป่งน้ำร้อน อำเภอฝาง จังหวัดเชียงใหม่",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#064e3b",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "/pnr_logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
