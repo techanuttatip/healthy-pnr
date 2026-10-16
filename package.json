@@ -4,10 +4,12 @@
   "private": true,
   "description": "Public Health e-Service System - Pong Nam Ron SAO",
   "workspaces": [
-    "frontend"
+    "frontend",
+    "public-health-field-pwa"
   ],
   "scripts": {
     "dev": "npm run dev --prefix frontend",
+    "dev:frontend": "npm run dev --prefix frontend",
     "build": "npm run build --prefix frontend",
     "preview": "npm run preview --prefix frontend"
   }

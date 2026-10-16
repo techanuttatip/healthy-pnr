@@ -1,0 +1,30 @@
+{
+  "name": "ตรวจสนาม e-Service อบต.โป่งน้ำร้อน",
+  "short_name": "ตรวจสนาม PNR",
+  "description": "แอปพลิเคชันตรวจประเมินสุขลักษณะสถานที่สะสมอาหารและจำหน่ายอาหาร องค์การบริหารส่วนตำบลโป่งน้ำร้อน อำเภอฝาง จังหวัดเชียงใหม่",
+  "start_url": "/?app=inspector",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c1a2e",
+  "theme_color": "#0c1a2e",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "/pnr_logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/pwa-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

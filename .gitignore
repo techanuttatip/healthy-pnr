@@ -25,6 +25,10 @@ dist
 dist-ssr
 frontend/dist
 **/dist
+dev-dist
+**/dev-dist
+*.tsbuildinfo
+
 
 # Editor directories and files
 .vscode/*

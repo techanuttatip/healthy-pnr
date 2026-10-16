@@ -1,11 +1,11 @@
 import React from 'react';
 
 /**
- * แปลงเลขอารบิกเป็นเลขไทย
+ * ฟังก์ชันแสดงตัวเลขอารบิกตามนโยบายระบบราชการดิจิทัล (Arabic Numerals Everywhere)
  */
 export const toThaiDigits = (num: number | string | undefined | null): string => {
   if (num === undefined || num === null) return '';
-  return String(num).replace(/[0-9]/g, (digit) => '๐๑๒๓๔๕๖๗๘๙'[parseInt(digit, 10)]);
+  return String(num);
 };
 
 /**
@@ -64,22 +64,22 @@ export const formatThaiDate = (inputDate?: Date | string | null) => {
     day,
     month,
     year,
-    dayStr: toThaiDigits(day),
+    dayStr: String(day),
     monthStr: month,
-    yearStr: toThaiDigits(year),
-    fullThaiDate: `${toThaiDigits(day)} ${month} พ.ศ. ${toThaiDigits(year)}`
+    yearStr: String(year),
+    fullThaiDate: `${day} ${month} พ.ศ. ${year}`
   };
 };
 
 /**
- * เรนเดอร์เลขประจำตัวประชาชน ๑๓ ช่องสี่เหลี่ยมแยกตามมาตรฐานแบบฟอร์มราชการ
- * รูปแบบทางการ: [ ๑ ] - [ ๔ ช่อง ] - [ ๕ ช่อง ] - [ ๒ ช่อง ] - [ ๑ ]
+ * เรนเดอร์เลขประจำตัวประชาชน 13 ช่องสี่เหลี่ยมแยกตามมาตรฐานแบบฟอร์มราชการ (เลขอารบิก)
+ * รูปแบบทางการ: [ 1 ] - [ 4 ช่อง ] - [ 5 ช่อง ] - [ 2 ช่อง ] - [ 1 ]
  */
 export const CitizenIdBoxes: React.FC<{
   citizenId?: string;
   useThaiDigits?: boolean;
   boxClassName?: string;
-}> = ({ citizenId = '', useThaiDigits = true, boxClassName = '' }) => {
+}> = ({ citizenId = '', useThaiDigits = false, boxClassName = '' }) => {
   const cleanDigits = (citizenId || '').replace(/\D/g, '').split('');
   // กลุ่ม ๑๓ ช่องมาตรฐานราชการ: 1 - 4 - 5 - 2 - 1
   const groups = [

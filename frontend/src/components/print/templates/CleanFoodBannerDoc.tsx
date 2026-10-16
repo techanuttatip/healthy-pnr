@@ -68,7 +68,7 @@ export const CleanFoodBannerDoc: React.FC<CleanFoodBannerDocProps> = ({
               ป้ายรับรองมาตรฐานสุขาภิบาลอาหาร
             </h1>
             <p className="text-xs text-slate-600 font-semibold mt-0.5">
-              ตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ ร่วมกับ {municipalityName}
+              ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 ร่วมกับ {municipalityName}
             </p>
           </div>
 
@@ -142,7 +142,7 @@ export const CleanFoodBannerDoc: React.FC<CleanFoodBannerDocProps> = ({
             <div className="text-[11px] text-slate-500">
               ผลตรวจประเมินสุขาภิบาล:{' '}
               <span className="font-bold text-emerald-700">
-                {establishment.inspectionScore || 95} / ๑๐๐ คะแนน
+                {establishment.inspectionScore || 95} / 100 คะแนน
               </span>{' '}
               (ผ่านเกณฑ์มาตรฐานดีเยี่ยม)
             </div>

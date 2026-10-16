@@ -11,7 +11,227 @@
   --color-gov-border: #e2e8f0;
   --color-gov-text: #0f172a;
   --color-gov-muted: #64748b;
+
+  /* ===== Design System v2 (calm, spacious) ===== */
+  --ui-bg: #f3f5f8;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f8fafc;
+  --ui-border: #e3e7ee;
+  --ui-border-strong: #cfd6e0;
+  --ui-text: #111827;
+  --ui-text-2: #374151;
+  --ui-muted: #6b7280;
+  --ui-primary: #1d4ed8;
+  --ui-primary-hover: #1e40af;
+  --ui-primary-soft: #eef3ff;
+  --ui-success: #047857;
+  --ui-success-soft: #ecfdf5;
+  --ui-warning: #b45309;
+  --ui-warning-soft: #fffbeb;
+  --ui-danger: #b91c1c;
+  --ui-danger-soft: #fef2f2;
+  --ui-radius: 12px;
+  --ui-radius-lg: 16px;
+  --ui-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --ui-shadow-lg: 0 12px 32px -8px rgba(16, 24, 40, 0.16);
 }
+
+/* ---------- Layout ---------- */
+.ui-page {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px 28px 40px;
+}
+.ui-page-narrow {
+  max-width: 880px;
+  margin: 0 auto;
+}
+.ui-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.ui-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ui-text);
+  line-height: 1.3;
+  margin: 0;
+}
+.ui-subtitle {
+  font-size: 14px;
+  color: var(--ui-muted);
+  margin-top: 4px;
+}
+.ui-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ui-text);
+  margin: 0;
+}
+
+/* ---------- Surfaces ---------- */
+.ui-card {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow);
+}
+.ui-card-pad { padding: 20px; }
+.ui-card-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ui-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ---------- Form ---------- */
+.ui-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ui-text-2);
+  margin-bottom: 6px;
+}
+.ui-label .req { color: var(--ui-danger); margin-left: 2px; }
+.ui-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+}
+textarea.ui-input { height: auto; padding: 10px 12px; min-height: 84px; resize: vertical; }
+.ui-input:focus {
+  border-color: var(--ui-primary);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+}
+.ui-input::placeholder { color: #9ca3af; }
+.ui-hint { font-size: 12px; color: var(--ui-muted); margin-top: 4px; }
+.ui-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ui-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 720px) {
+  .ui-grid-2, .ui-grid-3 { grid-template-columns: 1fr; }
+  .ui-page { padding: 16px 14px 96px; }
+  .ui-title { font-size: 20px; }
+}
+
+/* ---------- Buttons ---------- */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  user-select: none;
+}
+.ui-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ui-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+.ui-btn-primary { background: var(--ui-primary); color: #fff; }
+.ui-btn-primary:hover:not(:disabled) { background: var(--ui-primary-hover); }
+.ui-btn-secondary { background: var(--ui-surface); color: var(--ui-text-2); border-color: var(--ui-border-strong); }
+.ui-btn-secondary:hover:not(:disabled) { background: var(--ui-surface-2); color: var(--ui-text); }
+.ui-btn-ghost { background: transparent; color: var(--ui-text-2); }
+.ui-btn-ghost:hover:not(:disabled) { background: #eef1f5; }
+.ui-btn-success { background: var(--ui-success); color: #fff; }
+.ui-btn-success:hover:not(:disabled) { background: #065f46; }
+.ui-btn-danger { background: var(--ui-surface); color: var(--ui-danger); border-color: #f3c4c4; }
+.ui-btn-danger:hover:not(:disabled) { background: var(--ui-danger-soft); }
+.ui-btn-lg { height: 52px; font-size: 16px; padding: 0 24px; border-radius: 12px; }
+.ui-btn-sm { height: 34px; font-size: 13px; padding: 0 12px; }
+.ui-btn-icon { width: 38px; padding: 0; }
+
+/* ---------- Pills / Status ---------- */
+.ui-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  background: #eef1f5;
+  color: var(--ui-text-2);
+  white-space: nowrap;
+}
+.ui-pill-success { background: var(--ui-success-soft); color: var(--ui-success); }
+.ui-pill-warning { background: var(--ui-warning-soft); color: var(--ui-warning); }
+.ui-pill-danger { background: var(--ui-danger-soft); color: var(--ui-danger); }
+.ui-pill-primary { background: var(--ui-primary-soft); color: var(--ui-primary); }
+
+/* ---------- Tabs ---------- */
+.ui-tabs {
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  background: #e9edf2;
+  border-radius: 12px;
+}
+.ui-tab {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ui-muted);
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+.ui-tab[aria-selected="true"] { background: #fff; color: var(--ui-text); box-shadow: var(--ui-shadow); }
+
+/* ---------- Workspace density fix ----------
+   Legacy screens used 9–11px text everywhere. Inside the workspace we raise
+   the minimum so pages read comfortably on 13–14" laptops. */
+.ui-scope .text-\[9px\],
+.ui-scope .text-\[9\.5px\] { font-size: 11px !important; }
+.ui-scope .text-\[10px\],
+.ui-scope .text-\[10\.5px\] { font-size: 12px !important; }
+.ui-scope .text-\[11px\] { font-size: 12.5px !important; }
+.ui-scope .text-xs { font-size: 13px; line-height: 1.45; }
+
+/* Sticky action bar (forms) */
+.ui-actionbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 0;
+  margin-top: 8px;
+  background: linear-gradient(to top, var(--ui-bg) 70%, rgba(243, 245, 248, 0));
+}
+
+@keyframes ui-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.ui-fade-in { animation: ui-fade-in 0.2s ease-out; }
 
 html, body, #root {
   height: 100%;
@@ -263,7 +483,29 @@ button, a, select {
     margin: 8mm 10mm;
   }
 
-  html, body, #root, #root > div, main {
+  /* When printing from a modal (such as FieldRenewalKitModal or FieldInspectionSlipModal), completely hide the underlying web application #root */
+  body.has-print-modal #root,
+  body:has(.modal-print-container) #root,
+  body:has(#printable-field-kit) #root,
+  body:has(#printable-field-inspection-slip) #root {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  body.has-print-modal,
+  body:has(.modal-print-container) {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  html, body {
     height: auto !important;
     min-height: 100% !important;
     width: 100% !important;
@@ -275,6 +517,18 @@ button, a, select {
     padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  body:not(.has-print-modal):not(:has(.modal-print-container)) #root,
+  body:not(.has-print-modal):not(:has(.modal-print-container)) #root > div,
+  body:not(.has-print-modal):not(:has(.modal-print-container)) main {
+    height: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    background: white !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* Hide app navigation and interactive elements */
@@ -337,6 +591,7 @@ button, a, select {
   #printable-application-form,
   #printable-register-report,
   #printable-field-kit,
+  #printable-field-inspection-slip,
   .printable-content {
     display: block !important;
     visibility: visible !important;

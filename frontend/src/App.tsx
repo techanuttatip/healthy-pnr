@@ -6,7 +6,6 @@ import type {
   PrintDocumentMode
 } from './types/publicHealth';
 import { DEFAULT_SYSTEM_SETTINGS } from './types/publicHealth';
-import { INITIAL_ESTABLISHMENTS } from './services/publicHealthMockData';
 import { sanitationDataService, DEFAULT_OFFICERS, type OfficerAccount } from './services/sanitationDataService';
 import { showConfirmDialog, showToast } from './utils/sweetAlert';
 
@@ -14,14 +13,14 @@ import { showConfirmDialog, showToast } from './utils/sweetAlert';
 import { AppSidebar, AppHeader, OfficerLoginScreen, type AppModuleType } from './components/layout';
 
 // 2. Functional Domain Views
-import { PublicHealthDashboard } from './components/dashboard';
+import { UnifiedMapDashboard } from './components/dashboard';
 import { EstablishmentTable, NewRequestModal } from './components/registry';
-import { YearlyDocumentArchiveTab, SmartPdfIntakeView } from './components/archive';
-import { GisMapModuleView } from './components/gis';
+import { YearlyDocumentArchiveTab, PdfUploadView, ManualEntryView } from './components/archive';
 import { OfficialCertificatePrint } from './components/print';
+import { RemoteSignView, PublicHealthFieldPwaApp } from './components/inspection';
 
 // 3. Inspection & System Modals
-import { FieldRenewalKitModal } from './components/inspection';
+import { FieldRenewalKitModal, PwaQrModal } from './components/inspection';
 import { SystemSettingsModal, UserProfileModal, OfficerLoginModal, AuditLogModal, DataSafetyModal } from './components/system';
 
 export const App: React.FC = () => {
@@ -30,13 +29,20 @@ export const App: React.FC = () => {
     try {
       const deletedIds: string[] = JSON.parse(localStorage.getItem('PNR_DELETED_ESTABLISHMENT_IDS') || '[]');
       const saved = localStorage.getItem('PNR_SANITATION_ESTABLISHMENTS');
+      const MOCK_IDS = [
+        'est-001', 'est-002', 'est-003', 'est-004', 'est-005', 'est-006',
+        'est-joy', 'est-boat', 'est-curry', 'est-cafe', 'est-cold', 'est-stream',
+        'est-045', 'est-046', 'est-047'
+      ];
       if (saved) {
         const parsed: Establishment[] = JSON.parse(saved);
-        const filtered = parsed.filter(e => !deletedIds.includes(e.id) && !deletedIds.includes(e.regNumber));
+        const filtered = parsed.filter(e => 
+          !MOCK_IDS.includes(e.id) && 
+          !MOCK_IDS.includes(e.regNumber) &&
+          !deletedIds.includes(e.id) && 
+          !deletedIds.includes(e.regNumber)
+        );
         if (filtered.length > 0) return filtered;
-      }
-      if (!deletedIds.includes('est-044') && !deletedIds.includes('บทส-69-0044')) {
-        return INITIAL_ESTABLISHMENTS;
       }
       return [];
     } catch {
@@ -48,13 +54,20 @@ export const App: React.FC = () => {
     try {
       const deletedIds: string[] = JSON.parse(localStorage.getItem('PNR_DELETED_ESTABLISHMENT_IDS') || '[]');
       const saved = localStorage.getItem('PNR_SANITATION_ESTABLISHMENTS');
+      const MOCK_IDS = [
+        'est-001', 'est-002', 'est-003', 'est-004', 'est-005', 'est-006',
+        'est-joy', 'est-boat', 'est-curry', 'est-cafe', 'est-cold', 'est-stream',
+        'est-045', 'est-046', 'est-047'
+      ];
       if (saved) {
         const parsed: Establishment[] = JSON.parse(saved);
-        const valid = parsed.filter(e => !deletedIds.includes(e.id) && !deletedIds.includes(e.regNumber));
+        const valid = parsed.filter(e => 
+          !MOCK_IDS.includes(e.id) && 
+          !MOCK_IDS.includes(e.regNumber) &&
+          !deletedIds.includes(e.id) && 
+          !deletedIds.includes(e.regNumber)
+        );
         if (valid.length > 0) return valid[0];
-      }
-      if (!deletedIds.includes('est-044') && !deletedIds.includes('บทส-69-0044') && INITIAL_ESTABLISHMENTS.length > 0) {
-        return INITIAL_ESTABLISHMENTS[0];
       }
       return null;
     } catch {
@@ -66,12 +79,43 @@ export const App: React.FC = () => {
     return selectedEstablishment ? selectedEstablishment.id : null;
   });
 
+  // Check if opening for remote mobile signature (?signToken=...)
+  const [signToken] = useState<string | null>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('signToken');
+    } catch {
+      return null;
+    }
+  });
+
+  // Check if opening for dedicated Mobile Field Inspector PWA (?app=inspector or ?pwa=1)
+  const [isInspectorPwa] = useState<boolean>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return (
+        params.get('app') === 'inspector' ||
+        params.get('pwa') === '1' ||
+        params.has('inspector') ||
+        window.location.pathname.endsWith('/inspector')
+      );
+    } catch {
+      return false;
+    }
+  });
+
   // 2. Active Module & Navigation State
   const [activeModule, setActiveModule] = useState<AppModuleType>(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const mod = params.get('module');
-      if (mod && ['dashboard', 'table', 'intake', 'archive', 'map', 'print'].includes(mod)) {
+      if (
+        mod &&
+        ['dashboard', 'table', 'upload_pdf', 'manual_entry', 'field_inspection', 'archive', 'map', 'print', 'intake'].includes(
+          mod
+        )
+      ) {
+        if (mod === 'intake') return 'upload_pdf';
         return mod as AppModuleType;
       }
     } catch {
@@ -94,6 +138,7 @@ export const App: React.FC = () => {
   const [isOfficerLoginOpen, setIsOfficerLoginOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
   const [isDataSafetyModalOpen, setIsDataSafetyModalOpen] = useState<boolean>(false);
+  const [isPwaQrModalOpen, setIsPwaQrModalOpen] = useState<boolean>(false);
   const [isNewRequestModalOpen, setIsNewRequestModalOpen] = useState<boolean>(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -204,13 +249,36 @@ export const App: React.FC = () => {
     }
   };
 
-  // Initial Data Load (Supabase Cloud + LocalStorage fallback)
+  // Initial Data Load & Real-Time Live Sync (Supabase Cloud + BroadcastChannel + Polling)
   useEffect(() => {
+    let isMounted = true;
+
     const loadCloudData = async () => {
       try {
         const cloudData = await sanitationDataService.getEstablishments();
+        if (!isMounted) return;
         if (cloudData) {
-          setEstablishments(cloudData);
+          setEstablishments((prev) => {
+            // Only update state if data actually changed to avoid re-rendering map and destroying active popups
+            if (
+              prev.length === cloudData.length &&
+              prev.every((p, idx) => {
+                const c = cloudData[idx];
+                return (
+                  c &&
+                  p.id === c.id &&
+                  p.status === c.status &&
+                  p.inspectionScore === c.inspectionScore &&
+                  p.feeAmount === c.feeAmount &&
+                  p.receiptNo === c.receiptNo &&
+                  (p.yearlyArchives?.length || 0) === (c.yearlyArchives?.length || 0)
+                );
+              })
+            ) {
+              return prev; // Reference unchanged: preserves map markers & open popups
+            }
+            return cloudData;
+          });
           if (cloudData.length > 0) {
             setSelectedEstablishment((prev) => {
               if (prev && cloudData.some((c) => c.id === prev.id || c.regNumber === prev.regNumber)) {
@@ -230,6 +298,7 @@ export const App: React.FC = () => {
           }
         }
         const cloudSettings = await sanitationDataService.getSettings();
+        if (!isMounted) return;
         if (cloudSettings) {
           setSettings(cloudSettings);
         }
@@ -237,7 +306,55 @@ export const App: React.FC = () => {
         console.warn('Initial data load warning:', err);
       }
     };
+
     loadCloudData();
+
+    // ๑. Listen for cross-tab and PWA updates via localStorage
+    const handleStorage = (e: StorageEvent) => {
+      if (!e.key || e.key === 'PNR_SANITATION_ESTABLISHMENTS' || e.key === 'PNR_DELETED_ESTABLISHMENT_IDS' || e.key === 'PNR_CURRENT_OFFICER') {
+        loadCloudData();
+        const off = sanitationDataService.getCurrentOfficer();
+        if (off) setCurrentOfficer(off);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+
+    // ๒. Listen for BroadcastChannel events from Mobile PWA / Inspections
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('PNR_SANITATION_CHANNEL');
+      bc.onmessage = (event: MessageEvent) => {
+        if (event.data?.type === 'OFFICER_UPDATED' && event.data?.data) {
+          setCurrentOfficer(event.data.data);
+        }
+        loadCloudData();
+      };
+    } catch {}
+
+    // ๓. Listen for Supabase Cloud Realtime changes (Instant cross-device sync)
+    const unsubRealtime = sanitationDataService.subscribeToChanges(() => {
+      loadCloudData();
+    });
+
+    // ๔. Re-sync on window focus when testing across devices or apps
+    const handleFocus = () => {
+      loadCloudData();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    // ๕. Background polling (ทุก 25 วินาที) สำหรับการสำรองเชื่อมโยง
+    const pollTimer = setInterval(() => {
+      loadCloudData();
+    }, 25000);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleFocus);
+      if (bc) bc.close();
+      unsubRealtime();
+      clearInterval(pollTimer);
+    };
   }, []);
 
   // Action Handlers
@@ -293,7 +410,7 @@ export const App: React.FC = () => {
     setSelectedEstablishment(est);
     setSelectedId(est.id);
     setCurrentMode(est.regType);
-    setActiveModule('intake');
+    setActiveModule('manual_entry');
   };
 
   const handleStartNewRequest = (code: OfficialFormCode | string) => {
@@ -301,7 +418,7 @@ export const App: React.FC = () => {
     setSelectedEstablishment(null);
     setSelectedId(null);
     setIsNewRequestModalOpen(false);
-    setActiveModule('intake');
+    setActiveModule('manual_entry');
   };
 
   const handleDeleteEstablishment = async (est: Establishment) => {
@@ -417,6 +534,16 @@ export const App: React.FC = () => {
   const inspectionCount = establishments.filter((e) => e.status === 'pending_inspection').length;
   const correctionCount = establishments.filter((e) => e.status === 'pending_correction').length;
 
+  // If opened via QR / link with signToken, show the clean mobile signing view directly
+  if (signToken) {
+    return <RemoteSignView token={signToken} />;
+  }
+
+  // Dedicated Mobile Field Inspector PWA app - fixed for mobile only, separate app / url
+  if (isInspectorPwa) {
+    return <PublicHealthFieldPwaApp mode="standalone" />;
+  }
+
   return (
     <>
       {/* 1. LOGIN SCREEN GATE (บล็อกระบบจนกว่าจะยืนยัน PIN) */}
@@ -424,11 +551,7 @@ export const App: React.FC = () => {
 
       {/* 2. MAIN APP (แสดงเฉพาะหลัง login สำเร็จ) */}
       {isAuthenticated && (
-        <div className="h-screen w-screen overflow-hidden flex relative bg-slate-900 text-slate-800 font-sans print:h-auto print:w-auto print:overflow-visible print:bg-white print:text-black">
-          {/* Full-screen Panoramic Landscape Background (Pong Nam Ron) */}
-          <div className="gov-panoramic-bg" />
-          <div className="absolute inset-0 bg-gradient-to-b from-sky-950/20 via-slate-100/60 to-slate-100/90 pointer-events-none" />
-
+        <div className="h-screen w-screen overflow-hidden flex relative bg-[#f3f5f8] text-slate-800 font-sans print:h-auto print:w-auto print:overflow-visible print:bg-white print:text-black ui-scope">
           {/* Left Navigation Sidebar */}
           <AppSidebar
             isSidebarCollapsed={isSidebarCollapsed}
@@ -445,6 +568,7 @@ export const App: React.FC = () => {
             onOpenAuditLog={() => setIsAuditLogOpen(true)}
             onLogout={handleLogout}
             onFilterTableByStatus={(status) => setTableStatusFilter(status)}
+            onOpenPwaQr={() => setIsPwaQrModalOpen(true)}
           />
 
           {/* Right Workspace Area */}
@@ -461,25 +585,22 @@ export const App: React.FC = () => {
               onOpenProfile={() => setIsProfileModalOpen(true)}
               onOpenSettings={() => setIsSettingsModalOpen(true)}
               onOpenDataSafety={() => setIsDataSafetyModalOpen(true)}
+              onOpenPwaQr={() => setIsPwaQrModalOpen(true)}
+              onSelectFieldInspection={() => setActiveModule('field_inspection')}
             />
 
             {/* Main Content View Switcher */}
             <main className="flex-1 overflow-hidden relative flex bg-transparent print:overflow-visible print:h-auto print:bg-white">
-              {/* MODULE 0: EXECUTIVE DASHBOARD */}
-              {activeModule === 'dashboard' && (
-                <PublicHealthDashboard
+              {/* MODULE 0 & 2: UNIFIED COMMAND CENTER MAP & DASHBOARD */}
+              {(activeModule === 'dashboard' || activeModule === 'map') && (
+                <UnifiedMapDashboard
                   establishments={establishments}
                   onOpenNewRequest={() => setIsNewRequestModalOpen(true)}
                   onNavigateToTable={(filter) => {
                     setTableStatusFilter(filter || 'all');
                     setActiveModule('table');
                   }}
-                  onNavigateToMap={() => setActiveModule('map')}
-                  onInspectEstablishment={handleInspectEstablishment}
                   onPrintEstablishment={(est) => handlePrintEstablishment(est, est.regType, 'garuda')}
-                  onPrintReport={handlePrintRegisterReport}
-                  onEditEstablishment={handleEditEstablishment}
-                  onOpenSettings={() => setIsSettingsModalOpen(true)}
                   onOpenArchive={handleOpenArchive}
                 />
               )}
@@ -530,20 +651,7 @@ export const App: React.FC = () => {
                 />
               )}
 
-              {/* MODULE 2: GIS MAP VIEW */}
-              {activeModule === 'map' && (
-                <GisMapModuleView
-                  establishments={establishments}
-                  selectedEstablishment={selectedEstablishment}
-                  selectedId={selectedId}
-                  onSelectEstablishment={(est) => {
-                    setSelectedEstablishment(est);
-                    setSelectedId(est.id);
-                  }}
-                  onInspectEstablishment={handleInspectEstablishment}
-                  onPrintEstablishment={(est) => handlePrintEstablishment(est, est.regType)}
-                />
-              )}
+
 
               {/* MODULE 4: PRINT CERTIFICATE & REGISTER REPORT */}
               {activeModule === 'print' && (
@@ -560,9 +668,9 @@ export const App: React.FC = () => {
                 </div>
               )}
 
-              {/* MODULE 3: SMART PDF INTAKE VIEW */}
-              {activeModule === 'intake' && (
-                <SmartPdfIntakeView
+              {/* MODULE 3: UPLOAD PDF VIEW */}
+              {(activeModule === 'upload_pdf' || activeModule === 'intake') && (
+                <PdfUploadView
                   onSaveEstablishment={(newEst) => {
                     handleSaveEstablishment(newEst);
                     setSelectedEstablishment(newEst);
@@ -579,6 +687,36 @@ export const App: React.FC = () => {
                   onNavigateToTable={() => setActiveModule('table')}
                   settings={settings}
                 />
+              )}
+
+              {/* MODULE 4: MANUAL ENTRY VIEW */}
+              {activeModule === 'manual_entry' && (
+                <ManualEntryView
+                  onSaveEstablishment={(newEst) => {
+                    handleSaveEstablishment(newEst);
+                    setSelectedEstablishment(newEst);
+                    setSelectedId(newEst.id);
+                    setActiveModule('table');
+                  }}
+                  onNavigateToPrint={(newEst) => {
+                    handleSaveEstablishment(newEst);
+                    setSelectedEstablishment(newEst);
+                    setSelectedId(newEst.id);
+                    setPrintInitialMode('garuda');
+                    setActiveModule('print');
+                  }}
+                  onNavigateToTable={() => setActiveModule('table')}
+                  settings={settings}
+                />
+              )}
+
+              {/* MODULE: INTEGRATED MOBILE FIELD PWA */}
+              {activeModule === 'field_inspection' && (
+                <div className="flex-1 h-full overflow-hidden bg-slate-100 flex flex-col">
+                  <PublicHealthFieldPwaApp
+                    mode="embedded"
+                  />
+                </div>
               )}
             </main>
           </div>
@@ -660,6 +798,12 @@ export const App: React.FC = () => {
           setIsDataSafetyModalOpen(false);
           showToast('กู้คืนฐานข้อมูลและอัปเดตหน้าจอเรียบร้อยแล้ว', 'success');
         }}
+      />
+
+      {/* PWA Mobile App QR Code & Connection Modal */}
+      <PwaQrModal
+        isOpen={isPwaQrModalOpen}
+        onClose={() => setIsPwaQrModalOpen(false)}
       />
     </>
   );

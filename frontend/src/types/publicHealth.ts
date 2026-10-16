@@ -272,7 +272,7 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   email: 'health@pongnamron.go.th',
   website: 'www.pongnamron.go.th',
   signatories: {
-    mayorName: 'นายสมหมาย มงคลกุล',
+    mayorName: 'นายสมคิด พงษ์สุข',
     mayorPosition: 'นายกองค์การบริหารส่วนตำบลโป่งน้ำร้อน',
     mayorRoleTitle: 'เจ้าพนักงานท้องถิ่น',
     healthDirectorName: 'นางสาวกมลวรรณ ชัยมงคล',

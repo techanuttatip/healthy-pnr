@@ -112,10 +112,10 @@ export const FieldRenewalPackDoc: React.FC<FieldRenewalPackDocProps> = ({
       <div className="border border-slate-400 rounded-sm p-3 text-xs space-y-1.5">
         <div className="font-bold text-sm border-b border-slate-300 pb-1.5 mb-2">เอกสารประกอบคำขอต่ออายุ (กรุณาเตรียมมาให้ครบ)</div>
         {[
-          'สำเนาบัตรประจำตัวประชาชน ๑ ฉบับ (รับรองสำเนาถูกต้อง)',
+          'สำเนาบัตรประจำตัวประชาชน 1 ฉบับ (รับรองสำเนาถูกต้อง)',
           isHazardous ? 'ใบอนุญาตฉบับเดิม (ต้นฉบับ)' : 'หนังสือรับรองฉบับเดิม (ต้นฉบับ)',
-          'สำเนาทะเบียนบ้าน ๑ ฉบับ',
-          'รูปถ่ายสถานประกอบการ ขนาด 3×4 ซม. จำนวน ๒ ใบ',
+          'สำเนาทะเบียนบ้าน 1 ฉบับ',
+          'รูปถ่ายสถานประกอบการ ขนาด 3×4 ซม. จำนวน 2 ใบ',
           `ค่าธรรมเนียม ${establishment.feeAmount?.toLocaleString('th-TH') || '100'} บาท`
         ].map((doc, i) => (
           <div key={i} className="flex items-start gap-2">

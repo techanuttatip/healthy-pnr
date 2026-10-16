@@ -60,7 +60,7 @@ export const FoodHandlerCardDoc: React.FC<FoodHandlerCardDocProps> = ({
                 <div className="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs mb-1">
                   👤
                 </div>
-                <span className="text-[8px] font-bold text-emerald-900 leading-tight">รูปถ่าย ๑ นิ้ว</span>
+                <span className="text-[8px] font-bold text-emerald-900 leading-tight">รูปถ่าย 1 นิ้ว</span>
                 <span className="text-[6px] text-emerald-700">ตรวจผ่านสุขภาพ</span>
               </div>
 
@@ -75,7 +75,7 @@ export const FoodHandlerCardDoc: React.FC<FoodHandlerCardDocProps> = ({
                   ร้าน: <strong className="text-blue-900">{establishment.businessName}</strong>
                 </div>
                 <div className="text-[9px] text-slate-600 truncate">
-                  วุฒิบัตรเลขที่: <span className="font-mono font-bold text-emerald-800">{establishment.foodHandlerCertNo || `อบ.ผส.๖๗/${establishment.docNo}`}</span>
+                  วุฒิบัตรเลขที่: <span className="font-mono font-bold text-emerald-800">{establishment.foodHandlerCertNo || `อบ.ผส.67/${establishment.docNo}`}</span>
                 </div>
                 <div className="text-[9px] text-slate-700 flex justify-between pt-0.5">
                   <span>ออก: {formatThaiDate(establishment.issueDate, false)}</span>
@@ -86,7 +86,7 @@ export const FoodHandlerCardDoc: React.FC<FoodHandlerCardDocProps> = ({
 
             <div className="border-t border-emerald-200 pt-1 flex items-center justify-between text-[8px] text-slate-600">
               <span className="font-mono text-emerald-800 font-bold">CFGT-CARD #{establishment.docNo}</span>
-              <span className="text-emerald-900 font-bold">พ.ร.บ.สาธารณสุข ๒๕๓๕</span>
+              <span className="text-emerald-900 font-bold">พ.ร.บ.สาธารณสุข 2535</span>
             </div>
           </div>
 
@@ -95,19 +95,19 @@ export const FoodHandlerCardDoc: React.FC<FoodHandlerCardDocProps> = ({
             <div>
               <div className="text-center border-b border-emerald-200 pb-1 mb-1.5">
                 <div className="text-[10px] font-bold text-emerald-900">
-                  สุขวิทยาส่วนบุคคล ๕ ประการ สำหรับผู้สัมผัสอาหาร
+                  สุขวิทยาส่วนบุคคล 5 ประการ สำหรับผู้สัมผัสอาหาร
                 </div>
                 <div className="text-[7.5px] text-slate-500 font-sans">
-                  ตามกฎกระทรวงสุขาภิบาลอาหาร พ.ศ. ๒๕๖๑
+                  ตามกฎกระทรวงสุขาภิบาลอาหาร พ.ศ. 2561
                 </div>
               </div>
 
               <ol className="text-[8px] text-slate-800 space-y-0.5 leading-snug list-decimal list-inside pl-0.5">
                 <li>แต่งกายสะอาด สวมเสื้อมีแขน ผูกผ้ากันเปื้อน สวมหมวกคลุมผม</li>
-                <li>ล้างมือให้สะอาดด้วยน้ำและสบู่ ๗ ขั้นตอนก่อนปรุงและหลังเข้าห้องน้ำ</li>
+                <li>ล้างมือให้สะอาดด้วยน้ำและสบู่ 7 ขั้นตอนก่อนปรุงและหลังเข้าห้องน้ำ</li>
                 <li>ใช้อุปกรณ์คีบ ช้อนตัก หยิบจับอาหารสุก ห้ามใช้มือเปล่าสัมผัสอาหาร</li>
                 <li>เล็บสั้นสะอาด ไม่ทาสีเล็บ ไม่สวมแหวน นาฬิกา หรือเครื่องประดับขณะปรุง</li>
-                <li>ผ่านการตรวจสุขภาพประจำปี ปลอดโรคติดต่อสำคัญ ๔ โรค</li>
+                <li>ผ่านการตรวจสุขภาพประจำปี ปลอดโรคติดต่อสำคัญ 4 โรค</li>
               </ol>
             </div>
 

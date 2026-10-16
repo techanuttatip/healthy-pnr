@@ -214,105 +214,34 @@ export const PublicHealthDashboard: React.FC<PublicHealthDashboardProps> = ({
         </div>
       </div>
 
-      {/* 1.5 SSSS FAST-TRACK SERVICE WIZARD (แผนผังทางลัดปฏิบัติงาน ๓ ขั้นตอน) */}
-      <div className="gov-card p-4 sm:p-5 rounded-2xl bg-white/95 border border-slate-200/80 shadow-sm relative overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      {/* Quick Search & Filter Toolbar */}
+      <div className="ui-card p-3 sm:p-4 bg-white">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight flex items-center gap-1.5 font-heading">
-              <span>⚡ แผนผังทางลัดปฏิบัติงาน ๓ สเต็ป</span>
-              <span className="text-xs font-normal text-slate-500 hidden sm:inline">(Fast-Track e-Service Flow)</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+            <h2 className="text-sm font-bold text-slate-900 font-heading">
+              ค้นหาและดำเนินการด่วน
             </h2>
           </div>
           {/* Quick Filter Search */}
-          <div className="relative max-w-xs w-full">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="relative max-w-sm w-full">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={dashboardInstantSearch}
               onChange={(e) => setDashboardInstantSearch(e.target.value)}
               placeholder="ค้นหาร้านด่วน (ชื่อร้าน, เจ้าของ, ม.)..."
-              className="w-full pl-8 pr-7 py-1.5 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 transition-all font-sans"
+              className="ui-input pl-9 text-xs"
             />
             {dashboardInstantSearch && (
               <button
                 type="button"
                 onClick={() => setDashboardInstantSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
               >
                 ✕
               </button>
             )}
-          </div>
-        </div>
-
-        {/* 3 Step Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-3.5">
-          {/* Step 1 */}
-          <div
-            onClick={onOpenNewRequest}
-            className="p-3.5 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50/70 via-white to-blue-50/30 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group flex items-start gap-3"
-          >
-            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0 group-hover:scale-105 transition-transform">
-              ๑
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-bold text-blue-950 flex items-center justify-between">
-                <span>รับคำขอ / ต่ออายุใหม่</span>
-                <span className="text-[10px] text-blue-600 font-semibold group-hover:translate-x-0.5 transition-transform">คลิกเริ่ม ➔</span>
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                บันทึกคำขอ นจ.๑, บทอ.๑, บทส.๑ ออกใบรับแจ้งชั่วคราว Day-1 ได้ทันที
-              </p>
-            </div>
-          </div>
-
-          {/* Step 2 */}
-          <div
-            onClick={() => onNavigateToTable('pending_inspection')}
-            className="p-3.5 rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50/70 via-white to-amber-50/30 hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group flex items-start gap-3"
-          >
-            <div className="w-9 h-9 rounded-xl bg-amber-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-amber-500/25 shrink-0 group-hover:scale-105 transition-transform">
-              ๒
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-bold text-amber-950 flex items-center justify-between">
-                <span>ตรวจประเมินสุขลักษณะ</span>
-                {pendingInspectionCount > 0 && (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-bold font-mono">
-                    {pendingInspectionCount} คิว
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                ลงพื้นที่ตรวจสถานที่ บันทึกคะแนน และเซ็นชื่อดิจิทัลผ่านแท็บเล็ต
-              </p>
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div
-            onClick={() => {
-              if (onPrintReport) {
-                onPrintReport();
-              } else {
-                onNavigateToTable('active');
-              }
-            }}
-            className="p-3.5 rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 via-white to-emerald-50/30 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group flex items-start gap-3"
-          >
-            <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-emerald-500/25 shrink-0 group-hover:scale-105 transition-transform">
-              ๓
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-bold text-emerald-950 flex items-center justify-between">
-                <span>สั่งพิมพ์ใบเสร็จ & ใบอนุญาต</span>
-                <span className="text-[10px] text-emerald-600 font-semibold group-hover:translate-x-0.5 transition-transform">คลิกพิมพ์ ➔</span>
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                ออกใบเสร็จรับเงิน ใบอนุญาตตราครุฑ ป้าย Clean Food Good Taste
-              </p>
-            </div>
           </div>
         </div>
 

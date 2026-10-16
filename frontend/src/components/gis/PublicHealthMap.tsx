@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Establishment, EstablishmentStatus } from '../../types/publicHealth';
-import { Layers, Navigation, ChevronDown, ChevronUp, Satellite, Globe } from 'lucide-react';
+import { Layers, Navigation, ChevronDown, ChevronUp, Satellite, Globe, List } from 'lucide-react';
 
 interface PublicHealthMapProps {
   establishments: Establishment[];
@@ -12,6 +12,8 @@ interface PublicHealthMapProps {
   onInspect?: (est: Establishment) => void;
   filterCategory: string;
   filterStatus: string;
+  onToggleSidebar?: () => void;
+  isSidebarOpen?: boolean;
 }
 
 export type SatelliteMode = 'google_hybrid' | 'esri_sat';
@@ -23,7 +25,9 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
   onQuickPrint,
   onInspect,
   filterCategory,
-  filterStatus
+  filterStatus,
+  onToggleSidebar,
+  isSidebarOpen
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -92,18 +96,18 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    // Interactive GIS Map with responsive zoom level and intuitive navigation
+    // GIS Map with LOCKED ZOOM LEVEL (No zoom in / zoom out as requested by user)
     const map = L.map(mapContainerRef.current, {
       center: PONG_NAM_RON_CENTER,
       zoom: 14,
-      minZoom: 11,
-      maxZoom: 18,
-      zoomControl: true, // Enable +/- zoom controls
-      scrollWheelZoom: true, // Enable mouse wheel zoom
-      doubleClickZoom: true, // Enable double-click zoom
-      touchZoom: true, // Enable pinch-to-zoom on mobile/tablet
-      boxZoom: true,
-      keyboard: true,
+      minZoom: 14,
+      maxZoom: 14,
+      zoomControl: false, // Locked: No +/- controls
+      scrollWheelZoom: false, // Locked: No mouse wheel zoom
+      doubleClickZoom: false, // Locked: No double-click zoom
+      touchZoom: false, // Locked: No pinch zoom
+      boxZoom: false,
+      keyboard: false,
       attributionControl: false
     });
 
@@ -139,7 +143,20 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
 
     mapInstanceRef.current = map;
 
+    // ResizeObserver to ensure map tiles adapt seamlessly to container resize
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+    const initialTimer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+
     return () => {
+      clearTimeout(initialTimer);
+      resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -177,51 +194,40 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
     });
 
     filtered.forEach((est) => {
+      // Validate coordinates to prevent Leaflet crash
+      if (
+        typeof est.lat !== 'number' ||
+        typeof est.lng !== 'number' ||
+        isNaN(est.lat) ||
+        isNaN(est.lng) ||
+        est.lat === 0 ||
+        est.lng === 0
+      ) {
+        return;
+      }
+
       const color = getStatusColor(est.status);
       const isSelected = est.id === selectedId;
-      const isExpiring = est.status === 'expiring';
-      const isPendingCorrection = est.status === 'pending_correction';
 
-      // Crisp circular badge visible against satellite photography
+      // Compact, elegant store point dot (จุดร้านค้าเล็กๆ ไม่ใหญ่เกินไป)
       const customIcon = L.divIcon({
         className: `custom-pin-${est.id}`,
         html: `
           <div style="position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-            ${
-              isExpiring || isPendingCorrection
-                ? `<div style="
-                    position: absolute;
-                    width: ${isSelected ? '28px' : '22px'};
-                    height: ${isSelected ? '28px' : '22px'};
-                    border-radius: 50%;
-                    background: ${color};
-                    opacity: 0.45;
-                    animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-                  "></div>`
-                : ''
-            }
             <div style="
-              width: ${isSelected ? '22px' : '16px'};
-              height: ${isSelected ? '22px' : '16px'};
+              width: ${isSelected ? '14px' : '9px'};
+              height: ${isSelected ? '14px' : '9px'};
               border-radius: 50%;
               background: ${color};
-              border: 2px solid #ffffff;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: white;
-              font-weight: 800;
-              font-size: ${isSelected ? '10px' : '8px'};
+              border: 1.5px solid #ffffff;
+              box-shadow: 0 1px 4px rgba(0,0,0,0.65);
               transition: all 0.2s ease;
-              transform: ${isSelected ? 'scale(1.2)' : 'scale(1)'};
-            ">
-              ${isSelected ? est.regType : ''}
-            </div>
+              transform: ${isSelected ? 'scale(1.25)' : 'scale(1)'};
+            "></div>
           </div>
         `,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11]
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
       });
 
       const marker = L.marker([est.lat, est.lng], { icon: customIcon }).addTo(map);
@@ -266,7 +272,7 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-            <button id="btn-inspect-${est.id}" style="
+            <button type="button" data-action="inspect" style="
               background: #8b5cf6;
               color: white;
               font-size: 11px;
@@ -279,7 +285,7 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
             ">
               🔍 ตรวจสุขลักษณะ
             </button>
-            <button id="btn-print-${est.id}" style="
+            <button type="button" data-action="print" style="
               background: #10b981;
               color: white;
               font-size: 11px;
@@ -315,8 +321,8 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
         </div>
       `;
 
-      // Event listeners
-      const inspectBtn = popupContent.querySelector(`#btn-inspect-${est.id}`);
+      // Event listeners via data-action attributes (immune to ID escape issues)
+      const inspectBtn = popupContent.querySelector('[data-action="inspect"]');
       if (inspectBtn) {
         inspectBtn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -326,7 +332,7 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
         });
       }
 
-      const printBtn = popupContent.querySelector(`#btn-print-${est.id}`);
+      const printBtn = popupContent.querySelector('[data-action="print"]');
       if (printBtn) {
         printBtn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -350,8 +356,8 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
   useEffect(() => {
     if (!selectedId || !mapInstanceRef.current) return;
     const est = establishments.find((e) => e.id === selectedId);
-    if (est) {
-      // Pan smoothly to location, strictly keeping zoom locked at 15
+    if (est && typeof est.lat === 'number' && typeof est.lng === 'number' && !isNaN(est.lat) && !isNaN(est.lng)) {
+      // Pan smoothly to location, strictly keeping zoom locked at 14
       mapInstanceRef.current.panTo([est.lat, est.lng], { animate: true, duration: 0.4 });
       const marker = markersRef.current[est.id];
       if (marker) {
@@ -365,8 +371,24 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
       {/* Map Container */}
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-      {/* Top Left: Quick Reset Center View Button */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
+      {/* Top Left: Navigation Controls Toolbar */}
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-2 flex-wrap">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold shadow-lg border backdrop-blur-md transition-all cursor-pointer flex items-center gap-1.5 ${
+              isSidebarOpen
+                ? 'bg-blue-600 text-white border-blue-400'
+                : 'bg-slate-900/90 hover:bg-slate-900 text-white hover:text-amber-300 border-slate-700/80'
+            }`}
+            title="เปิด/ปิด แถบรายชื่อร้านค้า"
+          >
+            <List className="w-3.5 h-3.5 text-amber-400" />
+            <span>รายชื่อร้าน ({establishments.length})</span>
+          </button>
+        )}
+
         <button
           type="button"
           onClick={() => {
@@ -382,7 +404,7 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
         </button>
 
         {/* Locked Zoom Level Indicator */}
-        <div className="hidden sm:flex items-center gap-1.5 bg-slate-900/80 text-slate-300 px-3 py-2 rounded-xl border border-slate-800 text-[11px] backdrop-blur-md">
+        <div className="hidden lg:flex items-center gap-1.5 bg-slate-900/80 text-slate-300 px-3 py-2 rounded-xl border border-slate-800 text-[11px] backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-emerald-400" />
           <span>ล็อกระดับมุมมองตำบล (คงที่)</span>
         </div>

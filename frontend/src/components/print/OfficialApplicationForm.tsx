@@ -78,10 +78,10 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
   const [foodTypeDetail, setFoodTypeDetail] = useState('');
   const [premiseCharacteristics, setPremiseCharacteristics] = useState('');
   const [distributionMethod, setDistributionMethod] = useState('');
-  const [operatingHours, setOperatingHours] = useState('๐๗:๐๐ - ๑๙:๐๐ น.');
+  const [operatingHours, setOperatingHours] = useState('07:00 - 19:00 น.');
   const [lineId, setLineId] = useState('');
   const [fax, setFax] = useState('');
-  const [receiptBookNo, setReceiptBookNo] = useState('๐๑');
+  const [receiptBookNo, setReceiptBookNo] = useState('01');
   const [receiptNo, setReceiptNo] = useState('');
   const [receiptDate, setReceiptDate] = useState('');
   const [nextFeeDueDate, setNextFeeDueDate] = useState('');
@@ -118,11 +118,11 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
       setFoodTypeDetail(establishment.foodTypeDetail || (establishment.categoryName?.includes('สะสมอาหาร') ? 'อาหารสด และอาหารแห้ง' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม'));
       setPremiseCharacteristics(establishment.premiseCharacteristics || (establishment.categoryName?.includes('สะสมอาหาร') ? 'อยู่ในอาคารโกดังคอนกรีต' : 'อยู่ในอาคารพาณิชย์'));
       setDistributionMethod(establishment.distributionMethod || (establishment.categoryName?.includes('สะสมอาหาร') ? 'จำหน่ายส่งและมีบริการจัดส่ง' : 'มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน'));
-      setOperatingHours(establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.');
+      setOperatingHours(establishment.operatingHours || '07:00 - 19:00 น.');
       setLineId(establishment.lineId || '@pnr-food');
       setFax(establishment.fax || '');
-      setReceiptBookNo(establishment.receiptBookNo || establishment.bookNo || '๐๑');
-      setReceiptNo(establishment.receiptNo || establishment.docNo || '๐๐๔๕');
+      setReceiptBookNo(establishment.receiptBookNo || establishment.bookNo || '01');
+      setReceiptNo(establishment.receiptNo || establishment.docNo || '0045');
       setReceiptDate(establishment.receiptDate || establishment.issueDate);
       setNextFeeDueDate(establishment.nextFeeDueDate || establishment.expireDate);
       setIsReplacementCert(Boolean(establishment.isReplacementCert));

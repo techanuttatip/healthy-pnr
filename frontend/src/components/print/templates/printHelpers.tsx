@@ -4,24 +4,24 @@ import { thaiBahtText } from '../../../types/publicHealth';
 
 export { thaiBahtText };
 
+import { DEFAULT_OFFICER_SIGNATURE, sanitationDataService } from '../../../services/sanitationDataService';
+
 /**
- * Render 13-digit Thai Citizen ID into official individual boxes
+ * Render 13-digit Thai Citizen ID into official individual boxes (Arabic Numerals)
  */
 export const renderCitizenIdBoxes = (idStr?: string) => {
   const clean = (idStr || '').replace(/\D/g, '').padEnd(13, ' ').slice(0, 13);
-  const toThaiDigits = (ch: string) =>
-    ch === ' ' ? ' ' : String(ch).replace(/[0-9]/g, (digit) => '๐๑๒๓๔๕๖๗๘๙'[parseInt(digit, 10)]);
 
   return (
     <span className="inline-flex items-center gap-1 font-mono text-xs align-middle">
       <span className="w-4.5 h-5 border border-slate-700 inline-flex items-center justify-center font-bold bg-white text-slate-900 text-[11px]">
-        {toThaiDigits(clean[0])}
+        {clean[0]}
       </span>
       <span className="text-slate-400 font-bold text-xs">-</span>
       <span className="inline-flex">
         {[clean[1], clean[2], clean[3], clean[4]].map((ch, i) => (
           <span key={i} className="w-4.5 h-5 border border-slate-700 border-r-0 last:border-r inline-flex items-center justify-center font-bold bg-white text-slate-900 text-[11px]">
-            {toThaiDigits(ch)}
+            {ch}
           </span>
         ))}
       </span>
@@ -29,7 +29,7 @@ export const renderCitizenIdBoxes = (idStr?: string) => {
       <span className="inline-flex">
         {[clean[5], clean[6], clean[7], clean[8], clean[9]].map((ch, i) => (
           <span key={i} className="w-4.5 h-5 border border-slate-700 border-r-0 last:border-r inline-flex items-center justify-center font-bold bg-white text-slate-900 text-[11px]">
-            {toThaiDigits(ch)}
+            {ch}
           </span>
         ))}
       </span>
@@ -37,22 +37,22 @@ export const renderCitizenIdBoxes = (idStr?: string) => {
       <span className="inline-flex">
         {[clean[10], clean[11]].map((ch, i) => (
           <span key={i} className="w-4.5 h-5 border border-slate-700 border-r-0 last:border-r inline-flex items-center justify-center font-bold bg-white text-slate-900 text-[11px]">
-            {toThaiDigits(ch)}
+            {ch}
           </span>
         ))}
       </span>
       <span className="text-slate-400 font-bold text-xs">-</span>
       <span className="w-4.5 h-5 border border-slate-700 inline-flex items-center justify-center font-bold bg-white text-slate-900 text-[11px]">
-        {toThaiDigits(clean[12])}
+        {clean[12]}
       </span>
     </span>
   );
 };
 
 /**
- * Format ISO date string into official Thai format (e.g. ๕ ตุลาคม ๒๕๖๙)
+ * Format ISO date string into official Thai format with Arabic digits (e.g. 15 ตุลาคม 2569)
  */
-export const formatThaiDate = (dateStr?: string, useThaiDigits = true) => {
+export const formatThaiDate = (dateStr?: string, _useThaiDigits = false) => {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
   if (parts.length < 3) return dateStr;
@@ -64,12 +64,7 @@ export const formatThaiDate = (dateStr?: string, useThaiDigits = true) => {
   const day = parseInt(d, 10);
   const month = months[parseInt(m, 10) - 1] || '';
   const year = parseInt(y, 10) + 543;
-  if (!useThaiDigits) {
-    return `${day} ${month} ${year}`;
-  }
-  const toThaiDigits = (num: number | string) =>
-    String(num).replace(/[0-9]/g, (digit) => '๐๑๒๓๔๕๖๗๘๙'[parseInt(digit, 10)]);
-  return `${toThaiDigits(day)} ${month} ${toThaiDigits(year)}`;
+  return `${day} ${month} ${year}`;
 };
 
 /**
@@ -87,28 +82,48 @@ export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) =>
 };
 
 /**
- * Standard Dual-Signatures Block for Thai Administrative Documents
+ * Standard Dual-Signatures Block for Thai Administrative Documents with Electronic Signature
  */
 export const OfficialSignaturesBlock: React.FC<{
   settings: SystemSettings;
   issueDate?: string;
   useThaiDigits?: boolean;
-}> = ({ settings, issueDate, useThaiDigits = true }) => {
+}> = ({ settings, issueDate }) => {
   const sig = settings.signatories;
+  const currentOfficer = sanitationDataService.getCurrentOfficer();
+  const officerSig = currentOfficer?.signatureUrl || DEFAULT_OFFICER_SIGNATURE;
+
   return (
     <div className="grid grid-cols-2 gap-8 pt-6 relative z-10 text-[13px] text-slate-900">
-      <div className="flex flex-col items-center text-center">
-        <div className="text-xs text-slate-600 mb-10">(ลายมือชื่อ) .................................................... ผู้ตรวจ</div>
+      <div className="flex flex-col items-center text-center relative w-full max-w-[280px] mx-auto">
+        <div className="relative flex items-end justify-center min-h-[44px] mb-1 w-full">
+          <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลายมือชื่อ)</span>
+          <div className="relative flex-1 mx-2 border-b border-dotted border-slate-700 h-8 flex items-end justify-center">
+            {officerSig && (
+              <img
+                src={officerSig}
+                alt="e-sig ผู้ตรวจ"
+                className="absolute -bottom-1.5 h-10 object-contain filter contrast-125 pointer-events-none"
+              />
+            )}
+          </div>
+          <span className="text-xs text-slate-800 shrink-0 whitespace-nowrap pb-0.5">ผู้ตรวจ</span>
+        </div>
         <div className="font-bold">({sig.officerName || 'นางสาวรุ่งทิวา อุปนันท์'})</div>
         <div className="text-xs text-slate-700">{sig.officerPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'}</div>
       </div>
 
-      <div className="flex flex-col items-center text-center">
-        <div className="text-xs text-slate-600 mb-10">(ลายมือชื่อ) .................................................... เจ้าพนักงานท้องถิ่น</div>
-        <div className="font-bold">({sig.mayorName || 'นายกองค์การบริหารส่วนตำบลโป่งน้ำร้อน'})</div>
+      <div className="flex flex-col items-center text-center w-full max-w-[280px] mx-auto">
+        <div className="relative flex items-end justify-center min-h-[44px] mb-1 w-full">
+          <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลายมือชื่อ)</span>
+          <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
+          <span className="text-xs text-slate-800 shrink-0 whitespace-nowrap pb-0.5">เจ้าพนักงานท้องถิ่น</span>
+        </div>
+        <div className="font-bold">({sig.mayorName && !sig.mayorName.includes('สมหมาย') ? sig.mayorName : 'นายสมคิด พงษ์สุข'})</div>
         <div className="text-xs text-slate-700">{sig.mayorPosition || 'นายกองค์การบริหารส่วนตำบลโป่งน้ำร้อน'}</div>
+        <div className="text-[11px] font-semibold text-slate-800">{sig.mayorRoleTitle || 'เจ้าพนักงานท้องถิ่น'}</div>
         <div className="text-xs text-slate-500 mt-1 font-mono">
-          วันที่ {formatThaiDate(issueDate, useThaiDigits)}
+          วันที่ {formatThaiDate(issueDate, false)}
         </div>
       </div>
     </div>

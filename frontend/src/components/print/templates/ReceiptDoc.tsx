@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Establishment, SystemSettings } from '../../../types/publicHealth';
 import { formatThaiDate, parseAddressDetails, thaiBahtText } from './printHelpers';
+import { DEFAULT_OFFICER_SIGNATURE, sanitationDataService } from '../../../services/sanitationDataService';
 import { Scissors } from 'lucide-react';
 
 interface ReceiptDocProps {
@@ -15,6 +16,8 @@ export const ReceiptDoc: React.FC<ReceiptDocProps> = ({
   formTitle
 }) => {
   const sig = settings.signatories;
+  const currentOfficer = sanitationDataService.getCurrentOfficer();
+  const officerSig = currentOfficer?.signatureUrl || DEFAULT_OFFICER_SIGNATURE;
   const orgName = settings.organizationName || 'องค์การบริหารส่วนตำบลโป่งน้ำร้อน';
   const districtName = settings.district || 'อำเภอฝาง';
   const provinceName = settings.province || 'จังหวัดเชียงใหม่';
@@ -59,15 +62,15 @@ export const ReceiptDoc: React.FC<ReceiptDocProps> = ({
             >
               {titleType}
             </span>
-            <div className="text-xs space-y-0.5">
+            <div className="text-xs space-y-1">
               <div>
-                เล่มที่ <strong className="font-mono text-sm">{establishment.bookNo || '๐๑/๒๕๖๗'}</strong>
+                เล่มที่ <span className="font-mono text-sm border-b border-dotted border-slate-600 px-6 inline-block min-w-[70px] text-center">&nbsp;</span>
               </div>
               <div>
-                เลขที่ <strong className="font-mono text-sm">{establishment.docNo || '๐๑๔๒'}</strong>
+                เลขที่ <span className="font-mono text-sm border-b border-dotted border-slate-600 px-8 inline-block min-w-[90px] text-center">&nbsp;</span>
               </div>
               <div className="text-[11px] text-slate-700">
-                วันที่ <strong>{formatThaiDate(establishment.issueDate, true)}</strong>
+                วันที่ <strong>{formatThaiDate(establishment.issueDate, false)}</strong>
               </div>
             </div>
           </div>
@@ -76,7 +79,7 @@ export const ReceiptDoc: React.FC<ReceiptDocProps> = ({
         <div className="text-center my-2">
           <h2 className="text-lg font-bold tracking-wide">ใบเสร็จรับเงิน</h2>
           <p className="text-xs text-slate-700">
-            ค่าธรรมเนียมตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ และข้อบัญญัติท้องถิ่น
+            ค่าธรรมเนียมตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 และข้อบัญญัติท้องถิ่น
           </p>
         </div>
 
@@ -114,13 +117,13 @@ export const ReceiptDoc: React.FC<ReceiptDocProps> = ({
           </thead>
           <tbody>
             <tr className="border-b border-slate-200">
-              <td className="py-2 px-2 text-center border-r border-slate-700 font-mono">๑</td>
+              <td className="py-2 px-2 text-center border-r border-slate-700 font-mono">1</td>
               <td className="py-2 px-3 border-r border-slate-700">
                 <div className="font-bold text-slate-900">
                   ค่าธรรมเนียม{formTitle.replace('\n', ' ')} ({establishment.regType})
                 </div>
                 <div className="text-[11px] text-slate-600">
-                  ประจำปีงบประมาณ พ.ศ. {settings.fiscalYear || '๒๕๖๗'} (พื้นที่ {establishment.areaSqm} ตร.ม.)
+                  ประจำปีงบประมาณ พ.ศ. {settings.fiscalYear ? settings.fiscalYear.replace(/[๐-๙]/g, (d) => '0123456789'['๐๑๒๓๔๕๖๗๘๙'.indexOf(d)]) : '2569'} (พื้นที่ {establishment.areaSqm} ตร.ม.)
                 </div>
               </td>
               <td className="py-2 px-3 text-right font-mono font-bold text-slate-900">
@@ -139,33 +142,40 @@ export const ReceiptDoc: React.FC<ReceiptDocProps> = ({
         </table>
       </div>
 
-      {/* Signatures & Verification */}
+      {/* Signatures & Official Validation (No QR code, blank manual fill) */}
       <div className="flex items-end justify-between pt-2 border-t border-slate-200 text-xs">
-        <div className="flex items-center gap-2">
-          <div className="w-12 h-12 border border-slate-300 p-0.5 rounded bg-white flex items-center justify-center shrink-0">
-            <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=PNR-RECEIPT-${establishment.regNumber}-${establishment.feeAmount}`}
-              alt="QR Code"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div className="text-[10px] text-slate-500 leading-tight">
-            <div>สแกนตรวจสอบการชำระเงิน</div>
-            <div className="font-mono text-slate-400">REF: PNR-REC-{establishment.docNo}</div>
-            <div className="text-emerald-700 font-bold">รับชำระเงินเรียบร้อยแล้ว</div>
-          </div>
+        <div className="text-[11px] text-slate-600 leading-tight">
+          <div className="font-bold text-slate-800">กองสาธารณสุขและสิ่งแวดล้อม อบต.โป่งน้ำร้อน</div>
+          <div className="font-mono text-[10px] text-slate-500">รหัสคุม: {establishment.regNumber}</div>
+          <div className="text-emerald-700 font-bold mt-0.5">รับชำระเงินตามระเบียบเรียบร้อยแล้ว</div>
         </div>
 
         <div className="flex items-end gap-8">
-          <div className="text-center">
-            <div className="text-[11px] text-slate-400 mb-6">...................................................</div>
+          <div className="text-center w-56 relative">
+            <div className="relative flex items-end justify-center min-h-[40px] mb-1">
+              <span className="text-[11px] text-slate-600 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="relative flex-1 mx-1.5 border-b border-dotted border-slate-700 h-7 flex items-end justify-center">
+                {officerSig && (
+                  <img
+                    src={officerSig}
+                    alt="e-sig"
+                    className="absolute -bottom-1 h-8 object-contain filter contrast-125 pointer-events-none"
+                  />
+                )}
+              </div>
+              <span className="text-[11px] text-slate-600 shrink-0 whitespace-nowrap pb-0.5">ผู้รับเงิน</span>
+            </div>
             <div className="font-bold text-slate-900">( {sig.officerName || 'นางสาวรุ่งทิวา อุปนันท์'} )</div>
-            <div className="text-[10px] text-slate-600">{sig.officerPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'} ผู้รับเงิน</div>
+            <div className="text-[10px] text-slate-600">{sig.officerPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'}</div>
           </div>
-          <div className="text-center">
-            <div className="text-[11px] text-slate-400 mb-6">...................................................</div>
+          <div className="text-center w-56">
+            <div className="relative flex items-end justify-center min-h-[40px] mb-1">
+              <span className="text-[11px] text-slate-600 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="flex-1 mx-1.5 border-b border-dotted border-slate-700 h-7"></div>
+              <span className="text-[11px] text-slate-600 shrink-0 whitespace-nowrap pb-0.5">ผู้ตรวจเงิน</span>
+            </div>
             <div className="font-bold text-slate-900">( {sig.healthChiefName || 'นายสุรชัย วงศ์ใหญ่'} )</div>
-            <div className="text-[10px] text-slate-600">{sig.healthChiefPosition || 'หัวหน้าฝ่ายบริการสาธารณสุข'} ผู้ตรวจเงิน</div>
+            <div className="text-[10px] text-slate-600">{sig.healthChiefPosition || 'หัวหน้าฝ่ายบริการสาธารณสุข'}</div>
           </div>
         </div>
       </div>

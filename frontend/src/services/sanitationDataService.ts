@@ -1,4 +1,5 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { supabase as sharedSupabase } from './supabaseClient';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   Establishment,
   InspectionRecord,
@@ -8,7 +9,6 @@ import type {
   AuditLog
 } from '../types/publicHealth';
 import { DEFAULT_SYSTEM_SETTINGS } from '../types/publicHealth';
-import { INITIAL_ESTABLISHMENTS } from './publicHealthMockData';
 
 export interface OfficerAccount {
   id: string;
@@ -24,6 +24,22 @@ export interface OfficerAccount {
   avatarUrl?: string;
   signatureUrl?: string; // ลายมือชื่อดิจิทัลสำหรับลงนามในเอกสาร
   lineId?: string; // LINE ID สำหรับติดต่อประสานงาน
+}
+
+export interface SignatureRequest {
+  token: string;
+  establishmentId: string;
+  establishmentName: string;
+  inspectionDate: string;
+  inspectorName: string;
+  totalScore: number;
+  result: 'passed' | 'needs_correction';
+  defectsSummary?: string[];
+  status: 'pending' | 'signed' | 'expired';
+  signerName?: string;
+  signatureData?: string;
+  signedAt?: string;
+  createdAt: string;
 }
 
 /**
@@ -42,6 +58,13 @@ export async function hashPin(pin: string): Promise<string> {
   }
 }
 
+export const DEFAULT_OFFICER_SIGNATURE = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 90" width="240" height="90">
+    <path d="M 30,58 C 45,28 58,22 72,46 C 82,64 92,38 108,35 C 120,33 138,68 158,48 C 172,34 190,40 210,56 M 50,72 C 85,68 150,62 215,58" fill="none" stroke="#1d4ed8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 75,44 C 90,46 115,50 145,46" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`
+);
+
 // รายชื่อเจ้าหน้าที่จริง กองสาธารณสุข อบต.โป่งน้ำร้อน
 export const DEFAULT_OFFICERS: OfficerAccount[] = [
   {
@@ -54,7 +77,8 @@ export const DEFAULT_OFFICERS: OfficerAccount[] = [
     phone: '081-000-0001',
     email: 'o.rungthiwa@gmail.com',
     pinCode: 'prn123',
-    avatarColor: 'bg-emerald-600'
+    avatarColor: 'bg-emerald-600',
+    signatureUrl: DEFAULT_OFFICER_SIGNATURE
   },
   {
     id: 'off-2',
@@ -99,26 +123,45 @@ class SanitationDataService {
   private isCloudActive = false;
 
   constructor() {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-    if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'https://placeholder.supabase.co') {
-      try {
-        this.supabase = createClient(supabaseUrl, supabaseAnonKey);
-        this.isCloudActive = true;
-        console.log('✓ Sanitation Data Service: Supabase Cloud Connected');
-      } catch (err) {
-        console.warn('Supabase init failed, falling back to LocalStorage:', err);
-        this.isCloudActive = false;
-      }
+    this.supabase = sharedSupabase;
+    this.isCloudActive = Boolean(sharedSupabase);
+    if (this.isCloudActive) {
+      console.log('✓ Sanitation Data Service: Supabase Cloud Connected (Live Production)');
     } else {
-      this.isCloudActive = false;
       console.log('⚡ Sanitation Data Service: Running in Local Persistence Mode (Zero Cost)');
     }
   }
 
   isUsingCloud(): boolean {
     return this.isCloudActive;
+  }
+
+  // ติดตามการเปลี่ยนแปลงข้อมูลแบบ Real-time จาก Supabase Cloud
+  subscribeToChanges(callback: () => void): () => void {
+    if (!this.isCloudActive || !this.supabase) return () => {};
+    try {
+      const channel = this.supabase
+        .channel('pnr-sanitation-live-sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'establishments' }, () => {
+          callback();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'inspections' }, () => {
+          callback();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'yearly_archives' }, () => {
+          callback();
+        })
+        .subscribe();
+
+      return () => {
+        try {
+          this.supabase?.removeChannel(channel);
+        } catch {}
+      };
+    } catch (e) {
+      console.warn('Realtime subscription error:', e);
+      return () => {};
+    }
   }
 
   // ๑. ดึงรายชื่อเจ้าหน้าที่ทั้งหมด (ดึงจาก Supabase Cloud หรือ LocalStorage)
@@ -247,6 +290,7 @@ class SanitationDataService {
   }
 
   getCurrentOfficer(): OfficerAccount | null {
+    let officer: OfficerAccount | null = null;
     try {
       const saved = localStorage.getItem('PNR_CURRENT_OFFICER');
       if (saved) {
@@ -255,21 +299,30 @@ class SanitationDataService {
         if (listStr) {
           const list: OfficerAccount[] = JSON.parse(listStr);
           const matched = list.find(o => o.officerCode === parsed.officerCode || o.id === parsed.id);
-          if (matched) return { ...matched, ...parsed };
+          if (matched) officer = { ...matched, ...parsed };
         }
-        return parsed;
+        if (!officer) officer = parsed;
       }
     } catch {
       // fallback
     }
-    const listStr = localStorage.getItem('PNR_OFFICERS_LIST');
-    if (listStr) {
-      try {
-        const list: OfficerAccount[] = JSON.parse(listStr);
-        if (list && list.length > 0) return list[0];
-      } catch {}
+    if (!officer) {
+      const listStr = localStorage.getItem('PNR_OFFICERS_LIST');
+      if (listStr) {
+        try {
+          const list: OfficerAccount[] = JSON.parse(listStr);
+          if (list && list.length > 0) officer = list[0];
+        } catch {}
+      }
     }
-    return DEFAULT_OFFICERS[0]; // ค่าเริ่มต้น: นางสาวรุ่งทิวา อุปนันท์
+    if (!officer) {
+      officer = { ...DEFAULT_OFFICERS[0] };
+    }
+    // Guarantee electronic signature for นางสาวรุ่งทิวา อุปนันท์
+    if (officer && (!officer.signatureUrl || officer.name.includes('รุ่งทิวา') || officer.id === 'off-1')) {
+      officer.signatureUrl = DEFAULT_OFFICER_SIGNATURE;
+    }
+    return officer;
   }
 
   logoutOfficer() {
@@ -342,6 +395,64 @@ class SanitationDataService {
       archives = fallbackEst.yearlyArchives;
     }
 
+    // ตรวจสอบผลการตรวจล่าสุดจากตาราง inspections
+    let latestInsp: any = null;
+    if (row.inspections && Array.isArray(row.inspections) && row.inspections.length > 0) {
+      const sorted = [...row.inspections].sort((a: any, b: any) => {
+        const timeA = new Date(a.created_at || a.inspection_date).getTime();
+        const timeB = new Date(b.created_at || b.inspection_date).getTime();
+        return timeB - timeA;
+      });
+      latestInsp = sorted[0];
+    }
+
+    const hasPassed = latestInsp
+      ? (latestInsp.result === 'passed' || latestInsp.result === 'pass' || String(latestInsp.result).includes('ผ่าน'))
+      : (fallbackEst?.inspectionPassed ?? (row.status === 'active'));
+
+    const effectiveInspectionDate = latestInsp?.inspection_date || fallbackEst?.inspectionDate || row.issue_date;
+    const effectiveInspector = latestInsp?.inspector_name || fallbackEst?.inspectorName || 'นางสาวรุ่งทิวา อุปนันท์';
+    const effectiveScore = latestInsp ? Number(latestInsp.total_score) : (fallbackEst?.inspectionScore || 100);
+
+    const effectiveLat = row.lat || latestInsp?.gps_checkin?.lat || fallbackEst?.lat || 19.9288;
+    const effectiveLng = row.lng || latestInsp?.gps_checkin?.lng || fallbackEst?.lng || 99.1685;
+
+    // อัปเดตวันที่ตรวจในแฟ้มประวัติรายปีถ้ามี
+    if (archives.length > 0 && effectiveInspectionDate) {
+      archives = archives.map(arch => {
+        if (!arch.inspectionDate && (arch.year === 2568 || arch.year === 2569)) {
+          return {
+            ...arch,
+            inspectionDate: effectiveInspectionDate,
+            status: hasPassed ? 'complete' : arch.status
+          };
+        }
+        return arch;
+      });
+    }
+
+    // กรณีไม่มีแฟ้มรายปี ให้สร้างอัตโนมัติสำหรับปี 2568 และ 2569
+    if (archives.length === 0) {
+      archives = [
+        {
+          year: 2568,
+          status: hasPassed ? 'complete' : 'pending_field_visit',
+          applicationDate: row.issue_date || new Date().toISOString().split('T')[0],
+          inspectionDate: effectiveInspectionDate,
+          feeAmount: row.fee_amount || 100,
+          notes: row.notes || 'บันทึกผ่านระบบคลาวด์',
+          documents: []
+        },
+        {
+          year: 2569,
+          status: 'pending_payment',
+          applicationDate: '',
+          feeAmount: row.fee_amount || 100,
+          documents: []
+        }
+      ];
+    }
+
     return {
       id: row.id || fallbackEst?.id || `est-${Date.now()}`,
       regNumber: row.reg_number || fallbackEst?.regNumber || '',
@@ -359,8 +470,8 @@ class SanitationDataService {
       areaSqm: row.area_sqm || fallbackEst?.areaSqm || 0,
       workerCount: row.worker_count || fallbackEst?.workerCount || 1,
       machineHorsepower: row.machine_horsepower || fallbackEst?.machineHorsepower || 0,
-      lat: row.lat || fallbackEst?.lat || 19.9288,
-      lng: row.lng || fallbackEst?.lng || 99.1685,
+      lat: effectiveLat,
+      lng: effectiveLng,
       status: row.status || fallbackEst?.status || 'active',
       issueDate: row.issue_date || fallbackEst?.issueDate || '',
       expireDate: row.expire_date || fallbackEst?.expireDate || '',
@@ -373,11 +484,11 @@ class SanitationDataService {
         'แสดงใบอนุญาตไว้ในที่เปิดเผยและเห็นได้ง่าย ณ สถานที่ประกอบการ'
       ],
       foodPlaceType: row.food_place_type || fallbackEst?.foodPlaceType || 'selling',
-      notes: row.notes || fallbackEst?.notes || '',
-      inspectionScore: fallbackEst?.inspectionScore || 100,
-      inspectionPassed: fallbackEst?.inspectionPassed ?? true,
-      inspectionDate: fallbackEst?.inspectionDate || row.issue_date,
-      inspectorName: fallbackEst?.inspectorName || 'นางสาวรุ่งทิวา อุปนันท์',
+      notes: row.notes || latestInsp?.inspector_notes || fallbackEst?.notes || '',
+      inspectionScore: effectiveScore,
+      inspectionPassed: hasPassed,
+      inspectionDate: effectiveInspectionDate,
+      inspectorName: effectiveInspector,
       yearlyArchives: archives
     };
   }
@@ -397,17 +508,18 @@ class SanitationDataService {
     }
 
     // กรองข้อมูลตัวอย่าง (Mock) และข้อมูลที่ถูกลบออกทั้งหมด
+    const MOCK_IDS = [
+      'est-001', 'est-002', 'est-003', 'est-004', 'est-005', 'est-006',
+      'est-joy', 'est-boat', 'est-curry', 'est-cafe', 'est-cold', 'est-stream',
+      'est-045', 'est-046', 'est-047'
+    ];
+
     localCache = localCache.filter(item => 
-      !['est-001', 'est-002', 'est-003', 'est-004', 'est-005', 'est-006'].includes(item.id) &&
+      !MOCK_IDS.includes(item.id) &&
+      !MOCK_IDS.includes(item.regNumber) &&
       !deletedIds.includes(item.id) &&
       !deletedIds.includes(item.regNumber)
     );
-
-    if (localCache.length === 0 && !deletedIds.includes('est-044') && !deletedIds.includes('บทส-69-0044')) {
-      localCache = INITIAL_ESTABLISHMENTS;
-      localStorage.setItem('PNR_SANITATION_ESTABLISHMENTS', JSON.stringify(localCache));
-      localStorage.setItem('PNR_SYSTEM_SEEDED', 'true');
-    }
 
     if (this.isCloudActive && this.supabase) {
       try {
@@ -440,6 +552,20 @@ class SanitationDataService {
                 status,
                 notes
               )
+            ),
+            inspections (
+              id,
+              inspection_date,
+              inspector_name,
+              inspector_position,
+              total_score,
+              max_score,
+              result,
+              inspector_notes,
+              checklist_data,
+              signatures,
+              gps_checkin,
+              created_at
             )
           `)
           .order('created_at', { ascending: false });
@@ -454,8 +580,19 @@ class SanitationDataService {
             );
             return this.mapFromDbRow(row, matchedLocal);
           });
+
+          // รักษาข้อมูลที่บันทึกในเครื่องที่ยังไม่ขึ้นคลาวด์
+          const cloudIds = new Set(nonDeletedData.map((r: any) => r.id));
+          const cloudRegs = new Set(nonDeletedData.map((r: any) => r.reg_number));
+          const cloudNames = new Set(nonDeletedData.map((r: any) => r.business_name));
+          const localOnly = localCache.filter(
+            l => !cloudIds.has(l.id) && !cloudRegs.has(l.regNumber) && !cloudNames.has(l.businessName)
+          );
+          const finalMerged = [...merged, ...localOnly];
+
           // เก็บแคชล่าสุด
-          localStorage.setItem('PNR_SANITATION_ESTABLISHMENTS', JSON.stringify(merged));
+          localStorage.setItem('PNR_SANITATION_ESTABLISHMENTS', JSON.stringify(finalMerged));
+          return finalMerged;
         } else if (!error && (!data || data.length === 0) && deletedIds.length === 0) {
           const isSeeded = localStorage.getItem('PNR_SYSTEM_SEEDED') === 'true';
           if (!isSeeded) {
@@ -653,6 +790,13 @@ class SanitationDataService {
     // ซิงค์ขึ้น Supabase Cloud
     await this.saveEstablishmentToCloud(est);
 
+    try {
+      window.dispatchEvent(new Event('storage'));
+      const bc = new BroadcastChannel('PNR_SANITATION_CHANNEL');
+      bc.postMessage({ type: 'ESTABLISHMENT_SAVED', data: est });
+      bc.close();
+    } catch {}
+
     return est;
   }
 
@@ -732,6 +876,14 @@ class SanitationDataService {
           await this.supabase.from('establishments').delete().eq('reg_number', targetReg);
         }
       }
+
+      try {
+        window.dispatchEvent(new Event('storage'));
+        const bc = new BroadcastChannel('PNR_SANITATION_CHANNEL');
+        bc.postMessage({ type: 'ESTABLISHMENT_DELETED', id: idOrRegNumber });
+        bc.close();
+      } catch {}
+
       return true;
     } catch (e) {
       console.error('Error deleting establishment:', e);
@@ -835,6 +987,144 @@ class SanitationDataService {
     return record;
   }
 
+  // ๔.๑ สร้างคำขอลงนามผ่านมือถือระยะไกล (Mobile Remote Signature Request)
+  async createSignatureRequest(data: Omit<SignatureRequest, 'token' | 'status' | 'createdAt'>): Promise<SignatureRequest> {
+    const token = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : `sig-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+    const newReq: SignatureRequest = {
+      ...data,
+      token,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+
+    // ๑. บันทึกลง LocalStorage
+    try {
+      const raw = localStorage.getItem('PNR_SIGNATURE_REQUESTS');
+      const list: SignatureRequest[] = raw ? JSON.parse(raw) : [];
+      list.unshift(newReq);
+      localStorage.setItem('PNR_SIGNATURE_REQUESTS', JSON.stringify(list));
+    } catch (e) {
+      console.warn('Local save signature request error:', e);
+    }
+
+    // ๒. บันทึกลง Supabase (ถ้ามีตาราง signature_requests)
+    if (this.isCloudActive && this.supabase) {
+      try {
+        await this.supabase.from('signature_requests').insert({
+          token: newReq.token,
+          establishment_id: newReq.establishmentId,
+          establishment_name: newReq.establishmentName,
+          inspection_date: newReq.inspectionDate,
+          inspector_name: newReq.inspectorName,
+          total_score: newReq.totalScore,
+          result: newReq.result,
+          defects_summary: newReq.defectsSummary || [],
+          status: 'pending'
+        });
+      } catch (err) {
+        console.warn('Supabase signature_requests insert error (table may need setup):', err);
+      }
+    }
+
+    return newReq;
+  }
+
+  // ๔.๒ ดึงข้อมูลคำขอลงนามด้วย Token (สำหรับเปิดในมือถือผู้ประกอบการ)
+  async getSignatureRequest(token: string): Promise<SignatureRequest | null> {
+    if (!token) return null;
+
+    // ลองดึงจาก Supabase ก่อน
+    if (this.isCloudActive && this.supabase) {
+      try {
+        const { data, error } = await this.supabase
+          .from('signature_requests')
+          .select('*')
+          .eq('token', token)
+          .maybeSingle();
+
+        if (!error && data) {
+          return {
+            token: data.token,
+            establishmentId: data.establishment_id,
+            establishmentName: data.establishment_name,
+            inspectionDate: data.inspection_date,
+            inspectorName: data.inspector_name,
+            totalScore: Number(data.total_score) || 100,
+            result: data.result,
+            defectsSummary: data.defects_summary || [],
+            status: data.status,
+            signerName: data.signer_name,
+            signatureData: data.signature_data,
+            signedAt: data.signed_at,
+            createdAt: data.created_at
+          };
+        }
+      } catch (err) {
+        console.warn('Supabase fetch signature request fallback:', err);
+      }
+    }
+
+    // Fallback: LocalStorage
+    try {
+      const raw = localStorage.getItem('PNR_SIGNATURE_REQUESTS');
+      if (raw) {
+        const list: SignatureRequest[] = JSON.parse(raw);
+        const found = list.find((r) => r.token === token);
+        if (found) return found;
+      }
+    } catch {
+      // ignore
+    }
+
+    return null;
+  }
+
+  // ๔.๓ บันทึกลายมือชื่อที่ผู้ประกอบการเซ็นผ่านมือถือ
+  async submitRemoteSignature(token: string, signatureData: string, signerName: string): Promise<boolean> {
+    const signedAt = new Date().toISOString();
+
+    // ๑. อัปเดตใน LocalStorage
+    try {
+      const raw = localStorage.getItem('PNR_SIGNATURE_REQUESTS');
+      if (raw) {
+        const list: SignatureRequest[] = JSON.parse(raw);
+        const idx = list.findIndex((r) => r.token === token);
+        if (idx >= 0) {
+          list[idx].status = 'signed';
+          list[idx].signatureData = signatureData;
+          list[idx].signerName = signerName;
+          list[idx].signedAt = signedAt;
+          localStorage.setItem('PNR_SIGNATURE_REQUESTS', JSON.stringify(list));
+        }
+      }
+    } catch (e) {
+      console.warn('Local update signature error:', e);
+    }
+
+    // ๒. อัปเดตใน Supabase
+    if (this.isCloudActive && this.supabase) {
+      try {
+        await this.supabase
+          .from('signature_requests')
+          .update({
+            status: 'signed',
+            signature_data: signatureData,
+            signer_name: signerName,
+            signed_at: signedAt
+          })
+          .eq('token', token);
+      } catch (err) {
+        console.warn('Supabase signature update error:', err);
+      }
+    }
+
+    return true;
+  }
+
+
   // ๕. โหลดและบันทึกการตั้งค่าระบบและผู้ลงนาม (System Settings - user ใคร user มัน)
   async getSettings(officerId?: string): Promise<SystemSettings> {
     const currentOfficer = this.getCurrentOfficer();
@@ -881,6 +1171,11 @@ class SanitationDataService {
       const saved = localStorage.getItem('pnr_health_food_settings');
       if (saved) {
         const parsed = JSON.parse(saved);
+        if (parsed.signatories) {
+          if (!parsed.signatories.mayorName || parsed.signatories.mayorName.includes('สมหมาย')) {
+            parsed.signatories.mayorName = 'นายสมคิด พงษ์สุข';
+          }
+        }
         if (currentOfficer) {
           parsed.signatories = {
             ...parsed.signatories,

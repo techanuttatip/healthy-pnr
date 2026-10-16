@@ -51,7 +51,10 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
       <div className="relative z-10">
         <div className="flex justify-between items-start text-xs text-slate-700 mb-2">
           <div className="font-bold">
-            เล่มที่ <span className="font-mono text-sm">{establishment.receiptBookNo || establishment.bookNo || '๐๑'}</span>
+            เล่มที่{' '}
+            <span className="font-mono text-sm border-b border-dotted border-slate-600 px-6 inline-block min-w-[70px] text-center">
+              &nbsp;
+            </span>
           </div>
           <div className="text-right flex flex-col items-end">
             {mode === 'replacement_cert' && (
@@ -63,7 +66,10 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               {displayCode}
             </span>
             <div className="mt-1">
-              เลขที่ <span className="font-mono font-bold text-sm">{establishment.receiptNo || establishment.docNo}</span>
+              เลขที่{' '}
+              <span className="font-mono font-bold text-sm border-b border-dotted border-slate-600 px-8 inline-block min-w-[110px] text-center">
+                &nbsp;
+              </span>
             </div>
           </div>
         </div>
@@ -83,21 +89,21 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
             {formTitle}
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            อาศัยอำนาจตามความในพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕
+            อาศัยอำนาจตามความในพระราชบัญญัติการสาธารณสุข พ.ศ. 2535
           </p>
         </div>
 
         {/* Body Content */}
         <div className="text-[13px] leading-relaxed text-slate-900 space-y-2.5 mt-4">
           {isHazardous ? (
-            /* ================== แบบ อภ.๒: กิจการที่เป็นอันตรายต่อสุขภาพ ================== */
+            /* ================== แบบ อภ.2: กิจการที่เป็นอันตรายต่อสุขภาพ ================== */
             <>
               <p className="indent-8 text-justify">
-                (๑) เจ้าพนักงานท้องถิ่นออกใบอนุญาตให้{' '}
+                (1) เจ้าพนักงานท้องถิ่นออกใบอนุญาตให้{' '}
                 <span className="font-bold border-b border-dotted border-slate-700 px-2">
                   {establishment.ownerName}
                 </span>{' '}
-                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">๓๕</span> ปี สัญชาติ{' '}
+                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">35</span> ปี สัญชาติ{' '}
                 <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">ไทย</span>{' '}
                 อยู่บ้านเลขที่{' '}
                 <span className="border-b border-dotted border-slate-700 px-2 font-medium">
@@ -157,56 +163,56 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                   {establishment.feeAmount.toLocaleString()}
                 </span>{' '}
                 บาท ({thaiBahtText(establishment.feeAmount)}) ตามใบเสร็จรับเงินเล่มที่{' '}
-                <span className="font-mono font-bold border-b border-dotted border-slate-700 px-1.5">
-                  {establishment.receiptBookNo || establishment.bookNo || '-'}
+                <span className="border-b border-dotted border-slate-700 px-6 font-mono inline-block min-w-[70px] text-center">
+                  &nbsp;
                 </span>{' '}
                 เลขที่{' '}
-                <span className="font-mono font-bold border-b border-dotted border-slate-700 px-1.5">
-                  {establishment.receiptNo || establishment.docNo || 'RCPT-00602/69'}
+                <span className="border-b border-dotted border-slate-700 px-10 font-mono inline-block min-w-[120px] text-center">
+                  &nbsp;
                 </span>{' '}
                 ลงวันที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-mono">
-                  {formatThaiDate(establishment.receiptDate || establishment.issueDate, false)}
+                <span className="border-b border-dotted border-slate-700 px-8 font-mono inline-block min-w-[100px] text-center">
+                  &nbsp;
                 </span>
               </p>
 
               <p className="text-justify indent-8">
-                (๒) ผู้ได้รับใบอนุญาตต้องปฏิบัติตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ และที่แก้ไขเพิ่มเติม กฎกระทรวง และประกาศที่ออกตามพระราชบัญญัตินี้
+                (2) ผู้ได้รับใบอนุญาตต้องปฏิบัติตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 และที่แก้ไขเพิ่มเติม กฎกระทรวง และประกาศที่ออกตามพระราชบัญญัตินี้
               </p>
 
               <p className="text-justify indent-8">
-                (๓) ผู้ได้รับใบอนุญาตต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
+                (3) ผู้ได้รับใบอนุญาตต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
               </p>
-              <div className="pl-12 space-y-1 text-xs text-slate-800">
-                <div>๓.๑) ต้องควบคุม ป้องกัน และระมัดระวังมิให้เกิดอันตราย อัคคีภัย การรั่วไหลของน้ำมันเชื้อเพลิง เสียง หรือมลพิษอื่นใดอันเป็นเหตุรำคาญหรือเป็นอันตรายต่อสุขภาพและความปลอดภัยของประชาชน</div>
-                <div>๓.๒) ต้องติดตั้งอุปกรณ์ความปลอดภัย ระบบป้องกันและระงับอัคคีภัย ถังดับเพลิงเคมีที่ได้มาตรฐานให้อยู่ในสภาพพร้อมใช้งานได้ตลอดเวลา</div>
-                <div>๓.๓) ปฏิบัติตามคำแนะนำของเจ้าพนักงานสาธารณสุขและคำสั่งของเจ้าพนักงานท้องถิ่นโดยเคร่งครัด</div>
+              <div className="pl-6 space-y-1 text-xs text-slate-800">
+                <div>3.1) ต้องควบคุม ป้องกัน และระมัดระวังมิให้เกิดอันตราย อัคคีภัย การรั่วไหลของน้ำมันเชื้อเพลิง เสียง หรือมลพิษอื่นใดอันเป็นเหตุรำคาญหรือเป็นอันตรายต่อสุขภาพและความปลอดภัยของประชาชน</div>
+                <div>3.2) ต้องติดตั้งอุปกรณ์ความปลอดภัย ระบบป้องกันและระงับอัคคีภัย ถังดับเพลิงเคมีที่ได้มาตรฐานให้อยู่ในสภาพพร้อมใช้งานได้ตลอดเวลา</div>
+                <div>3.3) ปฏิบัติตามคำแนะนำของเจ้าพนักงานสาธารณสุขและคำสั่งของเจ้าพนักงานท้องถิ่นโดยเคร่งครัด</div>
               </div>
 
-              <div className="flex justify-between items-center text-xs text-slate-800 pt-2 font-medium">
+              <div className="space-y-1.5 text-xs text-slate-800 pt-2 font-medium">
                 <div>
-                  (๔) ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่{' '}
-                  <span className="font-mono font-bold border-b border-dotted border-slate-700 px-2">
+                  (4) ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่{' '}
+                  <span className="font-mono font-bold border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
                     {formatThaiDate(establishment.issueDate, false)}
                   </span>
                 </div>
                 <div>
-                  (๕) ใบอนุญาตฉบับนี้สิ้นอายุวันที่{' '}
-                  <span className="font-mono font-bold text-red-900 border-b border-dotted border-slate-700 px-2">
+                  (5) ใบอนุญาตฉบับนี้สิ้นอายุวันที่{' '}
+                  <span className="font-mono font-bold text-red-900 border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
                     {formatThaiDate(establishment.expireDate, false)}
                   </span>
                 </div>
               </div>
             </>
           ) : (
-            /* ================== แบบ นจ.๓ หรือ บทอ.: จำหน่าย/สะสมอาหาร ================== */
+            /* ================== แบบ นจ.3 หรือ บทอ.: จำหน่าย/สะสมอาหาร ================== */
             <>
               <p className="indent-8 text-justify">
-                (๑) เจ้าพนักงานท้องถิ่น{isFoodLicense ? 'ออกใบอนุญาตให้' : 'ออกใบรับแจ้งให้'}{' '}
+                (1) เจ้าพนักงานท้องถิ่น{isFoodLicense ? 'ออกใบอนุญาตให้' : 'ออกใบรับแจ้งให้'}{' '}
                 <span className="font-bold border-b border-dotted border-slate-700 px-2">
                   {establishment.ownerName}
                 </span>{' '}
-                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">๓๕</span> ปี สัญชาติ{' '}
+                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">35</span> ปี สัญชาติ{' '}
                 <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">ไทย</span>{' '}
                 อยู่บ้านเลขที่{' '}
                 <span className="border-b border-dotted border-slate-700 px-2 font-medium">
@@ -242,7 +248,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 </span>{' '}
                 ช่วงเวลาที่จำหน่าย{' '}
                 <span className="border-b border-dotted border-slate-700 px-2 font-mono">
-                  {establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.'}
+                  {establishment.operatingHours || '07:00 - 19:00 น.'}
                 </span>{' '}
                 มีพื้นที่{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
@@ -264,47 +270,47 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>
               </p>
 
-              <p className="text-justify">
+              <p className="text-justify leading-relaxed">
                 เสียค่าธรรมเนียมปีละ{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2 text-emerald-900">
                   {establishment.feeAmount.toLocaleString()}
                 </span>{' '}
                 บาท ({thaiBahtText(establishment.feeAmount)}) ตามใบเสร็จรับเงินเล่มที่{' '}
-                <span className="font-mono font-bold border-b border-dotted border-slate-700 px-1.5">
-                  {establishment.receiptBookNo || establishment.bookNo || '๐๑'}
+                <span className="border-b border-dotted border-slate-700 px-2 font-mono inline-block min-w-[36px] text-center">
+                  {establishment.receiptBookNo || '\u00A0'}
                 </span>{' '}
                 เลขที่{' '}
-                <span className="font-mono font-bold border-b border-dotted border-slate-700 px-1.5">
-                  {establishment.receiptNo || establishment.docNo || '๐๐๔๕'}
+                <span className="border-b border-dotted border-slate-700 px-3 font-mono inline-block min-w-[48px] text-center">
+                  {establishment.receiptNo || '\u00A0'}
                 </span>{' '}
                 ลงวันที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-mono">
-                  {formatThaiDate(establishment.receiptDate || establishment.issueDate, false)}
+                <span className="border-b border-dotted border-slate-700 px-3 font-mono inline-block min-w-[80px] text-center whitespace-nowrap">
+                  {establishment.receiptDate ? formatThaiDate(establishment.receiptDate, false) : '\u00A0'}
                 </span>
               </p>
 
               <p className="text-justify indent-8">
-                (๒) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามหลักเกณฑ์ วิธีการและเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ และที่แก้ไขเพิ่มเติม กฎกระทรวงและประกาศที่ออกตามพระราชบัญญัตินี้
+                (2) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามหลักเกณฑ์ วิธีการและเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 และที่แก้ไขเพิ่มเติม กฎกระทรวงและประกาศที่ออกตามพระราชบัญญัตินี้
               </p>
 
               <p className="text-justify indent-8">
-                (๓) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
+                (3) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
               </p>
-              <div className="pl-12 space-y-1 text-xs text-slate-800">
-                <div>๓.๑) ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุข และข้อบัญญัติ อปท.</div>
-                <div>๓.๒) {isStorage ? 'การจัดเก็บต้องวางบนพาเลทหรือยกสูงจากพื้นอย่างน้อย ๑๕ ซม. และมีระบบป้องกันสัตว์แมลงนำโรค' : 'ผู้สัมผัสอาหารทุกคนต้องผ่านการอบรมหลักสูตรสุขาภิบาลอาหาร และมีสุขภาพร่างกายสมบูรณ์ไม่เป็นโรคติดต่อ'}</div>
+              <div className="pl-6 space-y-1 text-xs text-slate-800">
+                <div>3.1) ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุขและข้อบัญญัติ อปท.</div>
+                <div>3.2) {isStorage ? 'การจัดเก็บต้องวางบนพาเลทหรือยกสูงจากพื้นอย่างน้อย 15 ซม. และมีระบบป้องกันสัตว์แมลงนำโรค' : 'ผู้สัมผัสอาหารทุกคนต้องผ่านการอบรมหลักสูตรสุขาภิบาลอาหาร และมีสุขภาพร่างกายสมบูรณ์ไม่เป็นโรคติดต่อ'}</div>
               </div>
 
-              <div className="flex justify-between items-center text-xs text-slate-800 pt-2 font-medium">
+              <div className="space-y-1.5 text-xs text-slate-800 pt-2 font-medium">
                 <div>
-                  (๔) {isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}{' '}
-                  <span className="font-mono font-bold border-b border-dotted border-slate-700 px-2">
+                  (4) {isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}{' '}
+                  <span className="font-mono font-bold border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
                     {formatThaiDate(establishment.issueDate, false)}
                   </span>
                 </div>
                 <div>
-                  (๕) {isFoodLicense ? 'ใบอนุญาตฉบับนี้สิ้นอายุวันที่' : 'ครบกำหนดวันชำระค่าธรรมเนียม วันที่'}{' '}
-                  <span className="font-mono font-bold text-red-900 border-b border-dotted border-slate-700 px-2">
+                  (5) {isFoodLicense ? 'ใบอนุญาตฉบับนี้สิ้นอายุวันที่' : 'ครบกำหนดวันชำระค่าธรรมเนียม วันที่'}{' '}
+                  <span className="font-mono font-bold text-red-900 border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
                     {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate, false)}
                   </span>
                 </div>
@@ -314,47 +320,25 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         </div>
       </div>
 
-      {/* Official Signatures & Dual QR Code Section */}
+      {/* Official Signatures Section (No QR Codes) */}
       <div className="relative z-10 pt-4">
-        <div className="flex justify-between items-end">
-          {/* DUAL QR CODE */}
-          <div className="flex items-center gap-4">
-            <div className="text-center">
-              <div className="w-20 h-20 border border-slate-300 rounded p-1 bg-white shadow-2xs flex flex-col items-center justify-between">
-                <svg className="w-13 h-13 text-slate-800" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm13-2h3v3h-3v-3zm0 5h3v3h-3v-3zm-3-5h2v2h-2v-2zm0 4h2v4h-2v-4zm5 0h2v4h-2v-4zM5 5h2v2H5V5zm12 0h2v2h-2V5zM5 17h2v2H5v-2z" />
-                </svg>
-                <div className="text-[7px] font-bold text-blue-900">QR จทน. ตรวจสอบ</div>
-              </div>
-              <div className="text-[8px] text-slate-500 mt-0.5">ตรวจสถานะ/ประวัติ</div>
-            </div>
-
-            <div className="text-center">
-              <div className="w-20 h-20 border border-slate-300 rounded p-1 bg-white shadow-2xs flex flex-col items-center justify-between">
-                <svg className="w-13 h-13 text-teal-800" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm11-1h2v3h-2v-3zm2 3h3v2h-3v-2zm-3 3h2v2h-2v-2zm3 0h3v2h-3v-2zm-1 3h4v1h-4v-1zM5 5h2v2H5V5zm12 0h2v2h-2V5zM5 17h2v2H5v-2z" />
-                </svg>
-                <div className="text-[7px] font-bold text-emerald-800">QR ติชม/ร้องเรียน</div>
-              </div>
-              <div className="text-[8px] text-slate-500 mt-0.5">ประเมินถึง อบต.</div>
-            </div>
-          </div>
-
+        <div className="flex justify-end items-end">
           {/* Local Mayor Signature */}
-          <div className="text-center w-64 relative">
+          <div className="text-center w-72 relative">
             <img
               src="/pnr_logo.png"
               alt="ตราประทับ อบต.โป่งน้ำร้อน"
               className="w-24 h-24 object-contain opacity-25 absolute -top-4 right-4 rotate-[-8deg] pointer-events-none select-none print:opacity-35"
             />
-            <div className="text-xs text-slate-800 mb-8 relative z-10">
-              (ลงชื่อ) ....................................................
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
             </div>
             <div className="font-bold text-sm text-slate-900 relative z-10">
-              ( {sig.mayorName} )
+              ( {sig.mayorName && !sig.mayorName.includes('สมหมาย') ? sig.mayorName : 'นายสมคิด พงษ์สุข'} )
             </div>
             <div className="text-xs text-slate-700 mt-0.5 relative z-10">
-              ตำแหน่ง {sig.mayorPosition}
+              {sig.mayorPosition}
             </div>
             <div className="text-[11px] font-semibold text-slate-800 relative z-10">
               {sig.mayorRoleTitle}
@@ -366,16 +350,16 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         <div className="mt-4 pt-2 border-t border-slate-300 text-[10px] text-slate-600 leading-snug space-y-1">
           {mode === 'replacement_cert' && (
             <p className="font-medium text-slate-800">
-              <strong>หมายเหตุ (๑)</strong> {isHazardous ? 'ใบอนุญาตฉบับนี้เป็นการออกใบแทนใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ' : 'หนังสือรับรองการแจ้งฉบับนี้เป็นการออกใบแทนหนังสือรับรองการแจ้ง'} กรณีที่มีการแจ้งสูญหาย ถูกทำลาย หรือชำรุดในสาระสำคัญ ตามคำขอใบแทนเมื่อวันที่ {formatThaiDate(establishment.replacementRequestDate || establishment.issueDate, false)}
+              <strong>หมายเหตุ (1)</strong> {isHazardous ? 'ใบอนุญาตฉบับนี้เป็นการออกใบแทนใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ' : 'หนังสือรับรองการแจ้งฉบับนี้เป็นการออกใบแทนหนังสือรับรองการแจ้ง'} กรณีที่มีการแจ้งสูญหาย ถูกทำลาย หรือชำรุดในสาระสำคัญ ตามคำขอใบแทนเมื่อวันที่ {formatThaiDate(establishment.replacementRequestDate || establishment.issueDate, false)}
             </p>
           )}
           {isHazardous ? (
             <p>
-              <strong>หมายเหตุ {mode === 'replacement_cert' ? '(๒) ' : ''}</strong> ผู้ได้รับใบอนุญาตต้องยื่นคำขอต่ออายุใบอนุญาตก่อนใบอนุญาตสิ้นอายุ เมื่อได้ยื่นคำขอแล้วจะประกอบกิจการต่อไปก็ได้จนกว่าเจ้าพนักงานท้องถิ่นจะสั่งไม่ต่ออายุใบอนุญาต หากไม่ยื่นคำขอต่ออายุภายในกำหนดเวลาจะต้องเสียค่าปรับตามที่กฎหมายกำหนด
+              <strong>หมายเหตุ {mode === 'replacement_cert' ? '(2) ' : ''}</strong> ผู้ได้รับใบอนุญาตต้องยื่นคำขอต่ออายุใบอนุญาตก่อนใบอนุญาตสิ้นอายุ เมื่อได้ยื่นคำขอแล้วจะประกอบกิจการต่อไปก็ได้จนกว่าเจ้าพนักงานท้องถิ่นจะสั่งไม่ต่ออายุใบอนุญาต หากไม่ยื่นคำขอต่ออายุภายในกำหนดเวลาจะต้องเสียค่าปรับตามที่กฎหมายกำหนด
             </p>
           ) : (
             <p>
-              <strong>หมายเหตุ {mode === 'replacement_cert' ? '(๒) ' : ''}</strong> ผู้รับหนังสือรับรองแจ้งมีหน้าที่ต้องเสียค่าธรรมเนียมต่อราชการส่วนท้องถิ่นตามกำหนดเวลา หากไม่ได้เสียค่าธรรมเนียมภายในเวลาที่กำหนด จะต้องเสียค่าปรับเพิ่มขึ้นอีกร้อยละยี่สิบของจำนวนค่าธรรมเนียมที่ค้างชำระ
+              <strong>หมายเหตุ {mode === 'replacement_cert' ? '(2) ' : ''}</strong> ผู้รับหนังสือรับรองแจ้งมีหน้าที่ต้องเสียค่าธรรมเนียมต่อราชการส่วนท้องถิ่นตามกำหนดเวลา หากไม่ได้เสียค่าธรรมเนียมภายในเวลาที่กำหนด จะต้องเสียค่าปรับเพิ่มขึ้นอีกร้อยละยี่สิบของจำนวนค่าธรรมเนียมที่ค้างชำระ
             </p>
           )}
         </div>

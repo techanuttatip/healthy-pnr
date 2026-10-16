@@ -37,12 +37,12 @@ export const RenewalNoticeDoc: React.FC<RenewalNoticeDocProps> = ({
         {/* Letter Top Reference and Address */}
         <div className="flex justify-between items-start text-sm leading-relaxed mb-6">
           <div className="w-1/2">
-            <div>ที่ ชม ๗๒๒๐๒ / ว {establishment.docNo || '๐๔๑๒'}</div>
+            <div>ที่ ชม 72202 / ว {establishment.docNo || '0412'}</div>
           </div>
           <div className="w-1/2 text-left pl-8">
             <div>ที่ทำการองค์การบริหารส่วนตำบลโป่งน้ำร้อน</div>
             <div>ตำบลโป่งน้ำร้อน อำเภอฝาง</div>
-            <div>จังหวัดเชียงใหม่ ๕๐๑๑๐</div>
+            <div>จังหวัดเชียงใหม่ 50110</div>
           </div>
         </div>
 
@@ -56,7 +56,7 @@ export const RenewalNoticeDoc: React.FC<RenewalNoticeDocProps> = ({
           <div className="flex">
             <span className="w-24 shrink-0 font-bold">เรื่อง</span>
             <span>
-              แจ้งเตือนการต่ออายุใบอนุญาตและชำระค่าธรรมเนียมประจำปี ตาม พ.ร.บ.การสาธารณสุข พ.ศ. ๒๕๓๕
+              แจ้งเตือนการต่ออายุใบอนุญาตและชำระค่าธรรมเนียมประจำปี ตาม พ.ร.บ.การสาธารณสุข พ.ศ. 2535
             </span>
           </div>
           <div className="flex">
@@ -71,7 +71,7 @@ export const RenewalNoticeDoc: React.FC<RenewalNoticeDocProps> = ({
           </div>
           <div className="flex">
             <span className="w-24 shrink-0 font-bold">สิ่งที่ส่งมาด้วย</span>
-            <span>๑. แบบคำขอต่ออายุใบอนุญาต จำนวน ๑ ชุด</span>
+            <span>1. แบบคำขอต่ออายุใบอนุญาต จำนวน 1 ชุด</span>
           </div>
         </div>
 
@@ -89,19 +89,19 @@ export const RenewalNoticeDoc: React.FC<RenewalNoticeDocProps> = ({
           </p>
 
           <p>
-            เพื่อให้การดำเนินกิจการของท่านเป็นไปอย่างถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕
+            เพื่อให้การดำเนินกิจการของท่านเป็นไปอย่างถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535
             และข้อบัญญัติองค์การบริหารส่วนตำบลโป่งน้ำร้อน กองสาธารณสุขและสิ่งแวดล้อม
             จึงขอแจ้งเตือนให้ท่านหรือผู้รับมอบอำนาจ เดินทางมายื่นคำขอต่ออายุใบอนุญาต พร้อมนำหลักฐานประกอบ
             และชำระค่าธรรมเนียมประจำปี เป็นจำนวนเงิน{' '}
             <strong>{establishment.feeAmount.toLocaleString('th-TH')} บาท ({thaiBahtText(establishment.feeAmount)})</strong>{' '}
             ณ ที่ทำการกองสาธารณสุขและสิ่งแวดล้อม องค์การบริหารส่วนตำบลโป่งน้ำร้อน{' '}
-            <span className="underline font-bold">ก่อนใบอนุญาตสิ้นอายุไม่น้อยกว่า ๓๐ วัน</span>
+            <span className="underline font-bold">ก่อนใบอนุญาตสิ้นอายุไม่น้อยกว่า 30 วัน</span>
           </p>
 
           <p>
             อนึ่ง หากพ้นกำหนดระยะเวลาดังกล่าวและท่านยังมิได้ดำเนินการต่ออายุ
             ท่านจะต้องระวางโทษปรับตามกฎหมาย หรืออาจถูกสั่งระงับการดำเนินกิจการตามพระราชบัญญัติการสาธารณสุข
-            พ.ศ. ๒๕๓๕ ต่อไป
+            พ.ศ. 2535 ต่อไป
           </p>
 
           <p className="indent-8">
@@ -112,7 +112,7 @@ export const RenewalNoticeDoc: React.FC<RenewalNoticeDocProps> = ({
         {/* Sign-off */}
         <div className="mt-12 text-center ml-auto w-64 text-sm space-y-1">
           <div className="mb-14">ขอแสดงความนับถือ</div>
-          <div className="font-bold">( {sig.mayorName || 'นายสมหมาย มงคลกุล'} )</div>
+          <div className="font-bold">( {sig.mayorName || 'นายสมคิด พงษ์สุข'} )</div>
           <div className="text-xs text-slate-700">{sig.mayorPosition || 'นายกองค์การบริหารส่วนตำบลโป่งน้ำร้อน'}</div>
           <div className="text-xs text-slate-700">{sig.mayorRoleTitle || 'เจ้าพนักงานท้องถิ่น'}</div>
         </div>

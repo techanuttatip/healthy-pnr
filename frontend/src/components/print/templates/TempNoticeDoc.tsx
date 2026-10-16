@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Establishment, SystemSettings } from '../../../types/publicHealth';
 import { formatThaiDate, parseAddressDetails } from './printHelpers';
+import { DEFAULT_OFFICER_SIGNATURE, sanitationDataService } from '../../../services/sanitationDataService';
 
 interface TempNoticeDocProps {
   establishment: Establishment;
@@ -16,6 +17,8 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
   tempNoticeTitle
 }) => {
   const sig = settings.signatories;
+  const currentOfficer = sanitationDataService.getCurrentOfficer();
+  const officerSig = currentOfficer?.signatureUrl || DEFAULT_OFFICER_SIGNATURE;
   const districtName = settings.district || 'อำเภอฝาง';
   const provinceName = settings.province || 'จังหวัดเชียงใหม่';
 
@@ -78,14 +81,14 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         {/* Body Content */}
         <div className="text-[13px] leading-relaxed text-slate-900 space-y-3 mt-5">
           {isHazardous ? (
-            /* ================== ใบรับคำขอ อภ.๑ (กิจการที่เป็นอันตรายต่อสุขภาพ) ================== */
+            /* ================== ใบรับคำขอ อภ.1 (กิจการที่เป็นอันตรายต่อสุขภาพ) ================== */
             <>
               <p className="indent-8 text-justify">
                 เจ้าพนักงานท้องถิ่นได้รับคำขอรับใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพจาก (นาย, นาง, นางสาว){' '}
                 <span className="font-bold border-b border-dotted border-slate-700 px-2">
                   {establishment.ownerName}
                 </span>{' '}
-                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">๓๕</span> ปี สัญชาติ{' '}
+                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">35</span> ปี สัญชาติ{' '}
                 <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">ไทย</span>{' '}
                 อยู่บ้านเลขที่{' '}
                 <span className="border-b border-dotted border-slate-700 px-2 font-medium">
@@ -143,14 +146,14 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </p>
             </>
           ) : (
-            /* ================== ใบรับแจ้ง นจ.๒ (สถานที่จำหน่าย/สะสมอาหาร) ================== */
+            /* ================== ใบรับแจ้ง นจ.2 (สถานที่จำหน่าย/สะสมอาหาร) ================== */
             <>
               <p className="indent-8 text-justify">
                 เจ้าพนักงานท้องถิ่นออกใบรับแจ้งให้ (นาย, นาง, นางสาว){' '}
                 <span className="font-bold border-b border-dotted border-slate-700 px-2">
                   {establishment.ownerName}
                 </span>{' '}
-                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">๓๕</span> ปี สัญชาติ{' '}
+                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">35</span> ปี สัญชาติ{' '}
                 <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">ไทย</span>{' '}
                 อยู่บ้านเลขที่{' '}
                 <span className="border-b border-dotted border-slate-700 px-2 font-medium">
@@ -186,7 +189,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
                 </span>{' '}
                 ช่วงเวลาที่จำหน่าย{' '}
                 <span className="border-b border-dotted border-slate-700 px-2 font-mono">
-                  {establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.'}
+                  {establishment.operatingHours || '07:00 - 19:00 น.'}
                 </span>{' '}
                 มีพื้นที่{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
@@ -233,22 +236,44 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
 
       {/* Signature & Official Notes */}
       <div className="relative z-10 pt-4">
-        <div className="flex justify-end">
-          <div className="text-center w-64">
-            <div className="text-xs text-slate-800 mb-8">
-              (ลงชื่อ) ....................................................
+        <div className="flex justify-between items-end">
+          {/* Receiving Officer with e-sig */}
+          <div className="text-center w-72 relative">
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="relative flex-1 mx-2 border-b border-dotted border-slate-700 h-8 flex items-end justify-center">
+                {officerSig && (
+                  <img
+                    src={officerSig}
+                    alt="e-sig ผู้รับเรื่อง"
+                    className="absolute -bottom-1.5 h-10 object-contain filter contrast-125 pointer-events-none"
+                  />
+                )}
+              </div>
+              <span className="text-xs text-slate-800 shrink-0 whitespace-nowrap pb-0.5">ผู้รับเรื่อง</span>
             </div>
             <div className="font-bold text-sm text-slate-900">
-              ( {sig.mayorName} )
+              ( {sig.officerName || 'นางสาวรุ่งทิวา อุปนันท์'} )
             </div>
             <div className="text-xs text-slate-700 mt-0.5">
-              ตำแหน่ง {sig.mayorPosition}
+              {sig.officerPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'}
+            </div>
+          </div>
+
+          {/* Local Mayor */}
+          <div className="text-center w-72">
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
+            </div>
+            <div className="font-bold text-sm text-slate-900">
+              ( {sig.mayorName && !sig.mayorName.includes('สมหมาย') ? sig.mayorName : 'นายสมคิด พงษ์สุข'} )
+            </div>
+            <div className="text-xs text-slate-700 mt-0.5">
+              {sig.mayorPosition}
             </div>
             <div className="text-[11px] font-semibold text-slate-800">
               {sig.mayorRoleTitle}
-            </div>
-            <div className="text-[10px] text-slate-400 mt-1 italic">
-              *(ใบรับแจ้งที่ดาวน์โหลดผ่านระบบนี้จะไม่มีลายเซ็นของเจ้าพนักงานท้องถิ่น)*
             </div>
           </div>
         </div>
@@ -257,10 +282,10 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         <div className="mt-4 pt-3 border-t border-slate-300 text-[10.5px] text-slate-700 leading-snug space-y-1.5">
           <div className="font-bold text-slate-900">หมายเหตุ</div>
           <p>
-            ๑. แบบฟอร์มนี้ทำในระบบและปริ้นเสนอผู้มีอำนาจลงนาม และให้ระบบแจ้งเตือนผู้ยื่นคำขอทราบว่าเจ้าหน้าที่ได้ออก{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ให้แล้วภายในวันที่ยื่นโดยประชาชนหรือผู้ประกอบการสามารถดาวน์โหลด{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ไว้เป็นหลักฐานแสดงให้เจ้าหน้าที่ตรวจสอบได้เป็นการชั่วคราว จนกว่าเจ้าพนักงานท้องถิ่นจะออก{isHazardous ? 'ใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ (แบบ อภ.๒)' : 'หนังสือรับรองการแจ้ง'}ภายในกำหนดเวลาตามกฎหมาย ทั้งนี้{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ที่ดาวน์โหลดผ่านระบบนี้จะไม่มีลายเซ็นของเจ้าพนักงานท้องถิ่น
+            1. แบบฟอร์มนี้ทำในระบบและปริ้นเสนอผู้มีอำนาจลงนาม และให้ระบบแจ้งเตือนผู้ยื่นคำขอทราบว่าเจ้าหน้าที่ได้ออก{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ให้แล้วภายในวันที่ยื่น โดยประชาชนหรือผู้ประกอบการสามารถดาวน์โหลด{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ไว้เป็นหลักฐานแสดงให้เจ้าหน้าที่ตรวจสอบได้เป็นการชั่วคราว จนกว่าเจ้าพนักงานท้องถิ่นจะออก{isHazardous ? 'ใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ (แบบ อภ.2)' : 'หนังสือรับรองการแจ้ง'}ภายในกำหนดเวลาตามกฎหมาย
           </p>
           <p>
-            ๒. วันที่รับเรื่องและวันที่ออก{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ต้องออกให้ภายในวันเดียวกัน
+            2. วันที่รับเรื่องและวันที่ออก{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ต้องออกให้ภายในวันเดียวกัน
           </p>
         </div>
       </div>

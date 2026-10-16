@@ -58,15 +58,17 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
+    const scaleX = rect.width > 0 ? canvas.width / rect.width : 1;
+    const scaleY = rect.height > 0 ? canvas.height / rect.height : 1;
     if ('touches' in e && e.touches.length > 0) {
       return {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top
+        x: (e.touches[0].clientX - rect.left) * scaleX,
+        y: (e.touches[0].clientY - rect.top) * scaleY
       };
     } else if ('clientX' in e) {
       return {
-        x: (e as React.MouseEvent<HTMLCanvasElement>).clientX - rect.left,
-        y: (e as React.MouseEvent<HTMLCanvasElement>).clientY - rect.top
+        x: ((e as React.MouseEvent<HTMLCanvasElement>).clientX - rect.left) * scaleX,
+        y: ((e as React.MouseEvent<HTMLCanvasElement>).clientY - rect.top) * scaleY
       };
     }
     return { x: 0, y: 0 };

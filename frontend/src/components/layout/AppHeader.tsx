@@ -1,5 +1,4 @@
-import React from 'react';
-import { LayoutDashboard, Search, Bell, Settings } from 'lucide-react';
+import { LayoutDashboard, Search, Bell, Settings, Smartphone, QrCode } from 'lucide-react';
 import type { OfficerAccount } from '../../services/sanitationDataService';
 import type { AppModuleType } from './AppSidebar';
 import { LiveClock } from './LiveClock';
@@ -15,6 +14,8 @@ interface AppHeaderProps {
   onOpenProfile: () => void;
   onOpenSettings: () => void;
   onOpenDataSafety?: () => void;
+  onOpenPwaQr?: () => void;
+  onSelectFieldInspection?: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -27,7 +28,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   currentOfficer,
   onOpenProfile,
   onOpenSettings,
-  onOpenDataSafety
+  onOpenDataSafety,
+  onOpenPwaQr,
+  onSelectFieldInspection
 }) => {
   return (
     <header className="gov-glass mx-4 mt-3 rounded-2xl h-14 px-5 flex items-center justify-between shrink-0 z-20 print:hidden gap-4 border border-white/70 shadow-sm">
@@ -45,12 +48,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <span className="text-slate-500 hidden md:inline">{organizationName}</span>
         <span className="text-slate-300 hidden md:inline">/</span>
         <span className="font-bold text-slate-900 flex items-center gap-1.5">
-          {activeModule === 'dashboard' && '๑. ศูนย์บัญชาการภาพรวมงานทะเบียน'}
-          {activeModule === 'table' && '๒. ทะเบียนคำขอ & สารบรรณ'}
-          {activeModule === 'intake' && '๓. นำเข้าเอกสาร PDF (Auto-fill)'}
-          {activeModule === 'archive' && '๔. แฟ้มเอกสารรายปี'}
-          {activeModule === 'map' && '๕. แผนที่พิกัด GIS ตำบล'}
-          {activeModule === 'print' && '๖. พิมพ์เอกสารราชการ'}
+          {activeModule === 'dashboard' && 'ภาพรวมงานทะเบียน'}
+          {activeModule === 'table' && 'ทะเบียนคำขอ & สารบรรณ'}
+          {(activeModule === 'upload_pdf' || activeModule === 'intake') && 'อัปโหลดไฟล์ PDF (Auto-fill)'}
+          {activeModule === 'manual_entry' && 'บันทึกข้อมูลเอง'}
+          {activeModule === 'field_inspection' && 'ตรวจสุขลักษณะภาคสนาม (มือถือ)'}
+          {activeModule === 'archive' && 'แฟ้มเอกสารรายปี'}
+          {activeModule === 'map' && 'แผนที่พิกัด GIS ตำบล'}
+          {activeModule === 'print' && 'พิมพ์เอกสารราชการ'}
         </span>
       </div>
 
@@ -107,6 +112,33 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <span className="font-mono text-[10.5px] group-hover:underline">🛡️ ปลอดภัย (Auto-Backup)</span>
         </button>
+
+        {/* Mobile Field PWA Link (Integrated) */}
+        <div className="hidden lg:flex items-center gap-1">
+          <button
+            type="button"
+            onClick={onSelectFieldInspection ? onSelectFieldInspection : () => window.open('/?app=inspector', '_blank')}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-semibold shadow-2xs transition-all cursor-pointer ${
+              activeModule === 'field_inspection'
+                ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm'
+                : 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-800'
+            }`}
+            title="เปิดแอปพลิเคชันภาคสนาม Mobile PWA สำหรับออกตรวจพื้นที่"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+            <span>📱 แอปภาคสนาม (PWA)</span>
+          </button>
+          {onOpenPwaQr && (
+            <button
+              type="button"
+              onClick={onOpenPwaQr}
+              className="p-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-blue-700 transition-all cursor-pointer"
+              title="สแกน QR Code สำหรับมือถือ"
+            >
+              <QrCode className="w-3.5 h-3.5 text-amber-600" />
+            </button>
+          )}
+        </div>
 
         {/* Officer Profile Button */}
         <button

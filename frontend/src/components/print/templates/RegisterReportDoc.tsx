@@ -43,7 +43,7 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
               {orgName} {districtName} {provinceName}
             </p>
             <p className="text-[11px] text-slate-600 mt-0.5">
-              ตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ หมวด ๘ • ข้อมูลสารบรรณประจำปีงบประมาณ {settings.fiscalYear}
+              ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 8 • ข้อมูลสารบรรณประจำปีงบประมาณ {settings.fiscalYear}
             </p>
           </div>
           <div className="w-16 h-16 flex items-center justify-center shrink-0">
@@ -59,7 +59,7 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
         <div className="flex items-center justify-between bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-xs text-xs text-slate-700 mb-3 print:bg-transparent">
           <div className="flex items-center gap-4">
             <span>จำนวนสถานประกอบการในบัญชี: <strong className="font-mono text-sm">{establishments.length}</strong> แห่ง</span>
-            <span>ผ่านเกณฑ์สุขลักษณะ (๑๐๐ คะแนน): <strong className="font-mono text-emerald-800">{totalPassed}</strong> แห่ง ({establishments.length > 0 ? Math.round((totalPassed / establishments.length) * 100) : 0}%)</span>
+            <span>ผ่านเกณฑ์สุขลักษณะ (100 คะแนน): <strong className="font-mono text-emerald-800">{totalPassed}</strong> แห่ง ({establishments.length > 0 ? Math.round((totalPassed / establishments.length) * 100) : 0}%)</span>
           </div>
           <div>
             รวมค่าธรรมเนียมจัดเก็บทั้งสิ้น: <strong className="font-mono text-sm text-blue-900">{totalFees.toLocaleString()}</strong> บาท
@@ -93,7 +93,7 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
                 <td className="border border-slate-300 py-1 px-2 text-center font-mono font-bold">
                   {est.inspectionScore !== undefined ? (
                     <span className={est.inspectionScore >= 80 ? 'text-emerald-800' : 'text-red-700'}>
-                      {est.inspectionScore}/๑๐๐
+                      {est.inspectionScore}/100
                     </span>
                   ) : (
                     <span className="text-slate-400">รอนัดตรวจ</span>

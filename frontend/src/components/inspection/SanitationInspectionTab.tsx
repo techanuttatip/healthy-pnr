@@ -32,6 +32,12 @@ import {
 import { SignaturePad } from './SignaturePad';
 import { FieldInspectionSlipModal } from './FieldInspectionSlipModal';
 
+import {
+  OFFICIAL_FOOD_SERVICE_FORM,
+  OFFICIAL_FOOD_STORAGE_FORM,
+  OFFICIAL_HAZARDOUS_HEALTH_FORM
+} from '../../types/officialInspectionForms';
+
 interface SanitationInspectionTabProps {
   establishment: Establishment | null;
   onSaveInspection: (record: InspectionRecord, newStatus: EstablishmentStatus) => void;
@@ -39,264 +45,41 @@ interface SanitationInspectionTabProps {
   onClose?: () => void;
 }
 
-// 1. เกณฑ์สุขาภิบาลอาหาร กรมอนามัย (สำหรับ บทอ., นจ., อส.)
-const FOOD_SANITATION_CRITERIA: Omit<InspectionChecklistItem, 'passed'>[] = [
-  // มิติที่ 1: สถานที่และสิ่งแวดล้อม (25 คะแนน)
-  {
-    id: 'f1',
-    dimension: 'มิติที่ ๑: สถานที่และสิ่งแวดล้อม',
-    title: 'โต๊ะปรุง-เตรียมอาหารสูงจากพื้น ≥ 60 ซม. ผิวเรียบทำความสะอาดง่าย',
-    description: 'สภาพโต๊ะสะอาด ไม่มีคราบสะสม ไม่ใช้วัสดุที่ดูดซับน้ำหรือเกิดสนิม',
-    points: 5
-  },
-  {
-    id: 'f2',
-    dimension: 'มิติที่ ๑: สถานที่และสิ่งแวดล้อม',
-    title: 'พื้น ผนัง เพดาน สะอาด มีแสงสว่างและการระบายอากาศเพียงพอ',
-    description: 'ไม่มีหยากไย่ คราบน้ำมัน หรือความชื้นสะสม มีพัดลมดูดควันทำงานปกติ',
-    points: 5
-  },
-  {
-    id: 'f3',
-    dimension: 'มิติที่ ๑: สถานที่และสิ่งแวดล้อม',
-    title: 'มีบ่อดักไขมันที่ใช้งานได้ดี และระบบระบายน้ำทิ้งไม่อุดตัน',
-    description: 'ข้อกำหนดบังคับ: ต้องตักไขมันทิ้งสม่ำเสมอ น้ำทิ้งไม่ส่งกลิ่นเหม็นรบกวน',
-    points: 10,
-    isCritical: true
-  },
-  {
-    id: 'f4',
-    dimension: 'มิติที่ ๑: สถานที่และสิ่งแวดล้อม',
-    title: 'มีอ่างล้างมือพร้อมสบู่และผ้าเช็ดมือ/กระดาษสำหรับผู้สัมผัสอาหาร',
-    description: 'ติดตั้งในตำแหน่งที่สะดวก และแยกจากอ่างล้างภาชนะใส่อาหาร',
-    points: 5
-  },
+// 1. เกณฑ์ตรวจสถานที่จำหน่ายอาหาร (อบต.โป่งน้ำร้อน - ๒๑ ข้อ)
+const FOOD_SANITATION_CRITERIA: Omit<InspectionChecklistItem, 'passed'>[] = OFFICIAL_FOOD_SERVICE_FORM.categories.flatMap(cat =>
+  cat.items.map(item => ({
+    id: item.id,
+    dimension: cat.title,
+    title: `${item.code} ${item.label}`,
+    description: item.label,
+    points: 5,
+    isCritical: item.isCritical
+  }))
+);
 
-  // มิติที่ 2: วัตถุดิบ ภาชนะ อุปกรณ์ และน้ำใช้ (30 คะแนน)
-  {
-    id: 'f5',
-    dimension: 'มิติที่ ๒: สุขอนามัยอาหารและอุปกรณ์',
-    title: 'จัดเก็บอาหารสด/อาหารปรุงสำเร็จแยกสัดส่วน และควบคุมอุณหภูมิถูกต้อง',
-    description: 'อาหารสดแช่เย็น < 5°C หรือแช่แข็ง < -18°C, อาหารปรุงสำเร็จอุ่นร้อน > 60°C',
-    points: 10
-  },
-  {
-    id: 'f6',
-    dimension: 'มิติที่ ๒: สุขอนามัยอาหารและอุปกรณ์',
-    title: 'ล้างภาชนะอุปกรณ์ 3 ขั้นตอน และคว่ำบนตะแกรงสูง ≥ 60 ซม.',
-    description: 'ข้อกำหนดบังคับ: ขั้นที่ 1 ล้างเศษอาหาร, ขั้นที่ 2 ล้างน้ำยาล้างจาน, ขั้นที่ 3 ล้างน้ำสะอาด 2 ครั้ง',
-    points: 10,
-    isCritical: true
-  },
-  {
-    id: 'f7',
-    dimension: 'มิติที่ ๒: สุขอนามัยอาหารและอุปกรณ์',
-    title: 'น้ำใช้ น้ำแข็ง และน้ำดื่ม สะอาดตามเกณฑ์มาตรฐาน มีภาชนะปกปิดมิดชิด',
-    description: 'ใช้น้ำแข็งบริโภคสะอาด แยกถังน้ำแข็งสำหรับแช่เครื่องดื่มหรืออาหารสด',
-    points: 10
-  },
+// 2. เกณฑ์ตรวจสถานที่สะสมอาหาร (อบต.โป่งน้ำร้อน - ๑๕ ข้อ)
+const FOOD_STORAGE_CRITERIA: Omit<InspectionChecklistItem, 'passed'>[] = OFFICIAL_FOOD_STORAGE_FORM.categories.flatMap(cat =>
+  cat.items.map(item => ({
+    id: item.id,
+    dimension: cat.title,
+    title: `${item.code} ${item.label}`,
+    description: item.label,
+    points: 7,
+    isCritical: item.isCritical
+  }))
+);
 
-  // มิติที่ 3: สุขลักษณะส่วนบุคคลของผู้สัมผัสอาหาร (25 คะแนน)
-  {
-    id: 'f8',
-    dimension: 'มิติที่ ๓: ผู้สัมผัสอาหาร',
-    title: 'ผู้ประกอบการและผู้สัมผัสอาหารผ่านการอบรมมีวุฒิบัตรตามหลักสูตร สธ.',
-    description: 'ข้อกำหนดบังคับ: มีใบประกาศนียบัตรผู้สัมผัสอาหารที่ยังไม่หมดอายุ',
-    points: 10,
-    isCritical: true
-  },
-  {
-    id: 'f9',
-    dimension: 'มิติที่ ๓: ผู้สัมผัสอาหาร',
-    title: 'แต่งกายสะอาด สวมหมวกคลุมผมและผ้ากันเปื้อนขณะปฏิบัติงาน',
-    description: 'ตัดเล็บสั้น ไม่สวมเครื่องประดับที่มือ ไม่สูบบุหรี่ขณะปรุงอาหาร',
-    points: 10
-  },
-  {
-    id: 'f10',
-    dimension: 'มิติที่ ๓: ผู้สัมผัสอาหาร',
-    title: 'มีหลักฐานการตรวจสุขภาพประจำปี ไม่เป็นโรคติดต่ออันตราย',
-    description: 'ไม่มีโรคระบบทางเดินอาหาร โรคผิวหนังเรื้อรัง หรือวัณโรค',
-    points: 5
-  },
-
-  // มิติที่ 4: การจัดการมูลฝอย สิ่งปฏิกูล และสัตว์นำโรค (20 คะแนน)
-  {
-    id: 'f11',
-    dimension: 'มิติที่ ๔: มูลฝอยและสัตว์นำโรค',
-    title: 'ถังขยะมูลฝอยมีฝาปิดมิดชิด มีถุงดำรองรับ และแยกขยะเศษอาหาร',
-    description: 'สภาพถังขยะสะอาด ไม่แตกรั่ว และนำไปทิ้งทุกวันหลังปิดร้าน',
-    points: 10
-  },
-  {
-    id: 'f12',
-    dimension: 'มิติที่ ๔: มูลฝอยและสัตว์นำโรค',
-    title: 'มีมาตรการป้องกันและไม่พบร่องรอยของสัตว์หรือแมลงนำโรค',
-    description: 'ข้อกำหนดบังคับ: ไม่พบหนู แมลงสาบ หรือแมลงวันตอมอาหารในบริเวณปรุง',
-    points: 10,
-    isCritical: true
-  }
-];
-
-// 1.2 เกณฑ์ตรวจสถานที่สะสมอาหาร (Food Storage Premises Checklist)
-const FOOD_STORAGE_CRITERIA: Omit<InspectionChecklistItem, 'passed'>[] = [
-  // มิติที่ 1: การจัดวางบนพาเลทและโครงสร้างคลัง (30 คะแนน)
-  {
-    id: 's1',
-    dimension: 'มิติที่ ๑: โครงสร้างและการจัดวางสินค้า',
-    title: 'จัดวางอาหารบนพาเลทหรือชั้นวางสูงจากพื้นอย่างน้อย ๑๕ ซม.',
-    description: 'ข้อกำหนดบังคับ: ห้ามวางอาหารติดพื้นโดยตรง และเว้นระยะห่างจากผนัง ≥ 30 ซม. เพื่อทำความสะอาดและตรวจสัตว์นำโรค',
-    points: 10,
-    isCritical: true
-  },
-  {
-    id: 's2',
-    dimension: 'มิติที่ ๑: โครงสร้างและการจัดวางสินค้า',
-    title: 'อาคารคลัง ผนัง เพดาน สะอาด แข็งแรง และระบายอากาศเพียงพอ',
-    description: 'ไม่มีรอยแตกร้าว รอยรั่วซึม ไม่มีหยากไย่ และมีระบบระบายอากาศลดความร้อนสะสม',
-    points: 10
-  },
-  {
-    id: 's3',
-    dimension: 'มิติที่ ๑: โครงสร้างและการจัดวางสินค้า',
-    title: 'แสงสว่างเพียงพอและหลอดไฟมีฝาครอบป้องกันการแตกกระจาย',
-    description: 'ความสว่างเพียงพอต่อการตรวจสอบสภาพอาหาร และมีฝาครอบหลอดไฟเพื่อป้องกันเศษแก้วตกใส่อาหาร',
-    points: 10
-  },
-
-  // มิติที่ 2: การควบคุมอุณหภูมิและความชื้น (30 คะแนน)
-  {
-    id: 's4',
-    dimension: 'มิติที่ ๒: การควบคุมอุณหภูมิและระบบการเก็บรักษา',
-    title: 'ควบคุมอุณหภูมิห้องเย็น/ตู้แช่ตามมาตรฐาน (แช่เย็น < 5°C, แช่แข็ง < -18°C)',
-    description: 'ข้อกำหนดบังคับ: มีเทอร์โมมิเตอร์แสดงอุณหภูมิที่เที่ยงตรง และมีบันทึกตรวจเช็กอุณหภูมิประจำวัน',
-    points: 10,
-    isCritical: true
-  },
-  {
-    id: 's5',
-    dimension: 'มิติที่ ๒: การควบคุมอุณหภูมิและระบบการเก็บรักษา',
-    title: 'มีระบบหมุนเวียนสินค้า เข้าก่อน-ออกก่อน (First-In, First-Out: FIFO)',
-    description: 'มีการติดป้ายระบุวันที่รับเข้าและวันหมดอายุ (Expiry Date) ชัดเจน คัดแยกอาหารเสื่อมสภาพออกทันที',
-    points: 10
-  },
-  {
-    id: 's6',
-    dimension: 'มิติที่ ๒: การควบคุมอุณหภูมิและระบบการเก็บรักษา',
-    title: 'ควบคุมความชื้นในคลังอาหารแห้งเพื่อป้องกันเชื้อราและสารพิษอะฟลาทอกซิน',
-    description: 'ห้องเก็บอาหารแห้งและเมล็ดพืชไม่อับชื้น และมีแท่นรองรับน้ำหนักที่มั่นคง',
-    points: 10
-  },
-
-  // มิติที่ 3: การป้องกันการปนเปื้อนสารเคมีและสัตว์นำโรค (25 คะแนน)
-  {
-    id: 's7',
-    dimension: 'มิติที่ ๓: การป้องกันสารเคมีและสัตว์นำโรค',
-    title: 'ห้ามเก็บอาหารรวมกับสารเคมี ยาฆ่าแมลง ปุ๋ย หรือสารทำความสะอาดเด็ดขาด',
-    description: 'ข้อกำหนดบังคับ: ต้องแยกห้องหรืออาคารเก็บสารเคมีออกจากพื้นที่เก็บรักษาอาหารโดยเด็ดขาด',
-    points: 15,
-    isCritical: true
-  },
-  {
-    id: 's8',
-    dimension: 'มิติที่ ๓: การป้องกันสารเคมีและสัตว์นำโรค',
-    title: 'มีตาข่าย มุ้งลวด หรือม่านริ้วพลาสติก ป้องกันสัตว์และแมลงนำโรค',
-    description: 'ข้อกำหนดบังคับ: ประตู หน้าต่าง ช่องลม ปิดมิดชิด ไม่พบร่องรอยหนู นก แมลงสาบ ในคลังเก็บอาหาร',
-    points: 10,
-    isCritical: true
-  },
-
-  // มิติที่ 4: สุขอนามัยผู้ปฏิบัติงานและการขนถ่าย (15 คะแนน)
-  {
-    id: 's9',
-    dimension: 'มิติที่ ๔: สุขอนามัยผู้ปฏิบัติงานและยานพาหนะ',
-    title: 'ผู้ปฏิบัติงานสวมใส่ชุดสะอาด และมีหลักฐานผ่านการอบรมสุขาภิบาลอาหาร',
-    description: 'ปฏิบัติตามสุขวิทยาส่วนบุคคล ไม่สูบบุหรี่ในคลัง และมีบัตรประจำตัวผู้สัมผัสอาหาร',
-    points: 10
-  },
-  {
-    id: 's10',
-    dimension: 'มิติที่ ๔: สุขอนามัยผู้ปฏิบัติงานและยานพาหนะ',
-    title: 'ยานพาหนะและพาเลท/รถยกที่ใช้ลำเลียงอาหารสะอาด ปลอดภัย',
-    description: 'ไม่ใช้ยานพาหนะร่วมกับสิ่งปฏิกูล สารพิษ หรือสารเคมีอันตราย',
-    points: 5
-  }
-];
-
-// 2. เกณฑ์กิจการที่เป็นอันตรายต่อสุขภาพ (สำหรับ บทส., ปป.)
-const HAZARDOUS_CRITERIA: Omit<InspectionChecklistItem, 'passed'>[] = [
-  // มิติที่ 1: มลพิษและสุขอนามัยสิ่งแวดล้อม (35 คะแนน)
-  {
-    id: 'h1',
-    dimension: 'มิติที่ ๑: มลพิษและสิ่งแวดล้อม',
-    title: 'มีระบบควบคุมเสียง กลิ่น ควัน ฝุ่นละออง และไอระเหยตามมาตรฐาน',
-    description: 'ข้อกำหนดบังคับ: ระดับเสียงและฝุ่นไม่เกินเกณฑ์ข้อบัญญัติ อปท. ในรัศมี 100 เมตร',
-    points: 15,
-    isCritical: true
-  },
-  {
-    id: 'h2',
-    dimension: 'มิติที่ ๑: มลพิษและสิ่งแวดล้อม',
-    title: 'มีระบบบำบัดน้ำเสียก่อนระบายสู่ภายนอก และน้ำทิ้งผ่านเกณฑ์มาตรฐาน',
-    description: 'ข้อกำหนดบังคับ: มีบ่อตกตะกอน บ่อดักสารเคมี และไม่อุดตันท่อระบายน้ำสาธารณะ',
-    points: 10,
-    isCritical: true
-  },
-  {
-    id: 'h3',
-    dimension: 'มิติที่ ๑: มลพิษและสิ่งแวดล้อม',
-    title: 'การคัดแยกและการกำจัดกากของเสียอันตราย/ขยะอุตสาหกรรมถูกต้อง',
-    description: 'มีภาชนะบรรจุสารเคมีปิดมิดชิด มีป้ายเตือน และส่งกำจัดกับผู้ได้รับอนุญาต',
-    points: 10
-  },
-
-  // มิติที่ 2: ความปลอดภัยและสุขอนามัยในการทำงาน (35 คะแนน)
-  {
-    id: 'h4',
-    dimension: 'มิติที่ ๒: ความปลอดภัยในการทำงาน',
-    title: 'จัดหาอุปกรณ์คุ้มครองความปลอดภัยส่วนบุคคล (PPE) ให้คนงานสวมใส่ครบถ้วน',
-    description: 'แว่นตานิรภัย หน้ากากกรองฝุ่น/สารเคมี ที่อุดหูลดเสียง ถุงมือ รองเท้าหัวเหล็ก',
-    points: 15
-  },
-  {
-    id: 'h5',
-    dimension: 'มิติที่ ๒: ความปลอดภัยในการทำงาน',
-    title: 'ติดตั้งถังดับเพลิงพร้อมใช้งาน และมีป้ายทางหนีไฟชัดเจน',
-    description: 'ข้อกำหนดบังคับ: ตรวจสอบแรงดันถังดับเพลิงทุก 6 เดือน ไม่มีสิ่งกีดขวางทางหนีไฟ',
-    points: 10,
-    isCritical: true
-  },
-  {
-    id: 'h6',
-    dimension: 'มิติที่ ๒: ความปลอดภัยในการทำงาน',
-    title: 'ติดตั้งเครื่องจักรกลมั่นคงปลอดภัย มีการต่อสายดินและครอบฝาป้องกัน',
-    description: 'เครื่องจักรมีอุปกรณ์ตัดไฟฉุกเฉิน และตรวจเช็คระบบไฟฟ้าเป็นประจำ',
-    points: 10
-  },
-
-  // มิติที่ 3: สวัสดิการและสุขภาพคนงาน (30 คะแนน)
-  {
-    id: 'h7',
-    dimension: 'มิติที่ ๓: สวัสดิการและสุขภาพคนงาน',
-    title: 'จัดให้มีห้องน้ำ ห้องส้วมที่ถูกสุขลักษณะแยกชาย-หญิงเพียงพอ',
-    description: 'ห้องน้ำสะอาด มีน้ำล้างและสบู่ อัตราส่วนตามที่กฎกระทรวงกำหนด',
-    points: 10
-  },
-  {
-    id: 'h8',
-    dimension: 'มิติที่ ๓: สวัสดิการและสุขภาพคนงาน',
-    title: 'จัดให้มีชุดปฐมพยาบาลเบื้องต้นประจำสถานประกอบการ',
-    description: 'มียาและเวชภัณฑ์จำเป็นครบถ้วน และไม่หมดอายุ',
-    points: 10
-  },
-  {
-    id: 'h9',
-    dimension: 'มิติที่ ๓: สวัสดิการและสุขภาพคนงาน',
-    title: 'มีการตรวจสุขภาพประจำปีตามปัจจัยเสี่ยงสำหรับผู้ปฏิบัติงาน',
-    description: 'มีประวัติการตรวจการได้ยิน สมรรถภาพปอด หรือสารเคมีในร่างกาย',
-    points: 10
-  }
-];
+// 3. เกณฑ์ตรวจกิจการที่เป็นอันตรายต่อสุขภาพ (อบต.โป่งน้ำร้อน - ๑๓ ข้อ)
+const HAZARDOUS_CRITERIA: Omit<InspectionChecklistItem, 'passed'>[] = OFFICIAL_HAZARDOUS_HEALTH_FORM.categories.flatMap(cat =>
+  cat.items.map(item => ({
+    id: item.id,
+    dimension: cat.title,
+    title: `${item.code} ${item.label}`,
+    description: item.label,
+    points: 8,
+    isCritical: item.isCritical
+  }))
+);
 
 // Helper to calculate distance in meters between two coordinates
 const calculateDistanceMeters = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -766,19 +549,18 @@ export const SanitationInspectionTab: React.FC<SanitationInspectionTabProps> = (
             <span>๒. สถานที่สะสมอาหาร (Food Storage / ห้องเย็น)</span>
           </button>
 
-          {isHazardous && (
-            <button
-              type="button"
-              onClick={() => handleSwitchCategory('hazardous')}
-              className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                inspectionCategory === 'hazardous'
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <span>๓. กิจการอันตราย</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => handleSwitchCategory('hazardous')}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              inspectionCategory === 'hazardous'
+                ? 'bg-purple-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>๓. กิจการอันตรายต่อสุขภาพ</span>
+          </button>
         </div>
 
         {/* Field Inspection Operations Toolbar (ลงพื้นที่จริง) */}
@@ -1392,6 +1174,7 @@ export const SanitationInspectionTab: React.FC<SanitationInspectionTabProps> = (
         isOpen={isSlipModalOpen}
         onClose={() => setIsSlipModalOpen(false)}
         establishment={establishment}
+        activeCategory={inspectionCategory}
         inspectionRecord={{
           id: establishment.inspectionRecord?.id || `insp-${Date.now()}`,
           establishmentId: establishment.id,

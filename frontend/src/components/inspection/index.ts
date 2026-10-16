@@ -3,3 +3,8 @@ export * from './FieldRenewalKitModal';
 export * from './FieldInspectionSlipModal';
 export * from './SignaturePad';
 export * from './HealthActionDrawer';
+export * from './FieldInspectionView';
+export * from './RemoteSignView';
+export * from './FieldInspectorPwa';
+export * from './PwaQrModal';
+export * from './pwa';

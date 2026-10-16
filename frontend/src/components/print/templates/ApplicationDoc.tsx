@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Establishment, SystemSettings } from '../../../types/publicHealth';
 import { renderCitizenIdBoxes, formatThaiDate, parseAddressDetails } from './printHelpers';
+import { DEFAULT_OFFICER_SIGNATURE, sanitationDataService } from '../../../services/sanitationDataService';
 
 interface ApplicationDocProps {
   establishment: Establishment;
@@ -15,6 +16,9 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
   applicationCode,
   applicationTitle
 }) => {
+  const sig = settings.signatories;
+  const currentOfficer = sanitationDataService.getCurrentOfficer();
+  const officerSig = currentOfficer?.signatureUrl || DEFAULT_OFFICER_SIGNATURE;
   const districtName = settings.district || 'อำเภอฝาง';
   const provinceName = settings.province || 'จังหวัดเชียงใหม่';
   const parsedAddress = parseAddressDetails(establishment.address, establishment.village);
@@ -58,12 +62,12 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
           {/* 1. Applicant Section */}
           <div>
             <div className="font-bold">
-              {isHazardous ? '๑. ข้อมูลผู้ขอรับใบอนุญาต/ต่ออายุใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ' : `๑. ชื่อผู้ขอจัดตั้งสถานที่${isStorage ? 'สะสมอาหาร' : 'จำหน่ายอาหาร'}`}
+              {isHazardous ? '1. ข้อมูลผู้ขอรับใบอนุญาต/ต่ออายุใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ' : `1. ชื่อผู้ขอจัดตั้งสถานที่${isStorage ? 'สะสมอาหาร' : 'จำหน่ายอาหาร'}`}
             </div>
             <div className="pl-4 mt-0.5 leading-relaxed">
               ข้าพเจ้า{' '}
               <span className="font-bold border-b border-dotted border-slate-700 px-2">{establishment.ownerName}</span>{' '}
-              อายุ <span className="border-b border-dotted border-slate-700 px-1.5 font-mono">๓๕</span> ปี สัญชาติ{' '}
+              อายุ <span className="border-b border-dotted border-slate-700 px-1.5 font-mono">35</span> ปี สัญชาติ{' '}
               <span className="border-b border-dotted border-slate-700 px-1.5">ไทย</span>
               <div className="mt-1 flex items-center gap-2">
                 <span>เลขหมายประจำตัวประชาชน เลขที่</span>
@@ -82,7 +86,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
 
           {/* 2. Business Details */}
           <div>
-            <div className="font-bold">๒. ข้อมูลสถานประกอบกิจการ</div>
+            <div className="font-bold">2. ข้อมูลสถานประกอบกิจการ</div>
             <div className="pl-4 space-y-0.5 mt-0.5">
               <div>
                 ชื่อสถานประกอบกิจการ:{' '}
@@ -123,7 +127,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                   <div>
                     เวลาทำการ:{' '}
                     <span className="border-b border-dotted border-slate-700 px-2 font-mono">
-                      {establishment.operatingHours || 'ตลอด ๒๔ ชั่วโมง (ระบบอัตโนมัติ)'}
+                      {establishment.operatingHours || 'ตลอด 24 ชั่วโมง (ระบบอัตโนมัติ)'}
                     </span>
                   </div>
                 </>
@@ -150,13 +154,13 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                   <div>
                     ช่วงเวลาที่จำหน่าย:{' '}
                     <span className="border-b border-dotted border-slate-700 px-2 font-mono">
-                      {establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.'}
+                      {establishment.operatingHours || '07:00 - 19:00 น.'}
                     </span>{' '}
                     มีพื้นที่:{' '}
                     <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
                       {establishment.areaSqm}
                     </span>{' '}
-                    ตารางเมตร (ไม่เกิน ๒๐๐ ตร.ม.){' '}
+                    ตารางเมตร (ไม่เกิน 200 ตร.ม.){' '}
                     {isStorage ? 'จำนวนคนงาน:' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร:'}{' '}
                     <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
                       {establishment.workerCount}
@@ -179,7 +183,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
 
           {/* 3. Document Checklist */}
           <div>
-            <div className="font-bold">๓. พร้อมคำขอนี้ ข้าพเจ้าได้แนบเอกสารหลักฐานต่าง ๆ มาด้วยแล้ว ดังนี้:</div>
+            <div className="font-bold">3. พร้อมคำขอนี้ ข้าพเจ้าได้แนบเอกสารหลักฐานต่าง ๆ มาด้วยแล้ว ดังนี้:</div>
             <div className="pl-4 grid grid-cols-1 sm:grid-cols-2 gap-0.5 mt-0.5 text-xs">
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-emerald-700">☑</span>
@@ -206,7 +210,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5 sm:col-span-2">
                     <span className="font-bold text-emerald-700">☑</span>
-                    <span>แบบตรวจประเมินสุขลักษณะสถานประกอบกิจการที่เป็นอันตรายต่อสุขภาพ (ผลตรวจ ๙๕ คะแนน ผ่านเกณฑ์)</span>
+                    <span>แบบตรวจประเมินสุขลักษณะสถานประกอบกิจการที่เป็นอันตรายต่อสุขภาพ (ผลตรวจ 95 คะแนน ผ่านเกณฑ์)</span>
                   </div>
                 </>
               ) : (
@@ -215,7 +219,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                     <div className="flex items-center gap-1.5 sm:col-span-2">
                       <span className="font-bold text-emerald-700">☑</span>
                       <span>
-                        หลักฐานการผ่านการอบรมผู้ประกอบกิจการและผู้สัมผัสอาหาร (เลขที่ {establishment.foodHandlerCertNo || 'ผส.๖๗-๐๐๑๒'})
+                        หลักฐานการผ่านการอบรมผู้ประกอบกิจการและผู้สัมผัสอาหาร (เลขที่ {establishment.foodHandlerCertNo || 'ผส.67-0012'})
                         <span className="text-[10px] text-slate-500 ml-1">*(เชื่อมฐานข้อมูล ไม่ต้องยื่นซ้ำ)*</span>
                       </span>
                     </div>
@@ -228,7 +232,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                     <span className="font-bold text-emerald-700">☑</span>
                     <span>
                       แบบตรวจประเมินตนเองตามมาตรฐานสุขาภิบาลอาหาร
-                      {isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหารตามกฎกระทรวงสุขลักษณะของสถานที่จำหน่ายอาหาร พ.ศ. ๒๕๖๑'}
+                      {isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหารตามกฎกระทรวงสุขลักษณะของสถานที่จำหน่ายอาหาร พ.ศ. 2561'}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -242,7 +246,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
 
           {/* 4. Consent & Affirmation */}
           <div className="pt-1">
-            <div className="font-bold">๔. การยินยอมและการรับรอง:</div>
+            <div className="font-bold">4. การยินยอมและการรับรอง:</div>
             <p className="indent-6 text-xs text-justify mt-0.5">
               ข้าพเจ้ายินยอมให้ องค์การบริหารส่วนตำบลโป่งน้ำร้อน ตรวจสอบเอกสารหลักฐานของทางราชการที่เกี่ยวข้องกับการขอรับ{isHazardous ? 'ใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ' : 'หนังสือรับรองการแจ้ง'}
             </p>
@@ -254,11 +258,39 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
       </div>
 
       {/* Signature Section */}
-      <div className="relative z-10 pt-3">
-        <div className="flex justify-end">
-          <div className="text-center w-64">
-            <div className="text-xs text-slate-800 mb-8">
-              (ลงชื่อ) .................................................... {isHazardous ? 'ผู้ขอรับใบอนุญาต' : 'ผู้ขอแจ้ง'}
+      <div className="relative z-10 pt-2">
+        <div className="flex justify-between items-end">
+          {/* Officer Signature with e-sig */}
+          <div className="text-center w-72 relative">
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="relative flex-1 mx-2 border-b border-dotted border-slate-700 h-8 flex items-end justify-center">
+                {officerSig && (
+                  <img
+                    src={officerSig}
+                    alt="e-sig ผู้รับเรื่อง"
+                    className="absolute -bottom-1.5 h-10 object-contain filter contrast-125 pointer-events-none"
+                  />
+                )}
+              </div>
+              <span className="text-xs text-slate-800 shrink-0 whitespace-nowrap pb-0.5">ผู้รับเรื่อง</span>
+            </div>
+            <div className="font-bold text-sm text-slate-900">
+              ( {sig.officerName || 'นางสาวรุ่งทิวา อุปนันท์'} )
+            </div>
+            <div className="text-xs text-slate-700 mt-0.5">
+              {sig.officerPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'}
+            </div>
+          </div>
+
+          {/* Applicant Signature */}
+          <div className="text-center w-72">
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
+              <span className="text-xs text-slate-800 shrink-0 whitespace-nowrap pb-0.5">
+                {isHazardous ? 'ผู้ขอรับใบอนุญาต' : 'ผู้ขอแจ้ง'}
+              </span>
             </div>
             <div className="font-bold text-sm text-slate-900">
               ( {establishment.ownerName} )
@@ -272,8 +304,16 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
             <span>(ส่วนฉีกให้ผู้ยื่นคำขอเก็บไว้เป็นหลักฐาน)</span>
             <span>ใบรับคำขอ {applicationCode}</span>
           </div>
-          <div className="bg-slate-50 border border-slate-300 p-2 rounded-xs leading-relaxed text-[11px]">
-            อบต.โป่งน้ำร้อน ได้รับ{isHazardous ? 'คำขอรับใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ (แบบ อภ.๑)' : `คำขอจัดตั้งสถานที่${isStorage ? 'สะสมอาหาร' : 'จำหน่ายอาหาร'}`} ของ <strong>{establishment.ownerName}</strong> กิจการ <strong>"{establishment.businessName}"</strong> เลขรับที่ <strong>{establishment.regNumber}</strong> ไว้เรียบร้อยแล้วเมื่อวันที่ <strong>{formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, false)}</strong> และได้ออก{isHazardous ? 'ใบรับคำขอชั่วคราว' : 'ใบรับแจ้งชั่วคราว'}ให้เรียบร้อยแล้ว
+          <div className="bg-slate-50 border border-slate-300 p-2 rounded-xs leading-relaxed text-[11px] flex justify-between items-center gap-3">
+            <div className="flex-1">
+              อบต.โป่งน้ำร้อน ได้รับ{isHazardous ? 'คำขอรับใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ (แบบ อภ.1)' : `คำขอจัดตั้งสถานที่${isStorage ? 'สะสมอาหาร' : 'จำหน่ายอาหาร'}`} ของ <strong>{establishment.ownerName}</strong> กิจการ <strong>"{establishment.businessName}"</strong> เลขรับที่ <strong>{establishment.regNumber}</strong> ไว้เรียบร้อยแล้วเมื่อวันที่ <strong>{formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, false)}</strong> และได้ออก{isHazardous ? 'ใบรับคำขอชั่วคราว' : 'ใบรับแจ้งชั่วคราว'}ให้เรียบร้อยแล้ว
+            </div>
+            {officerSig && (
+              <div className="w-28 text-center border-l border-slate-300 pl-2 shrink-0">
+                <img src={officerSig} alt="e-sig" className="h-7 object-contain mx-auto filter contrast-125" />
+                <div className="text-[9px] text-slate-500 font-bold mt-0.5">e-Signature ผู้รับเรื่อง</div>
+              </div>
+            )}
           </div>
         </div>
       </div>

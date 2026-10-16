@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { Establishment, SystemSettings } from '../../types/publicHealth';
 import { DEFAULT_SYSTEM_SETTINGS } from '../../types/publicHealth';
 import { X, Printer, FileText, CheckSquare, ClipboardList, Layers } from 'lucide-react';
@@ -21,10 +22,19 @@ export const FieldRenewalKitModal: React.FC<FieldRenewalKitModalProps> = ({
   settings,
   targetYear = 2570
 }) => {
-  if (!isOpen) return null;
-
   const [activeTab, setActiveTab] = useState<PreviewTab>('form_app');
   const [showStamp, setShowStamp] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('has-print-modal');
+      return () => {
+        document.body.classList.remove('has-print-modal');
+      };
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
 
   const currentSettings = settings || DEFAULT_SYSTEM_SETTINGS;
   const orgName = currentSettings.organizationName || 'องค์การบริหารส่วนตำบลโป่งน้ำร้อน';
@@ -59,7 +69,7 @@ export const FieldRenewalKitModal: React.FC<FieldRenewalKitModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto modal-print-container print:p-0 print:bg-white print:static print:inset-auto">
       {/* Container */}
       <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[96vh] flex flex-col overflow-hidden border border-slate-200 modal-print-window print:max-h-none print:shadow-none print:border-none print:w-full print:rounded-none">
@@ -194,7 +204,7 @@ export const FieldRenewalKitModal: React.FC<FieldRenewalKitModalProps> = ({
             {/* ๑. ฉบับที่ ๑: แบบคำขอรับใบอนุญาต/ต่ออายุใบอนุญาต (A4 ๑ หน้า เป๊ะ) */}
             {/* ========================================================================= */}
             {(activeTab === 'all' || activeTab === 'form_app') && (
-              <div className="bg-white mx-auto shadow-md border border-slate-300 print:shadow-none print:border-none print:m-0 text-slate-900 font-sans leading-relaxed relative page-break-after box-border p-8 sm:p-11 print:p-8 w-[210mm] min-h-[297mm] flex flex-col justify-between">
+              <div className={`bg-white mx-auto shadow-md border border-slate-300 print:shadow-none print:border-none print:m-0 text-slate-900 font-sans leading-relaxed relative box-border p-8 sm:p-11 print:p-6 w-[210mm] print:w-full min-h-[297mm] print:min-h-0 flex flex-col justify-between ${activeTab === 'all' ? 'page-break-after' : ''}`}>
                 <div>
                   {/* Top Header: Form Code (ขวาบน) - แบบคำขอต้องไม่มีตราครุฑ */}
                   <div className="flex justify-end mb-3">
@@ -349,7 +359,7 @@ export const FieldRenewalKitModal: React.FC<FieldRenewalKitModalProps> = ({
             {/* ๒. ฉบับที่ ๒: แบบตรวจสอบสุขลักษณะสถานที่จริง (บีบเหลือ A4 ๑ หน้าจบ) */}
             {/* ========================================================================= */}
             {(activeTab === 'all' || activeTab === 'form_inspect') && (
-              <div className="bg-white mx-auto shadow-md border border-slate-300 print:shadow-none print:border-none print:m-0 text-slate-900 font-sans leading-tight relative page-break-after box-border p-6 sm:p-8 print:p-6 w-[210mm] min-h-[297mm] flex flex-col justify-between">
+              <div className={`bg-white mx-auto shadow-md border border-slate-300 print:shadow-none print:border-none print:m-0 text-slate-900 font-sans leading-tight relative box-border p-6 sm:p-8 print:p-6 w-[210mm] print:w-full min-h-[297mm] print:min-h-0 flex flex-col justify-between ${activeTab === 'all' ? 'page-break-after' : ''}`}>
                 <div>
                   {/* Header */}
                   <div className="text-center space-y-0.5 mb-2 pb-1.5 border-b-2 border-slate-900">
@@ -525,7 +535,7 @@ export const FieldRenewalKitModal: React.FC<FieldRenewalKitModalProps> = ({
             {/* ๓. ฉบับที่ ๓: บันทึกข้อความตรวจสอบ & ใบรับคำขอชั่วคราว (A4 ๑ หน้า) */}
             {/* ========================================================================= */}
             {(activeTab === 'all' || activeTab === 'form_memo') && (
-              <div className="bg-white mx-auto shadow-md border border-slate-300 print:shadow-none print:border-none print:m-0 text-slate-900 font-sans leading-relaxed relative page-break-after box-border p-8 sm:p-11 print:p-8 w-[210mm] min-h-[297mm] flex flex-col justify-between">
+              <div className="bg-white mx-auto shadow-md border border-slate-300 print:shadow-none print:border-none print:m-0 text-slate-900 font-sans leading-relaxed relative box-border p-8 sm:p-11 print:p-6 w-[210mm] print:w-full min-h-[297mm] print:min-h-0 flex flex-col justify-between">
                 <div>
                   {/* Top Garuda for Official Memorandum */}
                   <div className="flex justify-between items-start mb-2">
@@ -616,6 +626,7 @@ export const FieldRenewalKitModal: React.FC<FieldRenewalKitModalProps> = ({
 
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
