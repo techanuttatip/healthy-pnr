@@ -89,12 +89,16 @@ export const App: React.FC = () => {
     }
   });
 
-  // Check if opening for dedicated Mobile Field Inspector PWA
+  // Check if opening for dedicated Mobile Field Inspector PWA (via URL, standalone installed PWA, or mobile shortcut)
   const [isInspectorPwa] = useState<boolean>(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const path = window.location.pathname.toLowerCase();
-      return (
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 820;
+
+      // 1. Direct URL parameters or path
+      if (
         params.get('app') === 'inspector' ||
         params.get('pwa') === '1' ||
         params.has('inspector') ||
@@ -103,7 +107,23 @@ export const App: React.FC = () => {
         path.includes('/inspector') ||
         path.includes('/mobile') ||
         path.includes('/pwa')
-      );
+      ) {
+        localStorage.setItem('pwa_launch_mode', 'inspector');
+        return true;
+      }
+
+      // 2. Installed PWA opened from Home Screen (standalone)
+      if (isStandalone) {
+        localStorage.setItem('pwa_launch_mode', 'inspector');
+        return true;
+      }
+
+      // 3. Mobile device with inspector mode previously launched
+      if (isMobileDevice && localStorage.getItem('pwa_launch_mode') === 'inspector') {
+        return true;
+      }
+
+      return false;
     } catch {
       return false;
     }
