@@ -260,49 +260,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </div>
         </button>
 
-        <div className="pt-2 pb-1">
-          {!isSidebarCollapsed && (
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-1">
-              แอปพลิเคชันมือถือ
-            </div>
-          )}
-        </div>
 
-        {/* 8: แอปภาคสนาม Mobile PWA (รวมในระบบเดียวกัน) */}
-        <div className="flex items-center gap-1.5 w-full">
-          <button
-            type="button"
-            onClick={() => onSelectModule('field_inspection')}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-150 cursor-pointer ${
-              isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
-            } ${
-              isCurrent('field_inspection')
-                ? 'bg-emerald-600 text-white font-bold shadow-sm'
-                : 'bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/50 hover:text-white shadow-xs'
-            }`}
-            title="เปิดแอปพลิเคชันภาคสนาม Mobile PWA สำหรับออกตรวจพื้นที่"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <Smartphone className="w-4 h-4 text-emerald-400 shrink-0" />
-              {!isSidebarCollapsed && <span className="truncate">แอปภาคสนาม (PWA)</span>}
-            </div>
-            {!isSidebarCollapsed && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                PWA
-              </span>
-            )}
-          </button>
-          {!isSidebarCollapsed && onOpenPwaQr && (
-            <button
-              type="button"
-              onClick={onOpenPwaQr}
-              className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-amber-300 border border-slate-700 transition-all cursor-pointer shrink-0"
-              title="สแกน QR Code เพื่อเปิดบนมือถือ"
-            >
-              <QrCode className="w-4 h-4 text-amber-400" />
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Bottom: Officer Profile Card & Logout */}

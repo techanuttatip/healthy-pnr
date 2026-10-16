@@ -89,15 +89,20 @@ export const App: React.FC = () => {
     }
   });
 
-  // Check if opening for dedicated Mobile Field Inspector PWA (?app=inspector or ?pwa=1)
+  // Check if opening for dedicated Mobile Field Inspector PWA
   const [isInspectorPwa] = useState<boolean>(() => {
     try {
       const params = new URLSearchParams(window.location.search);
+      const path = window.location.pathname.toLowerCase();
       return (
         params.get('app') === 'inspector' ||
         params.get('pwa') === '1' ||
         params.has('inspector') ||
-        window.location.pathname.endsWith('/inspector')
+        params.has('mobile') ||
+        params.has('pwa') ||
+        path.includes('/inspector') ||
+        path.includes('/mobile') ||
+        path.includes('/pwa')
       );
     } catch {
       return false;
@@ -586,7 +591,6 @@ export const App: React.FC = () => {
               onOpenSettings={() => setIsSettingsModalOpen(true)}
               onOpenDataSafety={() => setIsDataSafetyModalOpen(true)}
               onOpenPwaQr={() => setIsPwaQrModalOpen(true)}
-              onSelectFieldInspection={() => setActiveModule('field_inspection')}
             />
 
             {/* Main Content View Switcher */}
@@ -710,14 +714,6 @@ export const App: React.FC = () => {
                 />
               )}
 
-              {/* MODULE: INTEGRATED MOBILE FIELD PWA */}
-              {activeModule === 'field_inspection' && (
-                <div className="flex-1 h-full overflow-hidden bg-slate-100 flex flex-col">
-                  <PublicHealthFieldPwaApp
-                    mode="embedded"
-                  />
-                </div>
-              )}
             </main>
           </div>
         </div>

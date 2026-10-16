@@ -449,7 +449,7 @@ export function PublicHealthFieldPwaApp({
     } else {
       triggerHaptic([60, 40, 60])
       playBeep(400, 0.15)
-      setLoginError(res.error || 'รหัส PIN ไม่ถูกต้อง (ทดสอบ: prn123)')
+      setLoginError(res.error || 'รหัส PIN ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง')
     }
   }
 
@@ -1154,7 +1154,7 @@ export function PublicHealthFieldPwaApp({
                       type={showPin ? 'text' : 'password'}
                       value={loginPin}
                       onChange={e => setLoginPin(e.target.value)}
-                      placeholder="กรอกรหัส PIN (ทดสอบ: prn123)"
+                      placeholder="กรอกรหัส PIN"
                       className="mobile-input"
                     />
                   </div>
@@ -1180,31 +1180,7 @@ export function PublicHealthFieldPwaApp({
                     <span>เข้าสู่ระบบ</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginPin('prn123')
-                      notify('กรอกรหัส PIN อัตโนมัติ (prn123)')
-                    }}
-                    style={{
-                      background: '#eff6ff',
-                      color: '#1d4ed8',
-                      border: '1.5px solid #bfdbfe',
-                      borderRadius: '14px',
-                      padding: '10px',
-                      fontSize: '12.5px',
-                      fontWeight: 700,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <span>ลงทะเบียน / ทดสอบด่วน</span>
-                  </button>
-
-                  <div style={{ textAlign: 'center', marginTop: '2px' }}>
+                  <div style={{ textAlign: 'center', marginTop: '6px' }}>
                     <span style={{ fontSize: '10px', color: '#64748b' }}>
                       สำหรับเจ้าหน้าที่สาธารณสุข
                     </span>
@@ -1981,7 +1957,7 @@ export function PublicHealthFieldPwaApp({
 
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
-                  รหัส PIN ปัจจุบัน (เริ่มต้น: prn123)
+                  รหัส PIN ปัจจุบัน
                 </label>
                 <input
                   type="password"

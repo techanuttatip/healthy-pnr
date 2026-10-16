@@ -148,7 +148,7 @@ export const authService = {
     const officer = DEFAULT_OFFICERS.find((o) => o.id === officerId || o.officerCode === officerId)
     if (!officer) return { success: false, error: 'ไม่พบข้อมูลเจ้าหน้าที่' }
     if (pin.trim() !== officer.pinCode && pin.trim() !== 'prn123') {
-      return { success: false, error: 'รหัส PIN ไม่ถูกต้อง (PIN เริ่มต้น: prn123)' }
+      return { success: false, error: 'รหัส PIN ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง' }
     }
     try {
       localStorage.setItem('PNR_AUTH_VALID', 'true')

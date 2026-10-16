@@ -113,32 +113,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <span className="font-mono text-[10.5px] group-hover:underline">🛡️ ปลอดภัย (Auto-Backup)</span>
         </button>
 
-        {/* Mobile Field PWA Link (Integrated) */}
-        <div className="hidden lg:flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onSelectFieldInspection ? onSelectFieldInspection : () => window.open('/?app=inspector', '_blank')}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-semibold shadow-2xs transition-all cursor-pointer ${
-              activeModule === 'field_inspection'
-                ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm'
-                : 'bg-emerald-50 hover:bg-emerald-100 border-emerald-300 text-emerald-800'
-            }`}
-            title="เปิดแอปพลิเคชันภาคสนาม Mobile PWA สำหรับออกตรวจพื้นที่"
-          >
-            <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
-            <span>📱 แอปภาคสนาม (PWA)</span>
-          </button>
-          {onOpenPwaQr && (
-            <button
-              type="button"
-              onClick={onOpenPwaQr}
-              className="p-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-blue-700 transition-all cursor-pointer"
-              title="สแกน QR Code สำหรับมือถือ"
-            >
-              <QrCode className="w-3.5 h-3.5 text-amber-600" />
-            </button>
-          )}
-        </div>
 
         {/* Officer Profile Button */}
         <button
