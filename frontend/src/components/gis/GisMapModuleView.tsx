@@ -147,8 +147,7 @@ export const GisMapModuleView: React.FC<GisMapModuleViewProps> = ({
           e.status === 'expiring' ||
           e.status === 'pending_inspection' ||
           e.status === 'pending_correction' ||
-          e.permitStatus === 'ใกล้หมดอายุ' ||
-          e.permitStatus === 'หมดอายุ'
+          (e.permitStatus && (e.permitStatus === 'ใกล้หมดอายุ' || e.permitStatus === 'หมดอายุ'))
       );
     }
     if (routePreset === 'village' && selectedVillageFilter !== 'ทั้งหมด') {
@@ -430,8 +429,7 @@ export const GisMapModuleView: React.FC<GisMapModuleViewProps> = ({
                           (e.status === 'expiring' ||
                             e.status === 'pending_inspection' ||
                             e.status === 'pending_correction' ||
-                            e.permitStatus === 'ใกล้หมดอายุ' ||
-                            e.permitStatus === 'หมดอายุ')
+                            (e.permitStatus && (e.permitStatus === 'ใกล้หมดอายุ' || e.permitStatus === 'หมดอายุ')))
                       )
                       .slice(0, 10)
                       .forEach((e) => {

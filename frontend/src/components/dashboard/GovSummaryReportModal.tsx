@@ -33,9 +33,11 @@ export const GovSummaryReportModal: React.FC<GovSummaryReportModalProps> = ({
     const total = establishments.length;
     const active = establishments.filter((e) => e.status === 'active').length;
     const expiring = establishments.filter(
-      (e) => e.status === 'expiring' || e.permitStatus === 'ใกล้หมดอายุ'
+      (e) => e.status === 'expiring' || (e.permitStatus && e.permitStatus.includes('ใกล้หมด'))
     ).length;
-    const expired = establishments.filter((e) => e.permitStatus === 'หมดอายุ').length;
+    const expired = establishments.filter(
+      (e) => e.permitStatus === 'หมดอายุ' || (e.status as string) === 'expired'
+    ).length;
     const pendingInspect = establishments.filter(
       (e) => e.status === 'pending_inspection'
     ).length;
@@ -48,16 +50,16 @@ export const GovSummaryReportModal: React.FC<GovSummaryReportModalProps> = ({
 
     // By Category
     const foodLicense = establishments.filter(
-      (e) => e.regType === 'บทส.1' || (e.category === 'food' && e.regType?.includes('บทส'))
+      (e) => e.regType === 'บทอ' || e.category === 'food_license'
     ).length;
     const foodStorage = establishments.filter(
-      (e) => e.regType === 'บทส.2' || e.category === 'storage'
+      (e) => e.foodPlaceType === 'storage' || e.businessName.includes('สะสม')
     ).length;
     const hazardous = establishments.filter(
-      (e) => e.regType === 'บทอ.1' || e.category === 'hazardous'
+      (e) => e.regType === 'บทส' || e.category === 'hazardous'
     ).length;
     const foodNotice = establishments.filter(
-      (e) => e.regType === 'นจ.1' || e.regType === 'บท.1' || e.category === 'notice'
+      (e) => e.regType === 'นจ' || e.category === 'food_notice'
     ).length;
     const otherCat = total - (foodLicense + foodStorage + hazardous + foodNotice);
 
@@ -130,7 +132,7 @@ export const GovSummaryReportModal: React.FC<GovSummaryReportModalProps> = ({
       `"${e.phone || '-'}"`,
       `"${e.status || e.permitStatus || 'ปกติ'}"`,
       e.inspectionScore !== undefined ? e.inspectionScore : '-',
-      `"${e.expiryDate || '-'}"`
+      `"${e.expireDate || e.expiryDate || '-'}"`
     ]);
 
     const csvContent =

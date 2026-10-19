@@ -69,7 +69,7 @@ export const ExpiryNoticeModal: React.FC<ExpiryNoticeModalProps> = ({
   const expiringEstablishments = useMemo(() => {
     return establishments
       .map((e) => {
-        const days = calculateDaysRemaining(e.expiryDate);
+        const days = calculateDaysRemaining(e.expireDate || e.expiryDate);
         return {
           ...e,
           daysRemaining: days
@@ -125,7 +125,7 @@ export const ExpiryNoticeModal: React.FC<ExpiryNoticeModalProps> = ({
 
   const handleCopyNoticeText = () => {
     if (!currentEst) return;
-    const text = `[หนังสือแจ้งเตือนต่ออายุใบอนุญาตราชการ]\nเรียน ${currentEst.ownerName} (${currentEst.businessName})\nอบต.โป่งน้ำร้อน ขอแจ้งเตือนว่าใบอนุญาตเลขที่ ${currentEst.regNumber} จะสิ้นอายุในวันที่ ${currentEst.expiryDate || 'ตามที่กำหนด'}\nขอความกรุณาติดต่อยื่นต่ออายุและชำระค่าธรรมเนียม ณ กองสาธารณสุข อบต.โป่งน้ำร้อน ล่วงหน้า 30 วัน โทร 053-010-555 ต่อ 12`;
+    const text = `[หนังสือแจ้งเตือนต่ออายุใบอนุญาตราชการ]\nเรียน ${currentEst.ownerName} (${currentEst.businessName})\nอบต.โป่งน้ำร้อน ขอแจ้งเตือนว่าใบอนุญาตเลขที่ ${currentEst.regNumber} จะสิ้นอายุในวันที่ ${currentEst.expireDate || currentEst.expiryDate || 'ตามที่กำหนด'}\nขอความกรุณาติดต่อยื่นต่ออายุและชำระค่าธรรมเนียม ณ กองสาธารณสุข อบต.โป่งน้ำร้อน ล่วงหน้า 30 วัน โทร 053-010-555 ต่อ 12`;
     navigator.clipboard.writeText(text);
     setCopiedNotice(true);
     setTimeout(() => setCopiedNotice(false), 2500);
@@ -265,7 +265,7 @@ export const ExpiryNoticeModal: React.FC<ExpiryNoticeModalProps> = ({
                         <span>{est.village}</span>
                       </div>
                       <div className="text-[10px] text-slate-400 mt-0.5 font-mono">
-                        สิ้นอายุ: {est.expiryDate || '๓๑ ธันวาคม ๒๕๖๘'}
+                        สิ้นอายุ: {est.expireDate || est.expiryDate || '๓๑ ธันวาคม ๒๕๖๘'}
                       </div>
                     </div>
                   );
@@ -361,7 +361,7 @@ export const ExpiryNoticeModal: React.FC<ExpiryNoticeModalProps> = ({
                     <span className="font-bold">{currentEst.regType || 'สถานที่จำหน่ายอาหาร'}</span> ในชื่อสถานประกอบกิจการ{' '}
                     <span className="font-bold">&ldquo;{currentEst.businessName}&rdquo;</span> ตั้งอยู่เลขที่{' '}
                     {currentEst.address || '-'} {currentEst.village} ตำบลโป่งน้ำร้อน อำเภอฝาง จังหวัดเชียงใหม่ โดยใบอนุญาตดังกล่าวมีกำหนดจะสิ้นอายุลงในวันที่{' '}
-                    <span className="font-bold text-red-700 underline">{currentEst.expiryDate || '๓๑ ธันวาคม ๒๕๖๘'}</span> นั้น
+                    <span className="font-bold text-red-700 underline">{currentEst.expireDate || currentEst.expiryDate || '๓๑ ธันวาคม ๒๕๖๘'}</span> นั้น
                   </p>
 
                   <p>

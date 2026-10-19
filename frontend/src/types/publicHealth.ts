@@ -157,8 +157,10 @@ export interface Establishment {
   lat: number;
   lng: number;
   status: EstablishmentStatus;
+  permitStatus?: 'ปกติ' | 'ใกล้หมดอายุ' | 'หมดอายุ' | string;
   issueDate: string; // YYYY-MM-DD
   expireDate: string; // YYYY-MM-DD
+  expiryDate?: string; // alias for expireDate
   annualFeeDue: string;
   feeAmount: number;
   bookNo: string;
