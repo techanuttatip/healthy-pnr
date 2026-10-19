@@ -151,6 +151,9 @@ class SanitationDataService {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'yearly_archives' }, () => {
           callback();
         })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'officers' }, () => {
+          callback();
+        })
         .subscribe();
 
       return () => {
@@ -175,7 +178,7 @@ class SanitationDataService {
           .order('officer_code', { ascending: true });
 
         if (!error && data && data.length > 0) {
-          return data.map((row: any) => ({
+          const cloudOfficers: OfficerAccount[] = data.map((row: any) => ({
             id: row.id,
             officerCode: row.officer_code,
             name: row.name,
@@ -185,8 +188,15 @@ class SanitationDataService {
             phone: row.phone || '',
             email: row.email || '',
             pinCode: row.pin_code,
-            avatarColor: row.avatar_color || 'bg-emerald-600'
+            avatarColor: row.avatar_color || 'bg-emerald-600',
+            avatarUrl: row.avatar_url || undefined,
+            signatureUrl: row.signature_url || undefined,
+            lineId: row.line_id || undefined
           }));
+          try {
+            localStorage.setItem('PNR_OFFICERS_LIST', JSON.stringify(cloudOfficers));
+          } catch {}
+          return cloudOfficers;
         }
       } catch (err) {
         console.warn('Cloud officers fetch fallback to local:', err);
@@ -220,24 +230,47 @@ class SanitationDataService {
       console.error(e);
     }
 
+    let resolvedAvatarUrl = officer.avatarUrl;
+    let resolvedSigUrl = officer.signatureUrl;
+
     if (this.isCloudActive && this.supabase) {
       try {
+        if (resolvedAvatarUrl && resolvedAvatarUrl.startsWith('data:')) {
+          resolvedAvatarUrl = await this.uploadImage(resolvedAvatarUrl, 'avatars', officer.officerCode || 'officer');
+        }
+        if (resolvedSigUrl && resolvedSigUrl.startsWith('data:')) {
+          resolvedSigUrl = await this.uploadImage(resolvedSigUrl, 'signatures', officer.officerCode || 'officer');
+        }
+
+        const syncedOfficer = { ...officer, avatarUrl: resolvedAvatarUrl, signatureUrl: resolvedSigUrl };
         await this.supabase.from('officers').upsert({
-          officer_code: officer.officerCode,
-          name: officer.name,
-          position: officer.position,
-          role: officer.role,
-          role_name: officer.roleName,
-          phone: officer.phone,
-          email: officer.email,
-          pin_code: officer.pinCode,
-          avatar_color: officer.avatarColor,
+          officer_code: syncedOfficer.officerCode,
+          name: syncedOfficer.name,
+          position: syncedOfficer.position,
+          role: syncedOfficer.role,
+          role_name: syncedOfficer.roleName,
+          phone: syncedOfficer.phone,
+          email: syncedOfficer.email,
+          pin_code: syncedOfficer.pinCode,
+          avatar_color: syncedOfficer.avatarColor,
+          avatar_url: syncedOfficer.avatarUrl || null,
+          signature_url: syncedOfficer.signatureUrl || null,
+          line_id: syncedOfficer.lineId || null,
           is_active: true
         }, { onConflict: 'officer_code' });
+
+        officer = syncedOfficer;
       } catch (err) {
         console.warn('Could not sync officer to cloud:', err);
       }
     }
+
+    try {
+      window.dispatchEvent(new Event('storage'));
+      const bc = new BroadcastChannel('PNR_SANITATION_CHANNEL');
+      bc.postMessage({ type: 'OFFICER_UPDATED', data: officer });
+      bc.close();
+    } catch {}
 
     return true;
   }
@@ -644,6 +677,61 @@ class SanitationDataService {
     } catch (err) {
       console.warn('Document upload failed:', err);
       return null;
+    }
+  }
+
+  // อัปโหลดไฟล์รูปภาพหรือ Base64 Data URL เข้าสู่ Supabase Storage Bucket 'pnr-documents'
+  async uploadImage(
+    dataUrlOrFile: string | File,
+    folder: 'avatars' | 'establishments' | 'inspections' | 'signatures',
+    filename: string
+  ): Promise<string> {
+    if (!this.isCloudActive || !this.supabase) return typeof dataUrlOrFile === 'string' ? dataUrlOrFile : '';
+    try {
+      let fileBody: Blob;
+      let contentType = 'image/jpeg';
+
+      if (typeof dataUrlOrFile === 'string') {
+        if (!dataUrlOrFile.startsWith('data:')) return dataUrlOrFile; // Already a cloud CDN URL
+        const [header, base64Data] = dataUrlOrFile.split(',');
+        const mimeMatch = header.match(/:(.*?);/);
+        if (mimeMatch) contentType = mimeMatch[1];
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        fileBody = new Blob([byteArray], { type: contentType });
+      } else {
+        fileBody = dataUrlOrFile;
+        contentType = dataUrlOrFile.type || 'image/jpeg';
+      }
+
+      const ext = contentType.includes('png') ? 'png' : contentType.includes('svg') ? 'svg' : 'jpg';
+      const cleanName = filename.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filePath = `${folder}/${cleanName}_${Date.now()}.${ext}`;
+
+      const { error } = await this.supabase.storage
+        .from('pnr-documents')
+        .upload(filePath, fileBody, {
+          contentType,
+          upsert: true
+        });
+
+      if (error) {
+        console.warn('Image storage upload warning:', error);
+        return typeof dataUrlOrFile === 'string' ? dataUrlOrFile : '';
+      }
+
+      const { data: pubData } = this.supabase.storage
+        .from('pnr-documents')
+        .getPublicUrl(filePath);
+
+      return pubData.publicUrl;
+    } catch (err) {
+      console.warn('Image upload error, fallback to dataUrl:', err);
+      return typeof dataUrlOrFile === 'string' ? dataUrlOrFile : '';
     }
   }
 

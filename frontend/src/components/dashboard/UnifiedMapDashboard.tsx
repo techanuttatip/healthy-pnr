@@ -12,8 +12,11 @@ import {
   Search,
   X,
   ChevronRight,
-  BarChart3
+  BarChart3,
+  FileText
 } from 'lucide-react';
+import { ExpiryNoticeModal } from './ExpiryNoticeModal';
+import { GovSummaryReportModal } from './GovSummaryReportModal';
 
 interface UnifiedMapDashboardProps {
   establishments: Establishment[];
@@ -44,6 +47,8 @@ export const UnifiedMapDashboard: React.FC<UnifiedMapDashboardProps> = ({
   // Drawer toggles
   const [isListDrawerOpen, setIsListDrawerOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+  const [isExpiryRadarOpen, setIsExpiryRadarOpen] = useState(false);
+  const [noticeTargetEst, setNoticeTargetEst] = useState<Establishment | null>(null);
 
   // KPI Calculations
   const totalCount = establishments.length;
@@ -189,6 +194,37 @@ export const UnifiedMapDashboard: React.FC<UnifiedMapDashboardProps> = ({
                 <span>รอนัดตรวจ</span>
               </div>
               <div className="text-lg font-bold font-mono text-purple-300 mt-0.5">{pendingInspectionCount}</div>
+            </button>
+          </div>
+
+          {/* Quick Gov Tools Buttons */}
+          <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-800">
+            <button
+              type="button"
+              onClick={() => {
+                setNoticeTargetEst(null);
+                setIsExpiryRadarOpen(true);
+              }}
+              className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white text-[11px] font-bold flex items-center justify-between shadow-md transition-all cursor-pointer"
+              title="เปิดเรดาร์ตรวจจับใบอนุญาตใกล้สิ้นอายุ & พิมพ์หนังสือแจ้งเตือนราชการ"
+            >
+              <div className="flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-200 animate-pulse" />
+                <span>เรดาร์เตือนหมดอายุ</span>
+              </div>
+              <span className="font-mono bg-black/20 px-1.5 py-0.2 rounded text-[10px]">
+                {expiringCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsStatsModalOpen(true)}
+              className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-md transition-all cursor-pointer"
+              title="เปิดรายงานสถิติราชการ 1-คลิก และส่งออก Excel / CSV"
+            >
+              <BarChart3 className="w-3.5 h-3.5 text-blue-200" />
+              <span>รายงานสถิติราชการ</span>
             </button>
           </div>
         </div>
@@ -425,84 +461,45 @@ export const UnifiedMapDashboard: React.FC<UnifiedMapDashboardProps> = ({
               <FolderOpen className="w-3.5 h-3.5 text-amber-400" />
               <span>แฟ้มรายปี</span>
             </button>
+
+            {/* Quick Warning Notice Button if expiring or expired */}
+            {(selectedEstablishment.status === 'expiring' ||
+              selectedEstablishment.permitStatus === 'ใกล้หมดอายุ' ||
+              selectedEstablishment.permitStatus === 'หมดอายุ') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setNoticeTargetEst(selectedEstablishment);
+                  setIsExpiryRadarOpen(true);
+                }}
+                className="col-span-2 py-2 px-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                <FileText className="w-3.5 h-3.5 text-amber-200" />
+                <span>ออกหนังสือแจ้งเตือนต่ออายุ (นจ.ราชการ)</span>
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* 5. STATS MODAL (When clicking 'สถิติ') */}
-      {isStatsModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 text-white shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-400" />
-                <h3 className="font-bold text-sm">สถิติภาพรวมงานทะเบียนสาธารณสุข ตำบลโป่งน้ำร้อน</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsStatsModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* Expiry Radar & Official Renewal Notice Generator Modal */}
+      <ExpiryNoticeModal
+        establishments={establishments}
+        isOpen={isExpiryRadarOpen}
+        onClose={() => {
+          setIsExpiryRadarOpen(false);
+          setNoticeTargetEst(null);
+        }}
+        initialEstablishment={noticeTargetEst}
+      />
 
-            {/* Quick KPI Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 text-center">
-                <div className="text-xl font-bold font-mono text-emerald-400">{activeCount}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">ได้รับอนุญาต</div>
-              </div>
-              <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 text-center">
-                <div className="text-xl font-bold font-mono text-amber-400">{expiringCount}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">ใกล้สิ้นอายุ 30 วัน</div>
-              </div>
-              <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 text-center">
-                <div className="text-xl font-bold font-mono text-purple-400">{pendingInspectionCount}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">รอนัดตรวจ</div>
-              </div>
-              <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 text-center">
-                <div className="text-xl font-bold font-mono text-sky-400">{awaitingPaymentCount}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">รอชำระเงิน</div>
-              </div>
-            </div>
+      {/* 1-Click Government Statistics & Sanitation Summary Export Modal */}
+      <GovSummaryReportModal
+        establishments={establishments}
+        isOpen={isStatsModalOpen}
+        onClose={() => setIsStatsModalOpen(false)}
+      />
 
-            {/* Village Distribution */}
-            <div>
-              <div className="text-xs font-bold text-slate-300 mb-2">การกระจายตัวตาม ๗ หมู่บ้าน</div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                {OFFICIAL_VILLAGES.map((v) => {
-                  const count = establishments.filter((e) => e.village === v).length;
-                  return (
-                    <div
-                      key={v}
-                      onClick={() => {
-                        setSelectedVillage(v);
-                        setIsStatsModalOpen(false);
-                        setIsListDrawerOpen(true);
-                      }}
-                      className="p-2 bg-slate-800/50 hover:bg-slate-800 rounded-lg border border-slate-700/60 flex items-center justify-between cursor-pointer"
-                    >
-                      <span className="text-slate-300 truncate">{v}</span>
-                      <span className="font-mono font-bold text-blue-400">{count} แห่ง</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-slate-800 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setIsStatsModalOpen(false)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold cursor-pointer"
-              >
-                ปิดหน้าต่าง
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

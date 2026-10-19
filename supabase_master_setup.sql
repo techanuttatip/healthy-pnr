@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS public.officers (
   email TEXT,
   pin_code TEXT NOT NULL,
   avatar_color TEXT DEFAULT 'bg-emerald-600',
+  avatar_url TEXT,
+  signature_url TEXT,
+  line_id TEXT,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()

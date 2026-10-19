@@ -14,6 +14,7 @@ import { AppSidebar, AppHeader, OfficerLoginScreen, type AppModuleType } from '.
 
 // 2. Functional Domain Views
 import { UnifiedMapDashboard } from './components/dashboard';
+import { GisMapModuleView } from './components/gis';
 import { EstablishmentTable, NewRequestModal } from './components/registry';
 import { YearlyDocumentArchiveTab, PdfUploadView, ManualEntryView } from './components/archive';
 import { OfficialCertificatePrint } from './components/print';
@@ -327,6 +328,21 @@ export const App: React.FC = () => {
         if (cloudSettings) {
           setSettings(cloudSettings);
         }
+
+        // ๔. Auto-sync officer profile (avatar, position, etc.) from Supabase Cloud
+        const officers = await sanitationDataService.getOfficers();
+        if (!isMounted) return;
+        if (officers && officers.length > 0) {
+          const cur = sanitationDataService.getCurrentOfficer();
+          if (cur) {
+            const matched = officers.find(o => o.officerCode === cur.officerCode || o.id === cur.id);
+            if (matched) {
+              const merged = { ...cur, ...matched };
+              localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(merged));
+              setCurrentOfficer(merged);
+            }
+          }
+        }
       } catch (err) {
         console.warn('Initial data load warning:', err);
       }
@@ -615,8 +631,8 @@ export const App: React.FC = () => {
 
             {/* Main Content View Switcher */}
             <main className="flex-1 overflow-hidden relative flex bg-transparent print:overflow-visible print:h-auto print:bg-white">
-              {/* MODULE 0 & 2: UNIFIED COMMAND CENTER MAP & DASHBOARD */}
-              {(activeModule === 'dashboard' || activeModule === 'map') && (
+              {/* MODULE 0: UNIFIED COMMAND CENTER DASHBOARD */}
+              {activeModule === 'dashboard' && (
                 <UnifiedMapDashboard
                   establishments={establishments}
                   onOpenNewRequest={() => setIsNewRequestModalOpen(true)}
@@ -626,6 +642,21 @@ export const App: React.FC = () => {
                   }}
                   onPrintEstablishment={(est) => handlePrintEstablishment(est, est.regType, 'garuda')}
                   onOpenArchive={handleOpenArchive}
+                />
+              )}
+
+              {/* MODULE 2: FULL GIS MAP & SMART FIELD ROUTE PLANNER */}
+              {activeModule === 'map' && (
+                <GisMapModuleView
+                  establishments={establishments}
+                  selectedEstablishment={selectedEstablishment}
+                  selectedId={selectedId}
+                  onSelectEstablishment={(est) => {
+                    setSelectedEstablishment(est);
+                    setSelectedId(est.id);
+                  }}
+                  onInspectEstablishment={handleInspectEstablishment}
+                  onPrintEstablishment={(est) => handlePrintEstablishment(est, est.regType, 'garuda')}
                 />
               )}
 

@@ -2,7 +2,18 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Establishment, EstablishmentStatus } from '../../types/publicHealth';
-import { Layers, Navigation, ChevronDown, ChevronUp, Satellite, Globe, List } from 'lucide-react';
+import { Layers, Navigation, ChevronDown, ChevronUp, Satellite, Globe, List, Route as RouteIcon, ExternalLink, X } from 'lucide-react';
+
+export interface RouteWaypoint {
+  id: string;
+  lat: number;
+  lng: number;
+  label: string;
+  order: number;
+  village?: string;
+  regType?: string;
+  ownerName?: string;
+}
 
 interface PublicHealthMapProps {
   establishments: Establishment[];
@@ -14,6 +25,9 @@ interface PublicHealthMapProps {
   filterStatus: string;
   onToggleSidebar?: () => void;
   isSidebarOpen?: boolean;
+  routeWaypoints?: RouteWaypoint[];
+  onClearRoute?: () => void;
+  onOpenRoutePlanner?: () => void;
 }
 
 export type SatelliteMode = 'google_hybrid' | 'esri_sat';
@@ -27,12 +41,16 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
   filterCategory,
   filterStatus,
   onToggleSidebar,
-  isSidebarOpen
+  isSidebarOpen,
+  routeWaypoints,
+  onClearRoute,
+  onOpenRoutePlanner
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const currentTileLayerRef = useRef<L.TileLayer | null>(null);
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
+  const routeLayerRef = useRef<L.LayerGroup | null>(null);
   const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [satelliteMode, setSatelliteMode] = useState<SatelliteMode>('google_hybrid');
 
@@ -96,18 +114,18 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    // GIS Map with LOCKED ZOOM LEVEL (No zoom in / zoom out as requested by user)
+    // GIS Map with flexible zoom for field navigation & route inspection
     const map = L.map(mapContainerRef.current, {
       center: PONG_NAM_RON_CENTER,
       zoom: 14,
-      minZoom: 14,
-      maxZoom: 14,
-      zoomControl: false, // Locked: No +/- controls
-      scrollWheelZoom: false, // Locked: No mouse wheel zoom
-      doubleClickZoom: false, // Locked: No double-click zoom
-      touchZoom: false, // Locked: No pinch zoom
-      boxZoom: false,
-      keyboard: false,
+      minZoom: 11,
+      maxZoom: 19,
+      zoomControl: false, // Clean UI without +/- buttons
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      touchZoom: true,
+      boxZoom: true,
+      keyboard: true,
       attributionControl: false
     });
 
@@ -366,6 +384,109 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
     }
   }, [selectedId, establishments]);
 
+  // Draw route polyline and waypoint markers
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (routeLayerRef.current) {
+      map.removeLayer(routeLayerRef.current);
+      routeLayerRef.current = null;
+    }
+
+    if (!routeWaypoints || routeWaypoints.length === 0) return;
+
+    const layerGroup = L.layerGroup();
+    const latlngs: [number, number][] = [
+      PONG_NAM_RON_CENTER,
+      ...routeWaypoints.map((w) => [w.lat, w.lng] as [number, number])
+    ];
+
+    // Glow line underlay
+    L.polyline(latlngs, {
+      color: '#60a5fa',
+      weight: 9,
+      opacity: 0.45,
+      lineCap: 'round',
+      lineJoin: 'round'
+    }).addTo(layerGroup);
+
+    // Main route polyline
+    L.polyline(latlngs, {
+      color: '#1d4ed8',
+      weight: 4.5,
+      opacity: 0.95,
+      dashArray: '8, 8',
+      lineCap: 'round',
+      lineJoin: 'round'
+    }).addTo(layerGroup);
+
+    // Numbered marker pins
+    routeWaypoints.forEach((wp) => {
+      const numIcon = L.divIcon({
+        className: 'route-num-marker',
+        html: `
+          <div style="
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: #ffffff;
+            border-radius: 50%;
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 4px 14px rgba(29,78,216,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 13px;
+            cursor: pointer;
+          ">
+            ${wp.order}
+          </div>
+        `,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      });
+
+      const wpMarker = L.marker([wp.lat, wp.lng], { icon: numIcon, zIndexOffset: 2500 });
+      wpMarker.bindTooltip(
+        `<div style="font-family: 'Sarabun', sans-serif; font-size: 11px;">
+          <strong>ลำดับที่ ${wp.order}</strong>: ${wp.label}<br/>
+          <span style="color: #64748b;">${wp.village || ''}</span>
+        </div>`,
+        { direction: 'top', offset: [0, -16], opacity: 0.95 }
+      );
+      wpMarker.addTo(layerGroup);
+    });
+
+    layerGroup.addTo(map);
+    routeLayerRef.current = layerGroup;
+
+    // Fit bounds smoothly to show entire route
+    try {
+      const bounds = L.latLngBounds(latlngs);
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 16 });
+    } catch {}
+
+    return () => {
+      if (routeLayerRef.current && mapInstanceRef.current) {
+        mapInstanceRef.current.removeLayer(routeLayerRef.current);
+        routeLayerRef.current = null;
+      }
+    };
+  }, [routeWaypoints]);
+
+  const googleMapsRouteUrl = React.useMemo(() => {
+    if (!routeWaypoints || routeWaypoints.length === 0) return '';
+    const origin = `${PONG_NAM_RON_CENTER[0]},${PONG_NAM_RON_CENTER[1]}`;
+    const destination = `${routeWaypoints[routeWaypoints.length - 1].lat},${routeWaypoints[routeWaypoints.length - 1].lng}`;
+    const intermediate = routeWaypoints.slice(0, -1);
+    const waypointsParam = intermediate.map((w) => `${w.lat},${w.lng}`).join('|');
+    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${
+      waypointsParam ? `&waypoints=${encodeURIComponent(waypointsParam)}` : ''
+    }&travelmode=driving`;
+  }, [routeWaypoints]);
+
   return (
     <div className="relative w-full h-full overflow-hidden bg-slate-900">
       {/* Map Container */}
@@ -403,12 +524,57 @@ export const PublicHealthMap: React.FC<PublicHealthMapProps> = ({
           <span>กึ่งกลาง อบต. โป่งน้ำร้อน</span>
         </button>
 
-        {/* Locked Zoom Level Indicator */}
-        <div className="hidden lg:flex items-center gap-1.5 bg-slate-900/80 text-slate-300 px-3 py-2 rounded-xl border border-slate-800 text-[11px] backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span>ล็อกระดับมุมมองตำบล (คงที่)</span>
-        </div>
+        {onOpenRoutePlanner && (
+          <button
+            type="button"
+            onClick={onOpenRoutePlanner}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-3.5 py-2 rounded-xl border border-blue-400/40 shadow-lg hover:shadow-xl transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer backdrop-blur-md"
+            title="เปิดเครื่องมือจัดเส้นทางตรวจสนามอัจฉริยะ"
+          >
+            <RouteIcon className="w-3.5 h-3.5 text-amber-300" />
+            <span>จัดเส้นทางตรวจสนาม</span>
+          </button>
+        )}
       </div>
+
+      {/* Route Active Floating Banner */}
+      {routeWaypoints && routeWaypoints.length > 0 && (
+        <div className="absolute top-16 left-4 right-4 md:right-auto md:w-[480px] z-20 bg-slate-900/95 backdrop-blur-md text-white p-3 rounded-2xl border border-blue-500/50 shadow-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+              <RouteIcon className="w-4 h-4 text-blue-400" />
+              <span>เส้นทางตรวจสนาม ({routeWaypoints.length} จุด)</span>
+            </div>
+            <div className="text-[11px] text-slate-300 truncate mt-0.5">
+              เริ่ม: อบต.โป่งน้ำร้อน ➔ {routeWaypoints.map((w) => w.label).join(' ➔ ')}
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {googleMapsRouteUrl && (
+              <a
+                href={googleMapsRouteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1 shadow-md transition-all"
+                title="เปิดนำทางแบบเลี้ยวต่อเลี้ยวใน Google Maps"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Google Maps</span>
+              </a>
+            )}
+            {onClearRoute && (
+              <button
+                type="button"
+                onClick={onClearRoute}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer"
+                title="ยกเลิกเส้นทาง"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Top Right: Satellite Layer Switcher */}
       <div className="absolute top-4 right-4 z-20 flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-700/80 shadow-lg backdrop-blur-md text-xs">

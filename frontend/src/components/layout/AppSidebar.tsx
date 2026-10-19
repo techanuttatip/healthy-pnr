@@ -14,7 +14,9 @@ import {
   Clock,
   FileEdit,
   Smartphone,
-  QrCode
+  QrCode,
+  LayoutDashboard,
+  Route as RouteIcon
 } from 'lucide-react';
 import type { OfficerAccount } from '../../services/sanitationDataService';
 import { LiveClock } from './LiveClock';
@@ -113,22 +115,41 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
       {/* Middle: Navigation Modules */}
       <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5 no-scrollbar">
-        {/* 1: ภาพรวมงานทะเบียน & แผนที่ GIS (Merged into unified Command Center Map) */}
+        {/* 1: ภาพรวมระบบ & สถิติ (Dashboard) */}
         <button
           type="button"
           onClick={() => onSelectModule('dashboard')}
           className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-150 cursor-pointer ${
             isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
           } ${
-            isCurrent('dashboard') || isCurrent('map')
+            isCurrent('dashboard')
               ? 'bg-blue-600 text-white font-bold shadow-sm'
               : 'text-slate-300 hover:bg-white/10 hover:text-white'
           }`}
-          title="ภาพรวมงานทะเบียน & แผนที่พิกัด GIS ตำบล"
+          title="ภาพรวมงานทะเบียน & สถิติสุขาภิบาล"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
-            {!isSidebarCollapsed && <span className="truncate">ภาพรวม & แผนที่ GIS</span>}
+            <LayoutDashboard className="w-4 h-4 text-amber-400 shrink-0" />
+            {!isSidebarCollapsed && <span className="truncate">ภาพรวมระบบ & สถิติ</span>}
+          </div>
+        </button>
+
+        {/* 1.1: แผนที่ GIS & จัดเส้นทางตรวจสนาม (Map & Smart Route Planner) */}
+        <button
+          type="button"
+          onClick={() => onSelectModule('map')}
+          className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-150 cursor-pointer ${
+            isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
+          } ${
+            isCurrent('map')
+              ? 'bg-blue-600 text-white font-bold shadow-sm'
+              : 'text-slate-300 hover:bg-white/10 hover:text-white'
+          }`}
+          title="แผนที่พิกัด GIS & วางแผนเส้นทางตรวจสนามอัจฉริยะ"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <RouteIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+            {!isSidebarCollapsed && <span className="truncate">แผนที่ GIS & เส้นทางตรวจ</span>}
           </div>
         </button>
 

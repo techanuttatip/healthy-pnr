@@ -149,7 +149,8 @@ export function PublicHealthFieldPwaApp({
   // Shared Officer Authentication Gate
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authService.isAuthenticated())
   const [currentOfficer, setCurrentOfficer] = useState<OfficerAccount>(() => authService.getCurrentOfficer())
-  const [loginOfficerId, setLoginOfficerId] = useState<string>(DEFAULT_OFFICERS[0].id)
+  const [officersList, setOfficersList] = useState<OfficerAccount[]>(() => authService.getOfficersSync())
+  const [loginOfficerId, setLoginOfficerId] = useState<string>(() => authService.getOfficersSync()[0]?.id || DEFAULT_OFFICERS[0].id)
   const [loginPin, setLoginPin] = useState<string>('')
   const [loginError, setLoginError] = useState<string | null>(null)
   const [showPin, setShowPin] = useState<boolean>(false)
@@ -295,6 +296,8 @@ export function PublicHealthFieldPwaApp({
   const [profileRole, setProfileRole] = useState<string>(currentOfficer.roleName)
   const [profilePhone, setProfilePhone] = useState<string>(currentOfficer.phone || '053-010-555')
   const [profileEmail, setProfileEmail] = useState<string>(currentOfficer.email || 'health@pongnamron.go.th')
+  const [profileSignature, setProfileSignature] = useState<string>(currentOfficer.signatureUrl || OFFICIAL_NWK_SIGNATURE_DATA_URL)
+  const [isSigningInProfile, setIsSigningInProfile] = useState<boolean>(false)
 
   // Change PIN Form State
   const [currentPinInput, setCurrentPinInput] = useState<string>('')
@@ -369,6 +372,17 @@ export function PublicHealthFieldPwaApp({
           setTasks(t)
           setSelectedTask(prev => (prev && t.some(x => x.id === prev.id) ? prev : t[0]))
         }
+        // Sync officers list and current profile
+        const freshOfficers = await authService.getOfficers()
+        if (freshOfficers && freshOfficers.length > 0) {
+          setOfficersList(freshOfficers)
+          const cur = authService.getCurrentOfficer()
+          const matched = freshOfficers.find(o => o.officerCode === cur.officerCode || o.id === cur.id)
+          if (matched) {
+            authService.saveCurrentOfficer({ ...cur, ...matched })
+            setCurrentOfficer({ ...cur, ...matched })
+          }
+        }
       } catch (e) {
         console.warn('Data sync error:', e)
       }
@@ -379,8 +393,9 @@ export function PublicHealthFieldPwaApp({
       if (!e.key || e.key === 'PNR_SANITATION_ESTABLISHMENTS' || e.key === 'field-pwa-cached-establishments') {
         refreshData()
       }
-      if (e.key === 'PNR_CURRENT_OFFICER') {
+      if (e.key === 'PNR_CURRENT_OFFICER' || e.key === 'PNR_OFFICERS_LIST') {
         setCurrentOfficer(authService.getCurrentOfficer())
+        setOfficersList(authService.getOfficersSync())
       }
     }
     window.addEventListener('storage', onStorage)
@@ -388,7 +403,11 @@ export function PublicHealthFieldPwaApp({
     let bc: BroadcastChannel | null = null
     try {
       bc = new BroadcastChannel('PNR_SANITATION_CHANNEL')
-      bc.onmessage = () => {
+      bc.onmessage = (event: MessageEvent) => {
+        if (event.data?.type === 'OFFICER_UPDATED' && event.data?.data) {
+          authService.saveCurrentOfficer(event.data.data)
+          setCurrentOfficer(event.data.data)
+        }
         refreshData()
       }
     } catch {}
@@ -404,6 +423,18 @@ export function PublicHealthFieldPwaApp({
           })
           .on('postgres_changes', { event: '*', schema: 'public', table: 'inspections' }, () => {
             refreshData()
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'officers' }, async () => {
+            const list = await authService.getOfficers()
+            if (list && list.length > 0) {
+              setOfficersList(list)
+              const cur = authService.getCurrentOfficer()
+              const matched = list.find(o => o.officerCode === cur.officerCode || o.id === cur.id)
+              if (matched) {
+                authService.saveCurrentOfficer(matched)
+                setCurrentOfficer(matched)
+              }
+            }
           })
           .subscribe()
       } catch {}
@@ -632,7 +663,7 @@ export function PublicHealthFieldPwaApp({
     setOtherNotes('')
     setActiveCatIndex(0)
     setInspectWizardStep(1)
-    setSignatureDataUrl(OFFICIAL_NWK_SIGNATURE_DATA_URL)
+    setSignatureDataUrl(currentOfficer.signatureUrl || OFFICIAL_NWK_SIGNATURE_DATA_URL)
     setOwnerSignatureDataUrl('')
     setInspectPhotos({ p1: '', p2: '', p3: '', p4: '' })
     setIsQuickInspectModalOpen(false)
@@ -721,7 +752,7 @@ export function PublicHealthFieldPwaApp({
       notify('กำลังอัปเดตรูปโปรไฟล์...')
       const dataUrl = await readFileAsCompressedDataUrl(file, 400, 0.85)
 
-      const updated = authService.updateProfile({ avatarUrl: dataUrl })
+      const updated = await authService.updateProfile({ avatarUrl: dataUrl })
       setCurrentOfficer(updated)
       playSuccessChime()
       triggerHaptic([40, 60])
@@ -735,17 +766,18 @@ export function PublicHealthFieldPwaApp({
   }
 
   // Save personal profile info
-  function handleSaveProfile() {
+  async function handleSaveProfile() {
     if (!profileName.trim()) {
       notify('กรุณากรอกชื่อ-นามสกุล')
       return
     }
-    const updated = authService.updateProfile({
+    const updated = await authService.updateProfile({
       name: profileName.trim(),
       position: profilePosition.trim(),
       roleName: profileRole.trim(),
       phone: profilePhone.trim(),
-      email: profileEmail.trim()
+      email: profileEmail.trim(),
+      signatureUrl: profileSignature
     })
     setCurrentOfficer(updated)
     setIsProfileModalOpen(false)
@@ -755,7 +787,7 @@ export function PublicHealthFieldPwaApp({
   }
 
   // Save change PIN
-  function handleSavePin() {
+  async function handleSavePin() {
     setPinError('')
     if (currentPinInput.trim() !== currentOfficer.pinCode && currentPinInput.trim() !== 'prn123') {
       setPinError('รหัส PIN เดิมไม่ถูกต้อง')
@@ -772,7 +804,7 @@ export function PublicHealthFieldPwaApp({
       triggerHaptic(60)
       return
     }
-    authService.updatePin(newPinInput.trim())
+    await authService.updatePin(newPinInput.trim())
     setCurrentOfficer(authService.getCurrentOfficer())
     setIsPinModalOpen(false)
     setCurrentPinInput('')
@@ -1128,7 +1160,7 @@ export function PublicHealthFieldPwaApp({
                       onChange={e => setLoginOfficerId(e.target.value)}
                       className="mobile-input"
                     >
-                      {DEFAULT_OFFICERS.map(off => (
+                      {officersList.map(off => (
                         <option key={off.id} value={off.id}>
                           {off.name} ({off.position})
                         </option>
@@ -1840,6 +1872,56 @@ export function PublicHealthFieldPwaApp({
                   }}
                   placeholder="เช่น health@pongnamron.go.th"
                 />
+              </div>
+
+              {/* Digital Signature section */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>
+                    ลายมือชื่อดิจิทัลทางการ (Official E-Signature)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsSigningInProfile(!isSigningInProfile)}
+                    style={{ fontSize: '11px', color: '#1d4ed8', fontWeight: 700, background: 'transparent', border: 'none', cursor: 'pointer' }}
+                  >
+                    {isSigningInProfile ? 'ปิดกระดานเซ็น' : '✏️ วาดลายเซ็นใหม่'}
+                  </button>
+                </div>
+
+                {isSigningInProfile ? (
+                  <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '12px', border: '1px dashed #3b82f6' }}>
+                    <SignaturePad
+                      role="officer"
+                      title="วาดลายมือชื่อทางการเพื่อใช้ในเอกสารราชการ"
+                      officerName={profileName || currentOfficer.name}
+                      initialSignature={profileSignature}
+                      canvasHeight={120}
+                      onSave={(dataUrl) => {
+                        setProfileSignature(dataUrl)
+                        setIsSigningInProfile(false)
+                        notify('✓ บันทึกลายมือชื่อลงในฟอร์มแล้ว (กดบันทึกข้อมูลเพื่อซิงค์)')
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div style={{
+                    height: '70px',
+                    borderRadius: '10px',
+                    border: '1px solid #e2e8f0',
+                    background: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                  }}>
+                    {profileSignature ? (
+                      <img src={profileSignature} alt="ลายมือชื่อ" style={{ maxHeight: '60px', objectFit: 'contain' }} />
+                    ) : (
+                      <span style={{ fontSize: '11px', color: '#94a3b8' }}>ยังไม่มีลายมือชื่อดิจิทัล (กดวาดลายเซ็นใหม่)</span>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '10px', fontSize: '11px', color: '#64748b', border: '1px solid #e2e8f0' }}>
@@ -6650,6 +6732,8 @@ export function PublicHealthFieldPwaApp({
                         setProfileRole(currentOfficer.roleName)
                         setProfilePhone(currentOfficer.phone || '053-010-555')
                         setProfileEmail(currentOfficer.email || 'health@pongnamron.go.th')
+                        setProfileSignature(currentOfficer.signatureUrl || OFFICIAL_NWK_SIGNATURE_DATA_URL)
+                        setIsSigningInProfile(false)
                         setIsProfileModalOpen(true)
                       }}
                       style={{
@@ -6723,6 +6807,31 @@ export function PublicHealthFieldPwaApp({
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <UserRound size={18} className="text-slate-500" />
                         <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>ข้อมูลส่วนตัว</span>
+                      </div>
+                      <ChevronRight size={16} color="#94a3b8" />
+                    </div>
+
+                    {/* ลายมือชื่อดิจิทัลทางการ */}
+                    <div
+                      className="queue-action-item"
+                      onClick={() => {
+                        triggerHaptic(20)
+                        setProfileName(currentOfficer.name)
+                        setProfilePosition(currentOfficer.position)
+                        setProfileRole(currentOfficer.roleName)
+                        setProfilePhone(currentOfficer.phone || '053-010-555')
+                        setProfileEmail(currentOfficer.email || 'health@pongnamron.go.th')
+                        setProfileSignature(currentOfficer.signatureUrl || OFFICIAL_NWK_SIGNATURE_DATA_URL)
+                        setIsSigningInProfile(true)
+                        setIsProfileModalOpen(true)
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <PenTool size={18} className="text-blue-600" />
+                        <div>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>ลายมือชื่อดิจิทัลทางการ</span>
+                          <p style={{ fontSize: '10.5px', color: '#64748b', margin: 0 }}>ประทับอัตโนมัติในใบตรวจและเอกสารราชการ</p>
+                        </div>
                       </div>
                       <ChevronRight size={16} color="#94a3b8" />
                     </div>

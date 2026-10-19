@@ -77,6 +77,8 @@ export type OfficerAccount = {
   pinCode: string
   avatarColor?: string
   avatarUrl?: string
+  signatureUrl?: string
+  lineId?: string
 }
 
 export const DEFAULT_OFFICERS: OfficerAccount[] = [
@@ -131,18 +133,79 @@ export const DEFAULT_OFFICERS: OfficerAccount[] = [
 ]
 
 export const authService = {
+  getOfficersSync(): OfficerAccount[] {
+    try {
+      const savedList = localStorage.getItem('PNR_OFFICERS_LIST')
+      if (savedList) {
+        const parsed = JSON.parse(savedList)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed
+        }
+      }
+    } catch {}
+    return DEFAULT_OFFICERS
+  },
+
+  async getOfficers(): Promise<OfficerAccount[]> {
+    if (supabase && !USE_MOCKS) {
+      try {
+        const { data, error } = await supabase
+          .from('officers')
+          .select('*')
+          .eq('is_active', true)
+          .order('officer_code', { ascending: true })
+
+        if (!error && data && data.length > 0) {
+          const list: OfficerAccount[] = data.map((row: any) => ({
+            id: row.id,
+            officerCode: row.officer_code,
+            name: row.name,
+            position: row.position,
+            role: row.role,
+            roleName: row.role_name || row.position,
+            phone: row.phone || '',
+            email: row.email || '',
+            pinCode: row.pin_code,
+            avatarColor: row.avatar_color || 'bg-emerald-600',
+            avatarUrl: row.avatar_url || undefined
+          }))
+          try {
+            localStorage.setItem('PNR_OFFICERS_LIST', JSON.stringify(list))
+          } catch {}
+          return list
+        }
+      } catch (err) {
+        console.warn('Supabase getOfficers fallback to local:', err)
+      }
+    }
+    return this.getOfficersSync()
+  },
+
   getCurrentOfficer(): OfficerAccount {
     try {
       const saved = localStorage.getItem('PNR_CURRENT_OFFICER')
       if (saved) {
         const parsed = JSON.parse(saved)
         if (parsed && parsed.name && !parsed.name.includes('สมชาย')) {
+          const officers = this.getOfficersSync()
+          const matched = officers.find(o => o.officerCode === parsed.officerCode || o.id === parsed.id)
+          if (matched) {
+            return { ...matched, ...parsed, avatarUrl: parsed.avatarUrl || matched.avatarUrl }
+          }
           return parsed
         }
       }
     } catch {}
-    return DEFAULT_OFFICERS[0]
+    const list = this.getOfficersSync()
+    return list[0] || DEFAULT_OFFICERS[0]
   },
+
+  saveCurrentOfficer(officer: OfficerAccount): void {
+    try {
+      localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(officer))
+    } catch {}
+  },
+
   isAuthenticated(): boolean {
     try {
       return localStorage.getItem('PNR_AUTH_VALID') === 'true'
@@ -150,37 +213,77 @@ export const authService = {
       return false
     }
   },
+
   login(officerId: string, pin: string): { success: boolean; officer?: OfficerAccount; error?: string } {
-    const officer = DEFAULT_OFFICERS.find((o) => o.id === officerId || o.officerCode === officerId)
+    const officers = this.getOfficersSync()
+    let officer = officers.find((o) => o.id === officerId || o.officerCode === officerId)
+    if (!officer) {
+      officer = DEFAULT_OFFICERS.find((o) => o.id === officerId || o.officerCode === officerId)
+    }
     if (!officer) return { success: false, error: 'ไม่พบข้อมูลเจ้าหน้าที่' }
+
     if (pin.trim() !== officer.pinCode && pin.trim() !== 'prn123') {
       return { success: false, error: 'รหัส PIN ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง' }
     }
+
     try {
+      // Preserve any previously saved avatar or details from current storage
+      const current = this.getCurrentOfficer()
+      if (current && (current.id === officer.id || current.officerCode === officer.officerCode)) {
+        officer = { ...officer, ...current, avatarUrl: current.avatarUrl || officer.avatarUrl }
+      }
       localStorage.setItem('PNR_AUTH_VALID', 'true')
       localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(officer))
     } catch {}
+
+    // Async sync latest profile from Supabase in background
+    if (supabase && !USE_MOCKS) {
+      supabase.from('officers').select('*').eq('officer_code', officer.officerCode).maybeSingle().then(({ data }) => {
+        if (data) {
+          const fresh: OfficerAccount = {
+            id: data.id,
+            officerCode: data.officer_code,
+            name: data.name,
+            position: data.position,
+            role: data.role,
+            roleName: data.role_name || data.position,
+            phone: data.phone || '',
+            email: data.email || '',
+            pinCode: data.pin_code,
+            avatarColor: data.avatar_color || 'bg-emerald-600',
+            avatarUrl: data.avatar_url || undefined
+          }
+          localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(fresh))
+        }
+      }, () => {})
+    }
+
     return { success: true, officer }
   },
+
   logout(): void {
     try {
       localStorage.removeItem('PNR_AUTH_VALID')
     } catch {}
   },
-  updateProfile(updated: Partial<OfficerAccount>): OfficerAccount {
+
+  async updateProfile(updated: Partial<OfficerAccount>): Promise<OfficerAccount> {
     const current = this.getCurrentOfficer()
     const merged: OfficerAccount = { ...current, ...updated }
     try {
       localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(merged))
+
+      const officers = this.getOfficersSync()
+      const updatedList = officers.map((o: OfficerAccount) =>
+        (o.id === merged.id || o.officerCode === merged.officerCode) ? { ...o, ...merged } : o
+      )
+      if (!updatedList.some(o => o.officerCode === merged.officerCode)) {
+        updatedList.push(merged)
+      }
+      localStorage.setItem('PNR_OFFICERS_LIST', JSON.stringify(updatedList))
+
       const idx = DEFAULT_OFFICERS.findIndex(o => o.id === merged.id || o.officerCode === merged.officerCode)
       if (idx >= 0) DEFAULT_OFFICERS[idx] = merged
-
-      const rawList = localStorage.getItem('PNR_OFFICERS_LIST')
-      if (rawList) {
-        const parsed = JSON.parse(rawList)
-        const updatedList = parsed.map((o: any) => o.id === merged.id || o.officerCode === merged.officerCode ? { ...o, ...merged } : o)
-        localStorage.setItem('PNR_OFFICERS_LIST', JSON.stringify(updatedList))
-      }
 
       window.dispatchEvent(new Event('storage'))
 
@@ -191,27 +294,99 @@ export const authService = {
       } catch {}
 
       if (supabase && !USE_MOCKS) {
-        supabase.from('officers').update({
+        if (merged.avatarUrl && merged.avatarUrl.startsWith('data:')) {
+          merged.avatarUrl = await this.uploadImage(merged.avatarUrl, 'avatars', merged.officerCode)
+          localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(merged))
+        }
+        if (merged.signatureUrl && merged.signatureUrl.startsWith('data:')) {
+          merged.signatureUrl = await this.uploadImage(merged.signatureUrl, 'signatures', merged.officerCode)
+          localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(merged))
+        }
+
+        const { error } = await supabase.from('officers').update({
           name: merged.name,
           position: merged.position,
           role_name: merged.roleName,
           phone: merged.phone,
           email: merged.email,
           avatar_color: merged.avatarColor,
-          avatar_url: merged.avatarUrl
-        }).eq('officer_code', merged.officerCode).then(() => {})
+          avatar_url: merged.avatarUrl || null,
+          signature_url: merged.signatureUrl || null
+        }).eq('officer_code', merged.officerCode)
+
+        if (error) {
+          console.warn('Supabase profile update error:', error)
+        } else {
+          console.log('✓ Synced profile to Supabase Cloud')
+        }
       }
     } catch (e) {
       console.warn('Update profile error:', e)
     }
     return merged
   },
-  updatePin(newPin: string): boolean {
+
+  async uploadImage(
+    dataUrlOrFile: string | File,
+    folder: 'avatars' | 'establishments' | 'inspections' | 'signatures',
+    filename: string
+  ): Promise<string> {
+    if (!supabase || USE_MOCKS) return typeof dataUrlOrFile === 'string' ? dataUrlOrFile : ''
+    try {
+      let fileBody: Blob
+      let contentType = 'image/jpeg'
+
+      if (typeof dataUrlOrFile === 'string') {
+        if (!dataUrlOrFile.startsWith('data:')) return dataUrlOrFile
+        const [header, base64Data] = dataUrlOrFile.split(',')
+        const mimeMatch = header.match(/:(.*?);/)
+        if (mimeMatch) contentType = mimeMatch[1]
+        const byteCharacters = atob(base64Data)
+        const byteNumbers = new Array(byteCharacters.length)
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i)
+        }
+        fileBody = new Blob([new Uint8Array(byteNumbers)], { type: contentType })
+      } else {
+        fileBody = dataUrlOrFile
+        contentType = dataUrlOrFile.type || 'image/jpeg'
+      }
+
+      const ext = contentType.includes('png') ? 'png' : contentType.includes('svg') ? 'svg' : 'jpg'
+      const cleanName = filename.replace(/[^a-zA-Z0-9_-]/g, '_')
+      const filePath = `${folder}/${cleanName}_${Date.now()}.${ext}`
+
+      const { error } = await supabase.storage
+        .from('pnr-documents')
+        .upload(filePath, fileBody, {
+          contentType,
+          upsert: true
+        })
+
+      if (error) {
+        console.warn('PWA image storage upload warning:', error)
+        return typeof dataUrlOrFile === 'string' ? dataUrlOrFile : ''
+      }
+
+      const { data: pubData } = supabase.storage
+        .from('pnr-documents')
+        .getPublicUrl(filePath)
+
+      return pubData.publicUrl
+    } catch (err) {
+      console.warn('PWA Image upload error:', err)
+      return typeof dataUrlOrFile === 'string' ? dataUrlOrFile : ''
+    }
+  },
+
+  async updatePin(newPin: string): Promise<boolean> {
     const current = this.getCurrentOfficer()
     current.pinCode = newPin
-    this.updateProfile({ pinCode: newPin })
+    await this.updateProfile({ pinCode: newPin })
     if (supabase && !USE_MOCKS) {
-      supabase.from('officers').update({ pin_code: newPin }).eq('officer_code', current.officerCode).then(() => {})
+      try {
+        await supabase.from('officers').update({ pin_code: newPin }).eq('officer_code', current.officerCode)
+      } catch {}
     }
     return true
   }
