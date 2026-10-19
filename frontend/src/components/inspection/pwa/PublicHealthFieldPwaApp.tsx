@@ -1113,8 +1113,8 @@ export function PublicHealthFieldPwaApp({
                   marginBottom: '16px'
                 }}>
                   <img
-                    src="https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80"
-                    alt="ที่ทำการ องค์การบริหารส่วนตำบลโป่งน้ำร้อน"
+                    src="/pnr_landscape_bg.png"
+                    alt="องค์การบริหารส่วนตำบลโป่งน้ำร้อน"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                   <div style={{
@@ -1123,12 +1123,12 @@ export function PublicHealthFieldPwaApp({
                     left: 0,
                     right: 0,
                     padding: '8px 12px',
-                    background: 'linear-gradient(to top, rgba(15, 23, 42, 0.75), transparent)',
+                    background: 'linear-gradient(to top, rgba(15, 23, 42, 0.85), transparent)',
                     color: '#ffffff',
                     fontSize: '11px',
-                    fontWeight: 600
+                    fontWeight: 700
                   }}>
-                    ที่ทำการองค์การบริหารส่วนตำบล / เทศบาล
+                    องค์การบริหารส่วนตำบลโป่งน้ำร้อน
                   </div>
                 </div>
 
@@ -1222,7 +1222,7 @@ export function PublicHealthFieldPwaApp({
 
               {/* Version & Seal Footer */}
               <div style={{ textAlign: 'center', color: '#64748b', fontSize: '10.5px' }}>
-                <p>ที่ทำการองค์การบริหารส่วนตำบล / เทศบาล</p>
+                <p>องค์การบริหารส่วนตำบลโป่งน้ำร้อน</p>
                 <p style={{ marginTop: '2px', color: '#94a3b8' }}>เวอร์ชัน 1.0.0 (PWA Mobile)</p>
               </div>
             </div>
