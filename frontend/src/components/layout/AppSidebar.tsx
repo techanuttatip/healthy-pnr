@@ -61,7 +61,7 @@ interface AppSidebarProps {
 
 const CATEGORY_ITEMS = [
   { id: 'all', label: 'ทั้งหมดทุกหมวด', dot: 'bg-slate-300' },
-  { id: 'food_notice', label: 'อาหาร ≤ 200 ตร.ม. (นจ.)', dot: 'bg-emerald-400' },
+  { id: 'food_notice', label: 'อาหาร ≤ 200 ตร.ม. (นจ.)', dot: 'bg-teal-400' },
   { id: 'food_license', label: 'อาหาร > 200 ตร.ม. (บทอ.)', dot: 'bg-blue-400' },
   { id: 'hazardous', label: 'อันตรายต่อสุขภาพ (บทส.)', dot: 'bg-amber-400' },
   { id: 'market', label: 'ตลาดสด / นัด (อส.)', dot: 'bg-purple-400' },
@@ -95,6 +95,18 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return activeModule === mod;
   };
 
+  const handleDirectoryClick = () => {
+    onSelectModule('directory');
+    setIsCategoryDropdownOpen((prev) => !prev);
+    setIsYearDropdownOpen(false);
+  };
+
+  const handleArchiveClick = () => {
+    onSelectModule('archive');
+    setIsYearDropdownOpen((prev) => !prev);
+    setIsCategoryDropdownOpen(false);
+  };
+
   const handleCategoryClick = (catId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (onSelectCategory) {
@@ -114,14 +126,31 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   return (
     <aside
       className={`${
-        isSidebarCollapsed ? 'w-16' : 'w-[255px]'
-      } shrink-0 h-full bg-gradient-to-b from-[#065f46] via-[#047857] to-[#064e3b] border-r border-emerald-500/30 text-white flex flex-col justify-between z-30 transition-all duration-200 print:hidden relative shadow-2xl`}
+        isSidebarCollapsed ? 'w-16' : 'w-[260px]'
+      } shrink-0 h-full relative overflow-hidden text-white flex flex-col justify-between z-30 transition-all duration-200 print:hidden shadow-2xl border-r border-white/10`}
     >
-      {/* Top: Emblem, Organization Branding & Collapse Toggle */}
-      <div className={`p-3.5 border-b border-emerald-500/30 bg-black/10 ${isSidebarCollapsed ? 'flex flex-col items-center gap-2' : ''}`}>
+      {/* ๑. Scenic Hot Springs / Pong Nam Ron Landscape Background with Frosted Glass Overlay */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+        <img
+          src="/pnr_landscape_bg.png"
+          alt="ทัศนียภาพ อบต.โป่งน้ำร้อน"
+          className="w-full h-full object-cover object-center scale-105 opacity-55 filter brightness-95 saturate-125"
+        />
+        {/* Deep Sapphire & Royal Slate Frosted Glass Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-indigo-950/75 to-blue-950/85 backdrop-blur-md" />
+        {/* Subtle glass reflection sheen */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-blue-400/10 pointer-events-none" />
+        {/* Luminous Ambient Glow Orbs */}
+        <div className="absolute -top-10 -left-10 w-48 h-48 bg-blue-500/25 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 -right-10 w-48 h-48 bg-indigo-500/25 rounded-full blur-3xl" />
+        <div className="absolute -bottom-10 left-5 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl" />
+      </div>
+
+      {/* ๒. Top: Emblem, Organization Branding & Collapse Toggle */}
+      <div className={`relative z-10 p-3.5 border-b border-white/10 bg-white/[0.04] backdrop-blur-md ${isSidebarCollapsed ? 'flex flex-col items-center gap-2' : ''}`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-amber-300 bg-white shadow-md shadow-emerald-950/30 shrink-0 flex items-center justify-center p-0.5">
+            <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-amber-300/90 bg-white/95 shadow-md shadow-blue-950/40 shrink-0 flex items-center justify-center p-0.5">
               <img
                 src="/pnr_logo.png"
                 alt="ตราสัญลักษณ์ อบต.โป่งน้ำร้อน"
@@ -133,7 +162,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 <div className="font-bold text-xs text-white tracking-tight truncate font-heading">
                   ระบบสารบรรณ & ทะเบียน
                 </div>
-                <div className="text-[11px] text-emerald-200 font-medium truncate">
+                <div className="text-[11px] text-blue-200 font-medium truncate">
                   อบต.โป่งน้ำร้อน อ.ฝาง
                 </div>
               </div>
@@ -143,20 +172,20 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-white/15 transition-colors cursor-pointer shrink-0"
+            className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0"
             title={isSidebarCollapsed ? 'ขยายแถบเมนู (Expand)' : 'พับเก็บแถบเมนู (Collapse)'}
           >
             {isSidebarCollapsed ? (
-              <PanelLeftOpen className="w-4 h-4 text-amber-300" />
+              <PanelLeftOpen className="w-4 h-4 text-blue-300" />
             ) : (
-              <PanelLeftClose className="w-4 h-4 text-emerald-200" />
+              <PanelLeftClose className="w-4 h-4 text-slate-300" />
             )}
           </button>
         </div>
       </div>
 
-      {/* Middle: Navigation Modules */}
-      <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5 no-scrollbar">
+      {/* ๓. Middle: Navigation Modules */}
+      <div className="relative z-10 flex-1 overflow-y-auto p-2.5 space-y-1.5 no-scrollbar">
         {/* 1: ภาพรวมระบบ & สถิติ (Dashboard) */}
         <button
           type="button"
@@ -165,69 +194,54 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
           } ${
             isCurrent('dashboard')
-              ? 'bg-white text-emerald-950 font-bold shadow-md shadow-emerald-950/30 border border-white/60'
-              : 'text-emerald-100 hover:bg-white/15 hover:text-white'
+              ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-bold shadow-lg shadow-blue-900/40 border border-white/25 backdrop-blur-md'
+              : 'text-slate-200 hover:bg-white/10 hover:text-white backdrop-blur-xs'
           }`}
           title="ภาพรวมงานทะเบียน & สถิติสุขาภิบาล"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <LayoutDashboard className={`w-4 h-4 shrink-0 ${isCurrent('dashboard') ? 'text-emerald-700' : 'text-amber-300'}`} />
+            <LayoutDashboard className="w-4 h-4 shrink-0 text-amber-300" />
             {!isSidebarCollapsed && <span className="truncate">ภาพรวมระบบ & สถิติ</span>}
           </div>
         </button>
 
-        {/* 2: ทะเบียนคำขอ (พร้อม Dropdown หมวดหมู่ด้านล่าง) */}
+        {/* 2: ทะเบียนคำขอ (คลิกแล้วกาง Dropdown ทันที) */}
         <div className="space-y-1">
-          <div
-            onClick={() => onSelectModule('directory')}
+          <button
+            type="button"
+            onClick={handleDirectoryClick}
             className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-150 cursor-pointer ${
               isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
             } ${
               isCurrent('directory') || isCurrent('table')
-                ? 'bg-white text-emerald-950 font-bold shadow-md shadow-emerald-950/30 border border-white/60'
-                : 'text-emerald-100 hover:bg-white/15 hover:text-white'
+                ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-bold shadow-lg shadow-blue-900/40 border border-white/25 backdrop-blur-md'
+                : 'text-slate-200 hover:bg-white/10 hover:text-white backdrop-blur-xs'
             }`}
-            title="ทะเบียนคำขอ (คลิกเพื่อเปิดหน้าทะเบียน)"
+            title="ทะเบียนคำขอ (คลิกเพื่อเปิดหน้าทะเบียนและเลือกหมวด)"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <Store className={`w-4 h-4 shrink-0 ${isCurrent('directory') || isCurrent('table') ? 'text-emerald-700' : 'text-emerald-300'}`} />
+              <Store className="w-4 h-4 shrink-0 text-cyan-300" />
               {!isSidebarCollapsed && <span className="truncate">ทะเบียนคำขอ</span>}
             </div>
             {!isSidebarCollapsed && (
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className={`text-[10px] font-mono px-2 py-0.2 rounded-full font-bold ${
-                  isCurrent('directory') || isCurrent('table')
-                    ? 'bg-emerald-100 text-emerald-900'
-                    : 'bg-black/25 text-emerald-100 border border-emerald-400/30'
-                }`}>
+                <span className="text-[10px] font-mono px-2 py-0.2 rounded-full font-bold bg-white/20 text-white border border-white/20">
                   {establishmentsCount}
                 </span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
-                  }}
-                  className={`p-1 rounded-md transition-colors ${
-                    isCurrent('directory') || isCurrent('table')
-                      ? 'text-emerald-800 hover:bg-emerald-100'
-                      : 'text-emerald-200 hover:text-white hover:bg-white/20'
+                <span
+                  className={`p-0.5 rounded text-slate-300 hover:text-white transition-transform duration-200 ${
+                    isCategoryDropdownOpen ? 'rotate-180' : ''
                   }`}
-                  title={isCategoryDropdownOpen ? 'ซ่อนหมวดหมู่' : 'แสดงหมวดหมู่'}
                 >
-                  {isCategoryDropdownOpen ? (
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  ) : (
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  )}
-                </button>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </span>
               </div>
             )}
-          </div>
+          </button>
 
-          {/* Sub-menu: Category Dropdown List (Only visible when explicitly toggled open) */}
+          {/* Sub-menu: Category Dropdown List */}
           {!isSidebarCollapsed && isCategoryDropdownOpen && (
-            <div className="pl-5 pr-1 space-y-0.5 py-1.5 animate-fadeIn border-l-2 border-emerald-300/60 ml-4 my-1 bg-black/15 rounded-r-xl">
+            <div className="pl-4 pr-1 space-y-0.5 py-1.5 animate-fadeIn border-l-2 border-cyan-400/60 ml-4 my-1 bg-slate-900/70 backdrop-blur-xl rounded-r-xl border-y border-r border-white/10 shadow-lg">
               {CATEGORY_ITEMS.map((cat) => {
                 const isActiveCat =
                   (isCurrent('directory') || isCurrent('table')) && selectedCategory === cat.id;
@@ -238,8 +252,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={(e) => handleCategoryClick(cat.id, e)}
                     className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] flex items-center gap-2 transition-all cursor-pointer ${
                       isActiveCat
-                        ? 'bg-white/25 text-white font-bold border border-white/40 shadow-xs'
-                        : 'text-emerald-100/90 hover:text-white hover:bg-white/10'
+                        ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white font-bold border border-blue-400/50 shadow-xs'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${cat.dot} shrink-0`} />
@@ -251,58 +265,43 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           )}
         </div>
 
-        {/* 3: แฟ้มเอกสาร (พร้อม Dropdown รายปีด้านล่าง) */}
+        {/* 3: แฟ้มเอกสาร (คลิกแล้วกาง Dropdown ทันที) */}
         <div className="space-y-1">
-          <div
-            onClick={() => onSelectModule('archive')}
+          <button
+            type="button"
+            onClick={handleArchiveClick}
             className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-150 cursor-pointer ${
               isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
             } ${
               isCurrent('archive')
-                ? 'bg-white text-emerald-950 font-bold shadow-md shadow-emerald-950/30 border border-white/60'
-                : 'text-emerald-100 hover:bg-white/15 hover:text-white'
+                ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-bold shadow-lg shadow-blue-900/40 border border-white/25 backdrop-blur-md'
+                : 'text-slate-200 hover:bg-white/10 hover:text-white backdrop-blur-xs'
             }`}
-            title="แฟ้มเอกสาร (คลิกเพื่อเปิดหน้าแฟ้ม)"
+            title="แฟ้มเอกสาร (คลิกเพื่อเปิดหน้าแฟ้มและเลือกปี)"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <FolderOpen className={`w-4 h-4 shrink-0 ${isCurrent('archive') ? 'text-emerald-700' : 'text-amber-300'}`} />
+              <FolderOpen className="w-4 h-4 shrink-0 text-amber-300" />
               {!isSidebarCollapsed && <span className="truncate">แฟ้มเอกสาร</span>}
             </div>
             {!isSidebarCollapsed && (
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className={`text-[10px] font-mono px-2 py-0.2 rounded-full font-bold ${
-                  isCurrent('archive')
-                    ? 'bg-emerald-100 text-emerald-900'
-                    : 'bg-black/25 text-emerald-100 border border-emerald-400/30'
-                }`}>
+                <span className="text-[10px] font-mono px-2 py-0.2 rounded-full font-bold bg-white/20 text-white border border-white/20">
                   {selectedYear}
                 </span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsYearDropdownOpen(!isYearDropdownOpen);
-                  }}
-                  className={`p-1 rounded-md transition-colors ${
-                    isCurrent('archive')
-                      ? 'text-emerald-800 hover:bg-emerald-100'
-                      : 'text-emerald-200 hover:text-white hover:bg-white/20'
+                <span
+                  className={`p-0.5 rounded text-slate-300 hover:text-white transition-transform duration-200 ${
+                    isYearDropdownOpen ? 'rotate-180' : ''
                   }`}
-                  title={isYearDropdownOpen ? 'ซ่อนปี' : 'แสดงปี'}
                 >
-                  {isYearDropdownOpen ? (
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  ) : (
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  )}
-                </button>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </span>
               </div>
             )}
-          </div>
+          </button>
 
-          {/* Sub-menu: Years Dropdown List (Only visible when explicitly toggled open) */}
+          {/* Sub-menu: Years Dropdown List */}
           {!isSidebarCollapsed && isYearDropdownOpen && (
-            <div className="pl-5 pr-1 space-y-0.5 py-1.5 animate-fadeIn border-l-2 border-emerald-300/60 ml-4 my-1 bg-black/15 rounded-r-xl">
+            <div className="pl-4 pr-1 space-y-0.5 py-1.5 animate-fadeIn border-l-2 border-amber-400/60 ml-4 my-1 bg-slate-900/70 backdrop-blur-xl rounded-r-xl border-y border-r border-white/10 shadow-lg">
               {availableYears.map((yr) => {
                 const isActiveYr = isCurrent('archive') && selectedYear === yr;
                 return (
@@ -312,11 +311,11 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={(e) => handleYearClick(yr, e)}
                     className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] flex items-center gap-2 transition-all cursor-pointer ${
                       isActiveYr
-                        ? 'bg-white/25 text-white font-bold border border-white/40 shadow-xs'
-                        : 'text-emerald-100/90 hover:text-white hover:bg-white/10'
+                        ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white font-bold border border-blue-400/50 shadow-xs'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    <Folder className={`w-3 h-3 ${isActiveYr ? 'text-amber-300' : 'text-emerald-300'} shrink-0`} />
+                    <Folder className={`w-3 h-3 ${isActiveYr ? 'text-amber-300' : 'text-slate-400'} shrink-0`} />
                     <span>แฟ้มปี พ.ศ. {yr}</span>
                   </button>
                 );
@@ -327,7 +326,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
         <div className="pt-2 pb-1">
           {!isSidebarCollapsed && (
-            <div className="text-[10px] font-bold text-emerald-200 uppercase tracking-wider px-3 mb-1">
+            <div className="text-[10px] font-bold text-indigo-300/90 uppercase tracking-wider px-3 mb-1 font-mono">
               การรับเรื่อง & บันทึกข้อมูล
             </div>
           )}
@@ -341,21 +340,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
           } ${
             isCurrent('upload_pdf')
-              ? 'bg-white text-emerald-950 font-bold shadow-md shadow-emerald-950/30 border border-white/60'
-              : 'text-emerald-100 hover:bg-white/15 hover:text-white'
+              ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-bold shadow-lg shadow-blue-900/40 border border-white/25 backdrop-blur-md'
+              : 'text-slate-200 hover:bg-white/10 hover:text-white backdrop-blur-xs'
           }`}
           title="อัปโหลดไฟล์ PDF (Auto-fill)"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <UploadCloud className={`w-4 h-4 shrink-0 ${isCurrent('upload_pdf') ? 'text-emerald-700' : 'text-cyan-300'}`} />
+            <UploadCloud className="w-4 h-4 shrink-0 text-cyan-300" />
             {!isSidebarCollapsed && <span className="truncate">อัปโหลดไฟล์ PDF</span>}
           </div>
           {!isSidebarCollapsed && (
-            <span className={`text-[10px] px-1.5 py-0.2 rounded font-medium ${
-              isCurrent('upload_pdf')
-                ? 'bg-emerald-100 text-emerald-900 font-bold'
-                : 'bg-black/25 text-cyan-200 border border-cyan-400/30'
-            }`}>
+            <span className="text-[10px] px-1.5 py-0.2 rounded font-medium bg-cyan-500/20 text-cyan-200 border border-cyan-400/30">
               Auto-fill
             </span>
           )}
@@ -369,20 +364,20 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
           } ${
             isCurrent('manual_entry')
-              ? 'bg-white text-emerald-950 font-bold shadow-md shadow-emerald-950/30 border border-white/60'
-              : 'text-emerald-100 hover:bg-white/15 hover:text-white'
+              ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-bold shadow-lg shadow-blue-900/40 border border-white/25 backdrop-blur-md'
+              : 'text-slate-200 hover:bg-white/10 hover:text-white backdrop-blur-xs'
           }`}
           title="บันทึกข้อมูลเอง (กรอกฟอร์ม)"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <FileEdit className={`w-4 h-4 shrink-0 ${isCurrent('manual_entry') ? 'text-emerald-700' : 'text-amber-300'}`} />
+            <FileEdit className="w-4 h-4 shrink-0 text-amber-300" />
             {!isSidebarCollapsed && <span className="truncate">บันทึกข้อมูลเอง</span>}
           </div>
         </button>
 
         <div className="pt-2 pb-1">
           {!isSidebarCollapsed && (
-            <div className="text-[10px] font-bold text-emerald-200 uppercase tracking-wider px-3 mb-1">
+            <div className="text-[10px] font-bold text-indigo-300/90 uppercase tracking-wider px-3 mb-1 font-mono">
               งานเอกสาร & รายงาน
             </div>
           )}
@@ -396,20 +391,20 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
           } ${
             isCurrent('print')
-              ? 'bg-white text-emerald-950 font-bold shadow-md shadow-emerald-950/30 border border-white/60'
-              : 'text-emerald-100 hover:bg-white/15 hover:text-white'
+              ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-bold shadow-lg shadow-blue-900/40 border border-white/25 backdrop-blur-md'
+              : 'text-slate-200 hover:bg-white/10 hover:text-white backdrop-blur-xs'
           }`}
           title="พิมพ์เอกสารราชการ (ใบอนุญาต, ใบเสร็จ, บัตร, ป้าย)"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <Printer className={`w-4 h-4 shrink-0 ${isCurrent('print') ? 'text-emerald-700' : 'text-purple-300'}`} />
+            <Printer className="w-4 h-4 shrink-0 text-violet-300" />
             {!isSidebarCollapsed && <span className="truncate">พิมพ์เอกสารราชการ</span>}
           </div>
         </button>
       </div>
 
-      {/* Bottom: Officer Profile Card & Logout */}
-      <div className="p-3 border-t border-emerald-500/30 bg-black/20 backdrop-blur-md text-xs">
+      {/* ๔. Bottom: Officer Profile Card & Logout */}
+      <div className="relative z-10 p-3 border-t border-white/10 bg-white/[0.04] backdrop-blur-md text-xs">
         <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} gap-2`}>
           <button
             type="button"
@@ -421,12 +416,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               <img
                 src={currentOfficer.avatarUrl}
                 alt={currentOfficer.name}
-                className="w-8 h-8 rounded-full object-cover border border-emerald-300 shrink-0"
+                className="w-8 h-8 rounded-full object-cover border border-blue-300/60 shadow-xs shrink-0"
               />
             ) : (
               <div
                 className={`w-8 h-8 rounded-full ${
-                  currentOfficer.avatarColor || 'bg-emerald-600'
+                  currentOfficer.avatarColor || 'bg-blue-600'
                 } text-white flex items-center justify-center font-bold text-xs shrink-0 border border-white/20`}
               >
                 <User className="w-4 h-4" />
@@ -434,10 +429,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             )}
             {!isSidebarCollapsed && (
               <div className="min-w-0">
-                <div className="font-bold text-white truncate text-[11px] group-hover:text-amber-200">
+                <div className="font-bold text-white truncate text-[11px] group-hover:text-blue-200">
                   {currentOfficer.name}
                 </div>
-                <div className="text-[10px] text-emerald-200 truncate">
+                <div className="text-[10px] text-blue-200/80 truncate">
                   {currentOfficer.position}
                 </div>
               </div>
@@ -449,7 +444,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               <button
                 type="button"
                 onClick={onOpenSettings}
-                className="p-1 rounded-lg text-emerald-200 hover:text-white hover:bg-white/15 cursor-pointer"
+                className="p-1 rounded-lg text-slate-300 hover:text-white hover:bg-white/15 cursor-pointer"
                 title="ตั้งค่าระบบ"
               >
                 <Settings className="w-4 h-4" />
@@ -457,7 +452,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               <button
                 type="button"
                 onClick={onOpenAuditLog}
-                className="p-1 rounded-lg text-emerald-200 hover:text-white hover:bg-white/15 cursor-pointer"
+                className="p-1 rounded-lg text-slate-300 hover:text-white hover:bg-white/15 cursor-pointer"
                 title="ประวัติราชการ (Audit)"
               >
                 <History className="w-4 h-4" />
@@ -465,7 +460,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               <button
                 type="button"
                 onClick={onLogout}
-                className="p-1 rounded-lg text-emerald-200 hover:text-rose-300 hover:bg-rose-500/20 cursor-pointer"
+                className="p-1 rounded-lg text-slate-300 hover:text-rose-300 hover:bg-rose-500/20 cursor-pointer"
                 title="ออกจากระบบ"
               >
                 <LogOut className="w-4 h-4" />
@@ -475,12 +470,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </div>
 
         {!isSidebarCollapsed && (
-          <div className="flex items-center justify-between pt-2 mt-2 border-t border-emerald-500/30 text-[10px] text-emerald-200/80 font-mono">
+          <div className="flex items-center justify-between pt-2 mt-2 border-t border-white/10 text-[10px] text-slate-300/80 font-mono">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3 text-amber-300" />
               <LiveClock className="text-white font-semibold" />
             </span>
-            <span className="text-[9px] text-emerald-200">อบต.โป่งน้ำร้อน</span>
+            <span className="text-[9px] text-blue-300">อบต.โป่งน้ำร้อน</span>
           </div>
         )}
       </div>
