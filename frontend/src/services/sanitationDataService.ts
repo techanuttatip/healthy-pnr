@@ -725,7 +725,7 @@ class SanitationDataService {
       }
 
       const ext = contentType.includes('png') ? 'png' : contentType.includes('svg') ? 'svg' : 'jpg';
-      const cleanName = filename.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const cleanName = filename.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^_+|_+$/g, '') || 'img';
       const filePath = `${folder}/${cleanName}_${Date.now()}.${ext}`;
 
       const { error } = await this.supabase.storage
@@ -1323,13 +1323,29 @@ class SanitationDataService {
 
     if (this.isCloudActive && this.supabase) {
       try {
+        const signatoriesToSync = { ...settings.signatories };
+        if (signatoriesToSync.mayorSignatureUrl && signatoriesToSync.mayorSignatureUrl.startsWith('data:')) {
+          const uploadedMayor = await this.uploadImage(signatoriesToSync.mayorSignatureUrl, 'signatures', 'mayor_signature');
+          if (uploadedMayor && !uploadedMayor.startsWith('data:')) {
+            signatoriesToSync.mayorSignatureUrl = uploadedMayor;
+            settings.signatories.mayorSignatureUrl = uploadedMayor;
+          }
+        }
+        if (signatoriesToSync.officerSignatureUrl && signatoriesToSync.officerSignatureUrl.startsWith('data:')) {
+          const uploadedOfficer = await this.uploadImage(signatoriesToSync.officerSignatureUrl, 'signatures', 'officer_signature');
+          if (uploadedOfficer && !uploadedOfficer.startsWith('data:')) {
+            signatoriesToSync.officerSignatureUrl = uploadedOfficer;
+            settings.signatories.officerSignatureUrl = uploadedOfficer;
+          }
+        }
+
         const payload = {
           organization_name: settings.organizationName,
           department_name: settings.departmentName,
           district: settings.district,
           province: settings.province,
           phone_number: settings.phoneNumber,
-          signatories: settings.signatories,
+          signatories: signatoriesToSync,
           fees: settings.fees,
           inspection_rules: settings.inspectionRules
         };

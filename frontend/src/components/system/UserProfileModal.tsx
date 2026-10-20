@@ -127,7 +127,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   if (!isOpen) return null;
 
   // Handle Photo Upload
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -135,6 +135,19 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       showWarningAlert('ไฟล์ไม่ถูกต้อง', 'กรุณาเลือกไฟล์รูปภาพ (JPEG, PNG) เท่านั้น');
       e.target.value = '';
       return;
+    }
+
+    try {
+      showToast('กำลังอัปโหลดรูปโปรไฟล์เข้า Storage...', 'info');
+      const cloudUrl = await sanitationDataService.uploadImage(file, 'avatars', currentOfficer.officerCode || 'officer');
+      if (cloudUrl && !cloudUrl.startsWith('data:')) {
+        setAvatarUrl(cloudUrl);
+        showToast('✓ อัปโหลดรูปโปรไฟล์เข้าสู่ Cloud Storage สำเร็จ', 'success');
+        e.target.value = '';
+        return;
+      }
+    } catch (err) {
+      console.warn('Storage upload error, fallback to data URL:', err);
     }
 
     const reader = new FileReader();
@@ -150,7 +163,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   // Handle Signature Image Upload
-  const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSignatureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -158,6 +171,21 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       showWarningAlert('ไฟล์ไม่ถูกต้อง', 'กรุณาเลือกไฟล์รูปภาพ (JPEG, PNG, SVG) เท่านั้น');
       e.target.value = '';
       return;
+    }
+
+    try {
+      showToast('กำลังอัปโหลดลายเซ็นเข้า Storage...', 'info');
+      const cloudUrl = await sanitationDataService.uploadImage(file, 'signatures', currentOfficer.officerCode || 'officer_sig');
+      if (cloudUrl && !cloudUrl.startsWith('data:')) {
+        setSignatureUrl(cloudUrl);
+        hasDrawnRef.current = false;
+        drawImageOnCanvas(cloudUrl);
+        showToast('✓ อัปโหลดลายเซ็นเข้าสู่ Cloud Storage สำเร็จ', 'success');
+        e.target.value = '';
+        return;
+      }
+    } catch (err) {
+      console.warn('Storage upload error, fallback to data URL:', err);
     }
 
     const reader = new FileReader();

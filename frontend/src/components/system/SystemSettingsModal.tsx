@@ -516,9 +516,21 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
+                          showToast('กำลังอัปโหลดลายเซ็นเข้า Storage...', 'info');
+                          try {
+                            const cloudUrl = await sanitationDataService.uploadImage(file, 'signatures', 'mayor_signature');
+                            if (cloudUrl && !cloudUrl.startsWith('data:')) {
+                              setFormData({ ...formData, signatories: { ...formData.signatories, mayorSignatureUrl: cloudUrl } });
+                              showToast('✓ อัปโหลดลายเซ็นนายก อบต. เข้า Cloud Storage สำเร็จ', 'success');
+                              e.target.value = '';
+                              return;
+                            }
+                          } catch (err) {
+                            console.warn('Storage upload error, fallback to data URL:', err);
+                          }
                           const reader = new FileReader();
                           reader.onload = (evt) => {
                             const dataUrl = evt.target?.result as string;
@@ -687,9 +699,21 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
+                          showToast('กำลังอัปโหลดลายเซ็นเข้า Storage...', 'info');
+                          try {
+                            const cloudUrl = await sanitationDataService.uploadImage(file, 'signatures', 'officer_signature');
+                            if (cloudUrl && !cloudUrl.startsWith('data:')) {
+                              setFormData({ ...formData, signatories: { ...formData.signatories, officerSignatureUrl: cloudUrl } });
+                              showToast('✓ อัปโหลดลายเซ็นเจ้าหน้าที่เข้า Cloud Storage สำเร็จ', 'success');
+                              e.target.value = '';
+                              return;
+                            }
+                          } catch (err) {
+                            console.warn('Storage upload error, fallback to data URL:', err);
+                          }
                           const reader = new FileReader();
                           reader.onload = (evt) => {
                             const dataUrl = evt.target?.result as string;
