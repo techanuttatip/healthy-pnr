@@ -142,6 +142,8 @@ export const App: React.FC = () => {
         )
       ) {
         if (mod === 'intake') return 'upload_pdf';
+        if (mod === 'archive') return 'table';
+        if (mod === 'map') return 'dashboard';
         return mod as AppModuleType;
       }
     } catch {
@@ -402,7 +404,7 @@ export const App: React.FC = () => {
   const handleInspectEstablishment = (est: Establishment) => {
     setSelectedEstablishment(est);
     setSelectedId(est.id);
-    setActiveModule('archive');
+    setActiveModule('table');
   };
 
   const handlePrintEstablishment = (
@@ -438,7 +440,7 @@ export const App: React.FC = () => {
       setSelectedEstablishment(est);
       setSelectedId(est.id);
     }
-    setActiveModule('archive');
+    setActiveModule('table');
   };
 
   const handleViewOnMap = (est: Establishment) => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Establishment, SystemSettings } from '../../../types/publicHealth';
 
 interface RegisterReportDocProps {
@@ -6,18 +6,93 @@ interface RegisterReportDocProps {
   settings: SystemSettings;
   totalPassed: number;
   totalFees: number;
+  selectedYear?: string;
+  selectedCategory?: string;
 }
 
 export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
   establishments,
   settings,
   totalPassed,
-  totalFees
+  totalFees,
+  selectedYear = 'all',
+  selectedCategory = 'all'
 }) => {
   const sig = settings.signatories;
   const orgName = settings.organizationName || 'องค์การบริหารส่วนตำบลโป่งน้ำร้อน';
   const districtName = settings.district || 'อำเภอฝาง';
   const provinceName = settings.province || 'จังหวัดเชียงใหม่';
+
+  const thaiDigits = (str: string | number) => {
+    return String(str).replace(/[0-9]/g, (d) => '๐๑๒๓๔๕๖๗๘๙'[parseInt(d, 10)]);
+  };
+
+  // Determine Title & Law Section based on Category
+  let reportMainTitle = 'รายงานทะเบียนคุมสถานประกอบการ';
+  let lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535';
+
+  if (selectedCategory === 'food_notice') {
+    reportMainTitle = 'รายงานทะเบียนคุมสถานที่จำหน่ายอาหารและสถานที่สะสมอาหาร (พื้นที่ไม่เกิน ๒๐๐ ตารางเมตร)';
+    lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 8 (แบบ นจ.)';
+  } else if (selectedCategory === 'food_license') {
+    reportMainTitle = 'รายงานทะเบียนคุมสถานที่จำหน่ายอาหารและสถานที่สะสมอาหาร (พื้นที่เกิน ๒๐๐ ตารางเมตร)';
+    lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 8 (แบบ บทอ.)';
+  } else if (selectedCategory === 'food_all') {
+    reportMainTitle = 'รายงานทะเบียนคุมสถานที่จำหน่ายอาหารและสถานที่สะสมอาหาร';
+    lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 8';
+  } else if (selectedCategory === 'hazardous') {
+    reportMainTitle = 'รายงานทะเบียนคุมการประกอบกิจการที่เป็นอันตรายต่อสุขภาพ';
+    lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 7 (แบบ บทส.)';
+  } else if (selectedCategory === 'market') {
+    reportMainTitle = 'รายงานทะเบียนคุมการจัดตั้งตลาด';
+    lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 8 (แบบ อส.)';
+  } else if (selectedCategory === 'public_sale') {
+    reportMainTitle = 'รายงานทะเบียนคุมการจำหน่ายสินค้าในที่หรือทางสาธารณะ';
+    lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 9 (แบบ นส.)';
+  } else if (selectedCategory === 'waste_sewage') {
+    reportMainTitle = 'รายงานทะเบียนคุมการรับทำการเก็บ ขน หรือกำจัดสิ่งปฏิกูลหรือมูลฝอย';
+    lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 3 (แบบ ปป.)';
+  } else {
+    reportMainTitle = 'รายงานทะเบียนคุมสถานประกอบการและการจัดเก็บค่าธรรมเนียม';
+    lawSection = 'ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 และข้อบัญญัติท้องถิ่น';
+  }
+
+  const yearLabel = selectedYear && selectedYear !== 'all'
+    ? `ข้อมูลสารบรรณประจำปีงบประมาณ พ.ศ. ${thaiDigits(selectedYear)}`
+    : `ข้อมูลสารบรรณทะเบียนคุมสะสม (รวมทุกปีงบประมาณ)`;
+
+  // Grouping when selectedCategory === 'all'
+  const groupedCategories = useMemo(() => {
+    if (selectedCategory !== 'all') {
+      return [{ key: selectedCategory, title: '', items: establishments }];
+    }
+
+    const groups: { key: string; title: string; items: Establishment[] }[] = [
+      {
+        key: 'food',
+        title: 'หมวดที่ ๑: สถานที่จำหน่ายอาหารและสถานที่สะสมอาหาร (แบบ นจ. และ บทอ.)',
+        items: establishments.filter((e) => e.category === 'food_notice' || e.category === 'food_license' || e.regType === 'นจ' || e.regType === 'บทอ')
+      },
+      {
+        key: 'hazardous',
+        title: 'หมวดที่ ๒: กิจการที่เป็นอันตรายต่อสุขภาพ (แบบ บทส.)',
+        items: establishments.filter((e) => e.category === 'hazardous' || e.regType === 'บทส')
+      },
+      {
+        key: 'market_public',
+        title: 'หมวดที่ ๓: กิจการตลาดและการจำหน่ายสินค้าในที่หรือทางสาธารณะ (แบบ อส. และ นส.)',
+        items: establishments.filter((e) => e.category === 'market' || e.category === 'public_sale' || e.regType === 'อส' || e.regType === 'นส')
+      },
+      {
+        key: 'waste',
+        title: 'หมวดที่ ๔: การรับทำการเก็บ ขน หรือกำจัดสิ่งปฏิกูลหรือมูลฝอย (แบบ ปป.)',
+        items: establishments.filter((e) => e.category === 'waste_sewage' || e.regType === 'ปป')
+      }
+    ];
+
+    const activeGroups = groups.filter((g) => g.items.length > 0);
+    return activeGroups.length > 0 ? activeGroups : [{ key: 'all', title: '', items: establishments }];
+  }, [establishments, selectedCategory]);
 
   return (
     <div
@@ -37,13 +112,13 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
           </div>
           <div className="text-center flex-1 px-4">
             <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 leading-snug">
-              รายงานทะเบียนคุมสถานที่จำหน่ายอาหารและสถานที่สะสมอาหาร
+              {reportMainTitle}
             </h1>
             <p className="text-xs font-bold text-slate-800 mt-0.5">
               {orgName} {districtName} {provinceName}
             </p>
-            <p className="text-[11px] text-slate-600 mt-0.5">
-              ตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 หมวด 8 • ข้อมูลสารบรรณประจำปีงบประมาณ {settings.fiscalYear}
+            <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
+              {lawSection} • {yearLabel}
             </p>
           </div>
           <div className="w-16 h-16 flex items-center justify-center shrink-0">
@@ -59,7 +134,7 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
         <div className="flex items-center justify-between bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-xs text-xs text-slate-700 mb-3 print:bg-transparent">
           <div className="flex items-center gap-4">
             <span>จำนวนสถานประกอบการในบัญชี: <strong className="font-mono text-sm">{establishments.length}</strong> แห่ง</span>
-            <span>ผ่านเกณฑ์สุขลักษณะ (100 คะแนน): <strong className="font-mono text-emerald-800">{totalPassed}</strong> แห่ง ({establishments.length > 0 ? Math.round((totalPassed / establishments.length) * 100) : 0}%)</span>
+            <span>ผ่านเกณฑ์สุขลักษณะ (≥ 80 คะแนน): <strong className="font-mono text-emerald-800">{totalPassed}</strong> แห่ง ({establishments.length > 0 ? Math.round((totalPassed / establishments.length) * 100) : 0}%)</span>
           </div>
           <div>
             รวมค่าธรรมเนียมจัดเก็บทั้งสิ้น: <strong className="font-mono text-sm text-blue-900">{totalFees.toLocaleString()}</strong> บาท
@@ -82,35 +157,60 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
             </tr>
           </thead>
           <tbody>
-            {establishments.map((est, idx) => (
-              <tr key={est.id} className="hover:bg-slate-50">
-                <td className="border border-slate-300 py-1 px-2 text-center font-mono">{idx + 1}</td>
-                <td className="border border-slate-300 py-1 px-2 text-center font-mono font-semibold">{est.regNumber}</td>
-                <td className="border border-slate-300 py-1 px-2 font-bold text-slate-900">{est.businessName}</td>
-                <td className="border border-slate-300 py-1 px-2 text-[11px] text-slate-700">{est.categoryName} ({est.areaSqm} ตร.ม.)</td>
-                <td className="border border-slate-300 py-1 px-2 font-medium">{est.ownerName}</td>
-                <td className="border border-slate-300 py-1 px-2 text-[11px] text-slate-600">{est.village}</td>
-                <td className="border border-slate-300 py-1 px-2 text-center font-mono font-bold">
-                  {est.inspectionScore !== undefined ? (
-                    <span className={est.inspectionScore >= 80 ? 'text-emerald-800' : 'text-red-700'}>
-                      {est.inspectionScore}/100
-                    </span>
-                  ) : (
-                    <span className="text-slate-400">รอนัดตรวจ</span>
-                  )}
-                </td>
-                <td className="border border-slate-300 py-1 px-2 text-center text-[11px]">
-                  {est.status === 'active' && 'ได้รับอนุญาต'}
-                  {est.status === 'expiring' && 'ใกล้หมดอายุ'}
-                  {est.status === 'pending_inspection' && 'รอนัดตรวจ'}
-                  {est.status === 'pending_correction' && 'สั่งปรับปรุง'}
-                  {est.status === 'awaiting_payment' && 'รอชำระเงิน'}
-                </td>
-                <td className="border border-slate-300 py-1 px-2 text-right font-mono font-semibold">
-                  {est.feeAmount.toLocaleString()} ฿
+            {establishments.length === 0 ? (
+              <tr>
+                <td colSpan={9} className="border border-slate-300 py-8 text-center text-slate-400 italic">
+                  ไม่พบรายการสถานประกอบการตามเงื่อนไขปีและหมวดหมู่ที่เลือก
                 </td>
               </tr>
-            ))}
+            ) : (
+              groupedCategories.map((group, groupIdx) => {
+                let runningIndex = 0;
+                return (
+                  <React.Fragment key={group.key || groupIdx}>
+                    {group.title && selectedCategory === 'all' && (
+                      <tr className="bg-slate-100/90 font-bold text-slate-900 border border-slate-400">
+                        <td colSpan={9} className="py-1.5 px-3 text-left bg-slate-200/70 border-y border-slate-400">
+                          {group.title} ({group.items.length} แห่ง)
+                        </td>
+                      </tr>
+                    )}
+                    {group.items.map((est) => {
+                      runningIndex += 1;
+                      return (
+                        <tr key={est.id} className="hover:bg-slate-50">
+                          <td className="border border-slate-300 py-1 px-2 text-center font-mono">{runningIndex}</td>
+                          <td className="border border-slate-300 py-1 px-2 text-center font-mono font-semibold">{est.regNumber}</td>
+                          <td className="border border-slate-300 py-1 px-2 font-bold text-slate-900">{est.businessName}</td>
+                          <td className="border border-slate-300 py-1 px-2 text-[11px] text-slate-700">{est.categoryName} ({est.areaSqm} ตร.ม.)</td>
+                          <td className="border border-slate-300 py-1 px-2 font-medium">{est.ownerName}</td>
+                          <td className="border border-slate-300 py-1 px-2 text-[11px] text-slate-600">{est.village}</td>
+                          <td className="border border-slate-300 py-1 px-2 text-center font-mono font-bold">
+                            {est.inspectionScore !== undefined ? (
+                              <span className={est.inspectionScore >= 80 ? 'text-emerald-800' : 'text-red-700'}>
+                                {est.inspectionScore}/100
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">รอนัดตรวจ</span>
+                            )}
+                          </td>
+                          <td className="border border-slate-300 py-1 px-2 text-center text-[11px]">
+                            {est.status === 'active' && 'ได้รับอนุญาต'}
+                            {est.status === 'expiring' && 'ใกล้หมดอายุ'}
+                            {est.status === 'pending_inspection' && 'รอนัดตรวจ'}
+                            {est.status === 'pending_correction' && 'สั่งปรับปรุง'}
+                            {est.status === 'awaiting_payment' && 'รอชำระเงิน'}
+                          </td>
+                          <td className="border border-slate-300 py-1 px-2 text-right font-mono font-semibold">
+                            {est.feeAmount.toLocaleString()} ฿
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

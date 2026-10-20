@@ -54,6 +54,27 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
 
   const [reportCategoryFilter, setReportCategoryFilter] = useState<string>('all');
   const [reportStatusFilter, setReportStatusFilter] = useState<string>('all');
+  const [reportYearFilter, setReportYearFilter] = useState<string>('all');
+
+  const availableYears = useMemo(() => {
+    const set = new Set<string>();
+    allList.forEach((e) => {
+      const regMatch = e.regNumber?.match(/[-_](\d{2})[-_]/);
+      if (regMatch) {
+        set.add(String(2500 + parseInt(regMatch[1], 10)));
+      } else if (e.issueDate) {
+        set.add(String(new Date(e.issueDate).getFullYear() + 543));
+      } else if (e.applicationSubmissionDate) {
+        set.add(String(new Date(e.applicationSubmissionDate).getFullYear() + 543));
+      }
+      if (e.yearlyArchives) {
+        e.yearlyArchives.forEach((a) => set.add(String(a.year)));
+      }
+    });
+    set.add('2570');
+    set.add('2569');
+    return Array.from(set).sort((a, b) => b.localeCompare(a));
+  }, [allList]);
 
   useEffect(() => {
     if (initialMode) {
@@ -160,11 +181,46 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
 
   const filteredReportList = useMemo(() => {
     return allList.filter((e) => {
-      if (reportCategoryFilter !== 'all' && e.category !== reportCategoryFilter) return false;
+      // Category filter
+      if (reportCategoryFilter !== 'all') {
+        if (reportCategoryFilter === 'food_all') {
+          const isFood = e.category === 'food_notice' || e.category === 'food_license' || e.regType === 'นจ' || e.regType === 'บทอ';
+          if (!isFood) return false;
+        } else if (reportCategoryFilter === 'food_notice') {
+          if (e.category !== 'food_notice' && e.regType !== 'นจ') return false;
+        } else if (reportCategoryFilter === 'food_license') {
+          if (e.category !== 'food_license' && e.regType !== 'บทอ') return false;
+        } else if (reportCategoryFilter === 'hazardous') {
+          if (e.category !== 'hazardous' && e.regType !== 'บทส') return false;
+        } else if (reportCategoryFilter === 'market') {
+          if (e.category !== 'market' && e.regType !== 'อส') return false;
+        } else if (reportCategoryFilter === 'public_sale') {
+          if (e.category !== 'public_sale' && e.regType !== 'นส') return false;
+        } else if (reportCategoryFilter === 'waste_sewage') {
+          if (e.category !== 'waste_sewage' && e.regType !== 'ปป') return false;
+        } else if (e.category !== reportCategoryFilter) {
+          return false;
+        }
+      }
+
+      // Status filter
       if (reportStatusFilter !== 'all' && e.status !== reportStatusFilter) return false;
+
+      // Year filter
+      if (reportYearFilter !== 'all') {
+        const target = parseInt(reportYearFilter, 10);
+        let matches = false;
+        if (e.yearlyArchives?.some((a) => a.year === target)) matches = true;
+        const regMatch = e.regNumber?.match(/[-_](\d{2})[-_]/);
+        if (regMatch && 2500 + parseInt(regMatch[1], 10) === target) matches = true;
+        if (e.issueDate && new Date(e.issueDate).getFullYear() + 543 === target) matches = true;
+        if (e.applicationSubmissionDate && new Date(e.applicationSubmissionDate).getFullYear() + 543 === target) matches = true;
+        if (!matches) return false;
+      }
+
       return true;
     });
-  }, [allList, reportCategoryFilter, reportStatusFilter]);
+  }, [allList, reportCategoryFilter, reportStatusFilter, reportYearFilter]);
 
   const totalPassed = filteredReportList.filter((e) => (e.inspectionScore ?? 0) >= 80).length;
   const totalFees = filteredReportList.reduce((acc, curr) => acc + (curr.feeAmount || 0), 0);
@@ -203,7 +259,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
                     : printViewMode === 'application'
                     ? applicationCode
                     : printViewMode === 'register_report'
-                    ? 'ทะเบียนคุมรายการ (ทุกแห่ง)'
+                    ? (reportYearFilter !== 'all' ? `ทะเบียนคุม ปี ${reportYearFilter}` : 'ทะเบียนคุมรายการ (ทุกปี)')
                     : displayCode}
                 </span>
               </div>
@@ -213,14 +269,31 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
           {/* Shop Switcher & Print Button */}
           <div className="flex items-center gap-2">
             {printViewMode === 'register_report' && (
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {/* Year Filter */}
+                <select
+                  value={reportYearFilter}
+                  onChange={(e) => setReportYearFilter(e.target.value)}
+                  className="bg-emerald-50 text-emerald-900 border border-emerald-300 font-bold text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-emerald-600 cursor-pointer max-w-[130px] truncate shadow-2xs"
+                  title="เลือกปีงบประมาณสำหรับพิมพ์ทะเบียนคุม"
+                >
+                  <option value="all">ทุกปีงบประมาณ</option>
+                  {availableYears.map((yr) => (
+                    <option key={yr} value={yr}>
+                      ปี พ.ศ. {yr}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Category Filter */}
                 <select
                   value={reportCategoryFilter}
                   onChange={(e) => setReportCategoryFilter(e.target.value)}
                   className="bg-slate-50 text-slate-800 border border-slate-300 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[170px] truncate font-medium shadow-2xs"
-                  title="กรองประเภทกิจการในรายงาน"
+                  title="กรองประเภทกิจการในรายงาน (แยกหมวด)"
                 >
-                  <option value="all">ทุกประเภทกิจการ ({allList.length})</option>
+                  <option value="all">ทุกหมวด (แยกหมวดอัตโนมัติ)</option>
+                  <option value="food_all">หมวดอาหาร (นจ. + บทอ.)</option>
                   <option value="food_notice">นจ. (อาหาร ≤ 200 ตร.ม.)</option>
                   <option value="food_license">บทอ. (อาหาร &gt; 200 ตร.ม.)</option>
                   <option value="hazardous">บทส. (อันตรายต่อสุขภาพ)</option>
@@ -228,10 +301,12 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
                   <option value="public_sale">นส. (ขายที่สาธารณะ)</option>
                   <option value="waste_sewage">ปป. (สิ่งปฏิกูล)</option>
                 </select>
+
+                {/* Status Filter */}
                 <select
                   value={reportStatusFilter}
                   onChange={(e) => setReportStatusFilter(e.target.value)}
-                  className="bg-slate-50 text-slate-800 border border-slate-300 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[130px] truncate font-medium shadow-2xs"
+                  className="bg-slate-50 text-slate-800 border border-slate-300 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[120px] truncate font-medium shadow-2xs"
                   title="กรองสถานะคำขอในรายงาน"
                 >
                   <option value="all">ทุกสถานะ</option>
@@ -388,6 +463,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             settings={currentSettings}
             totalPassed={totalPassed}
             totalFees={totalFees}
+            selectedYear={reportYearFilter}
+            selectedCategory={reportCategoryFilter}
           />
         )}
 

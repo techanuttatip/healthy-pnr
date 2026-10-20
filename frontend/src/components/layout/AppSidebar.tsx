@@ -4,7 +4,6 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Building2,
-  FolderOpen,
   MapPin,
   Printer,
   Settings,
@@ -222,25 +221,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             </div>
           )}
         </div>
-
-        {/* แฟ้มเอกสารรายปี */}
-        <button
-          type="button"
-          onClick={() => onSelectModule('archive')}
-          className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-150 cursor-pointer ${
-            isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
-          } ${
-            isCurrent('archive')
-              ? 'bg-blue-600 text-white font-bold shadow-sm'
-              : 'text-slate-300 hover:bg-white/10 hover:text-white'
-          }`}
-          title="แฟ้มเอกสารรายปี"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <FolderOpen className="w-4 h-4 shrink-0" />
-            {!isSidebarCollapsed && <span className="truncate">แฟ้มเอกสารรายปี</span>}
-          </div>
-        </button>
 
         {/* 7: พิมพ์เอกสารราชการ */}
         <button
