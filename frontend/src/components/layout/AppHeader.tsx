@@ -49,6 +49,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <span className="text-slate-300 hidden md:inline">/</span>
         <span className="font-bold text-slate-900 flex items-center gap-1.5">
           {activeModule === 'dashboard' && 'ภาพรวมงานทะเบียน'}
+          {activeModule === 'directory' && 'ทะเบียนร้านค้า (ดูง่าย / แยกหมวด)'}
           {activeModule === 'table' && 'ทะเบียนคำขอ & สารบรรณ'}
           {(activeModule === 'upload_pdf' || activeModule === 'intake') && 'อัปโหลดไฟล์ PDF (Auto-fill)'}
           {activeModule === 'manual_entry' && 'บันทึกข้อมูลเอง'}

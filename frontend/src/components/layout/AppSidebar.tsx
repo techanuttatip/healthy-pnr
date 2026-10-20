@@ -14,13 +14,15 @@ import {
   FileEdit,
   Smartphone,
   QrCode,
-  LayoutDashboard
+  LayoutDashboard,
+  Store
 } from 'lucide-react';
 import type { OfficerAccount } from '../../services/sanitationDataService';
 import { LiveClock } from './LiveClock';
 
 export type AppModuleType =
   | 'dashboard'
+  | 'directory'
   | 'table'
   | 'upload_pdf'
   | 'manual_entry'
@@ -130,6 +132,34 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             <LayoutDashboard className="w-4 h-4 text-amber-400 shrink-0" />
             {!isSidebarCollapsed && <span className="truncate">ภาพรวมระบบ & สถิติ</span>}
           </div>
+        </button>
+
+        {/* 1.5: ทะเบียนร้าน (ดูง่าย / แยกหมวด) */}
+        <button
+          type="button"
+          onClick={() => onSelectModule('directory')}
+          className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-150 cursor-pointer ${
+            isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
+          } ${
+            isCurrent('directory')
+              ? 'bg-blue-600 text-white font-bold shadow-sm'
+              : 'text-slate-300 hover:bg-white/10 hover:text-white'
+          }`}
+          title="ทะเบียนร้านค้า (ดูง่าย / จัดกลุ่มแยกหมวด / สั่งพิมพ์ทะเบียนคุม)"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Store className="w-4 h-4 text-emerald-400 shrink-0" />
+            {!isSidebarCollapsed && <span className="truncate">ทะเบียนร้าน (ดูง่าย)</span>}
+          </div>
+          {!isSidebarCollapsed && (
+            <span
+              className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+                isCurrent('directory') ? 'bg-white/20 text-white' : 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80'
+              }`}
+            >
+              แยกหมวด
+            </span>
+          )}
         </button>
 
         {/* 2: ทะเบียนคำขอ & สารบรรณ */}

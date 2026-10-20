@@ -52,7 +52,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
   onImportEstablishments,
   onOpenProfile
 }) => {
-  const [activeTab, setActiveTab] = useState<'org' | 'signatories' | 'fees' | 'inspection' | 'data'>('org');
+  const [activeTab, setActiveTab] = useState<'org' | 'signatories' | 'inspection' | 'data'>('org');
   const [formData, setFormData] = useState<SystemSettings>(settings);
   const currentOfficer = sanitationDataService.getCurrentOfficer();
 
@@ -70,7 +70,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
     onSaveSettings(formData);
     showSuccessAlert(
       'บันทึกการตั้งค่าสำเร็จ!',
-      'ข้อมูลองค์กร ผู้มีอำนาจลงนาม และอัตราค่าธรรมเนียมได้รับการอัปเดตและมีผลทั่วทั้งระบบเรียบร้อยแล้ว'
+      'ข้อมูลองค์กร และผู้มีอำนาจลงนามได้รับการอัปเดตและมีผลทั่วทั้งระบบเรียบร้อยแล้ว'
     );
   };
 
@@ -264,19 +264,6 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
 
           <button
             type="button"
-            onClick={() => setActiveTab('fees')}
-            className={`py-2 px-3.5 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'fees'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-            }`}
-          >
-            <Coins className="w-4 h-4" />
-            <span>๓. อัตราค่าธรรมเนียม</span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setActiveTab('inspection')}
             className={`py-2 px-3.5 rounded-xl font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'inspection'
@@ -285,7 +272,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>๔. เกณฑ์สุขลักษณะ</span>
+            <span>๓. เกณฑ์สุขลักษณะ</span>
           </button>
 
           <button
@@ -298,7 +285,7 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
             }`}
           >
             <Database className="w-4 h-4" />
-            <span>๕. สำรอง & กู้คืนข้อมูล</span>
+            <span>๔. สำรองและกู้คืนข้อมูล</span>
           </button>
         </div>
 
@@ -716,226 +703,6 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
                         }}
                       />
                     </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ----------------- TAB 3: FEE RATES SCHEDULE ----------------- */}
-          {activeTab === 'fees' && (
-            <div className="space-y-4 max-w-3xl mx-auto">
-              <div className="p-4 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl text-emerald-950 flex items-start gap-3">
-                <Coins className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <div className="leading-relaxed">
-                  <div className="font-bold text-sm text-emerald-900 mb-0.5">อัตราค่าธรรมเนียมตามข้อบัญญัติท้องถิ่น อบต.โป่งน้ำร้อน</div>
-                  ระบบจะใช้อัตราค่าธรรมเนียมเหล่านี้คำนวณยอดเงินและออกใบเสร็จรับเงินให้อัตโนมัติเมื่อมีการบันทึกคำขอใหม่หรือต่ออายุใบอนุญาต
-                </div>
-              </div>
-
-              {/* Group A: กิจการอาหาร */}
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
-                <div className="font-bold text-sm text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-                  <Store className="w-4 h-4 text-emerald-600" />
-                  <span>๑. สถานที่จำหน่ายอาหารและสะสมอาหาร (แบบ นจ. และ บทอ.)</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">แบบ นจ. อาหาร ≤ ๑๐๐ ตร.ม.</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.foodNoticeSmall}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, foodNoticeSmall: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">แบบ นจ. อาหาร ๑๐๑-๒๐๐ ตร.ม.</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.foodNoticeLarge}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, foodNoticeLarge: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">แบบ บทอ. อาหาร &gt; ๒๐๐ ตร.ม.</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.foodLicense}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, foodLicense: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">สถานที่สะสมอาหาร / คลังห้องเย็น</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.foodStorage}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, foodStorage: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Group B: กิจการอันตรายต่อสุขภาพ & อื่นๆ */}
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
-                <div className="font-bold text-sm text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-                  <Factory className="w-4 h-4 text-emerald-600" />
-                  <span>๒. กิจการอันตราย ตลาด และการจำหน่ายสินค้าในที่สาธารณะ</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">แบบ บทส. กิจการอันตรายทั่วไป (บาท)</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.hazardousBase}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, hazardousBase: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">แบบ บทส. เครื่องจักร &gt; ๕๐ แรงม้า</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.hazardousHeavy}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, hazardousHeavy: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">แบบ อส. จัดตั้งตลาดสด/ตลาดนัด</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.marketRate}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, marketRate: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">แบบ นส. จำหน่ายสินค้าในที่สาธารณะ</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.publicSaleRate}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, publicSaleRate: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200 md:col-span-2">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="font-bold text-slate-700">แบบ ปป. รับทำการเก็บ ขน หรือกำจัดสิ่งปฏิกูลหรือมูลฝอย</label>
-                      <span className="text-[10px] text-slate-400 font-mono">บาท/ปี</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={formData.fees.wasteSewageRate || 4000}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fees: { ...formData.fees, wasteSewageRate: Number(e.target.value) }
-                          })
-                        }
-                        className="w-full pl-3 pr-10 py-2 font-mono font-bold bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">฿</span>
-                    </div>
                   </div>
                 </div>
               </div>

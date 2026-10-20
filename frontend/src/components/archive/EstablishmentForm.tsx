@@ -35,6 +35,9 @@ export interface EstablishmentFormValues {
   address: string;
   lat: number;
   lng: number;
+  areaSqm: number;
+  workerCount: number;
+  premiseCharacteristics: string;
   feeAmount: number;
   receiptNo: string;
   applicationSubmissionDate: string;
@@ -81,6 +84,11 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
   const [address, setAddress] = useState<string>(initialValues?.address || '');
   const [lat, setLat] = useState<number>(initialValues?.lat || 19.9328);
   const [lng, setLng] = useState<number>(initialValues?.lng || 99.1719);
+  const [areaSqm, setAreaSqm] = useState<number>(initialValues?.areaSqm ?? 50);
+  const [workerCount, setWorkerCount] = useState<number>(initialValues?.workerCount ?? 1);
+  const [premiseCharacteristics, setPremiseCharacteristics] = useState<string>(
+    initialValues?.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์'
+  );
 
   const [feeAmount, setFeeAmount] = useState<number>(initialValues?.feeAmount || 100);
   const [receiptNo, setReceiptNo] = useState<string>(initialValues?.receiptNo || '');
@@ -112,6 +120,9 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       if (initialValues.address !== undefined) setAddress(initialValues.address);
       if (initialValues.lat !== undefined) setLat(initialValues.lat);
       if (initialValues.lng !== undefined) setLng(initialValues.lng);
+      if (initialValues.areaSqm !== undefined) setAreaSqm(initialValues.areaSqm);
+      if (initialValues.workerCount !== undefined) setWorkerCount(initialValues.workerCount);
+      if (initialValues.premiseCharacteristics !== undefined) setPremiseCharacteristics(initialValues.premiseCharacteristics);
       if (initialValues.feeAmount !== undefined) setFeeAmount(initialValues.feeAmount);
       if (initialValues.receiptNo !== undefined) setReceiptNo(initialValues.receiptNo);
       if (initialValues.applicationSubmissionDate !== undefined) {
@@ -191,6 +202,9 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       address: address.trim() || `${houseNo} ${village} ต.โป่งน้ำร้อน อ.ฝาง จ.เชียงใหม่`,
       lat,
       lng,
+      areaSqm: Number(areaSqm) || 0,
+      workerCount: Number(workerCount) || 0,
+      premiseCharacteristics: premiseCharacteristics.trim() || 'อยู่ในอาคารพาณิชย์',
       feeAmount,
       receiptNo: receiptNo.trim(),
       applicationSubmissionDate,
@@ -313,6 +327,55 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
               onChange={(e) => setPhone(e.target.value)}
               placeholder="เช่น 088-7694944"
               className="ui-input font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="ui-label">
+              มีพื้นที่ (ตารางเมตร)<span className="req">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min={1}
+                value={areaSqm}
+                onChange={(e) => setAreaSqm(Number(e.target.value) || 0)}
+                placeholder="50"
+                className="ui-input pr-12 font-mono font-bold"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-500">
+                ตร.ม.
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label className="ui-label">
+              จำนวนคนงาน (คน)<span className="req">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min={0}
+                value={workerCount}
+                onChange={(e) => setWorkerCount(Number(e.target.value) || 0)}
+                placeholder="1"
+                className="ui-input pr-10 font-mono font-bold"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-500">
+                คน
+              </span>
+            </div>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="ui-label">ลักษณะของสถานที่ประกอบกิจการ</label>
+            <input
+              type="text"
+              value={premiseCharacteristics}
+              onChange={(e) => setPremiseCharacteristics(e.target.value)}
+              placeholder="เช่น อยู่ในอาคารพาณิชย์"
+              className="ui-input font-medium"
             />
           </div>
         </div>

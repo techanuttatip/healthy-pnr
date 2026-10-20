@@ -15,7 +15,7 @@ import { AppSidebar, AppHeader, OfficerLoginScreen, type AppModuleType } from '.
 // 2. Functional Domain Views
 import { UnifiedMapDashboard } from './components/dashboard';
 import { GisMapModuleView } from './components/gis';
-import { EstablishmentTable, NewRequestModal } from './components/registry';
+import { EstablishmentTable, NewRequestModal, SimpleEstablishmentDirectory } from './components/registry';
 import { YearlyDocumentArchiveTab, PdfUploadView, ManualEntryView } from './components/archive';
 import { OfficialCertificatePrint } from './components/print';
 import { RemoteSignView, PublicHealthFieldPwaApp } from './components/inspection';
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
       const mod = params.get('module');
       if (
         mod &&
-        ['dashboard', 'table', 'upload_pdf', 'manual_entry', 'field_inspection', 'archive', 'map', 'print', 'intake'].includes(
+        ['dashboard', 'directory', 'table', 'upload_pdf', 'manual_entry', 'field_inspection', 'archive', 'map', 'print', 'intake'].includes(
           mod
         )
       ) {
@@ -155,6 +155,9 @@ export const App: React.FC = () => {
   const [tableStatusFilter, setTableStatusFilter] = useState<string>('all');
   const [currentMode, setCurrentMode] = useState<OfficialFormCode | string>('นจ.1');
   const [printInitialMode, setPrintInitialMode] = useState<PrintDocumentMode>('garuda');
+  const [printInitialCategory, setPrintInitialCategory] = useState<string>('all');
+  const [printInitialYear, setPrintInitialYear] = useState<string>('all');
+  const [returnModuleAfterPrint, setReturnModuleAfterPrint] = useState<AppModuleType>('table');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [globalSearch, setGlobalSearch] = useState<string>('');
 
@@ -410,7 +413,8 @@ export const App: React.FC = () => {
   const handlePrintEstablishment = (
     est?: Establishment | null,
     mode?: OfficialFormCode | string,
-    docMode: PrintDocumentMode = 'garuda'
+    docMode: PrintDocumentMode = 'garuda',
+    returnMod: AppModuleType = 'table'
   ) => {
     if (est) {
       setSelectedEstablishment(est);
@@ -422,11 +426,21 @@ export const App: React.FC = () => {
       setSelectedId(establishments[0].id);
     }
     setPrintInitialMode(docMode);
+    setReturnModuleAfterPrint(returnMod);
     setActiveModule('print');
   };
 
   const handlePrintRegisterReport = () => {
     setPrintInitialMode('register_report');
+    setReturnModuleAfterPrint('table');
+    setActiveModule('print');
+  };
+
+  const handlePrintCategoryReport = (category: string, year: string) => {
+    setPrintInitialMode('register_report');
+    setPrintInitialCategory(category);
+    setPrintInitialYear(year);
+    setReturnModuleAfterPrint('directory');
     setActiveModule('print');
   };
 
@@ -696,6 +710,26 @@ export const App: React.FC = () => {
 
 
 
+              {/* MODULE 1.5: SIMPLE ESTABLISHMENT DIRECTORY */}
+              {activeModule === 'directory' && (
+                <SimpleEstablishmentDirectory
+                  establishments={establishments}
+                  onSelectEstablishment={(est) => {
+                    setSelectedEstablishment(est);
+                    setSelectedId(est.id);
+                  }}
+                  onPrintEstablishment={(est, regType, docMode) =>
+                    handlePrintEstablishment(est, regType, docMode, 'directory')
+                  }
+                  onPrintCategoryReport={handlePrintCategoryReport}
+                  onOpenArchive={(est) => {
+                    setSelectedEstablishment(est);
+                    setSelectedId(est.id);
+                    setActiveModule('archive');
+                  }}
+                />
+              )}
+
               {/* MODULE 4: PRINT CERTIFICATE & REGISTER REPORT */}
               {activeModule === 'print' && (
                 <div className="flex-1 h-full overflow-hidden bg-transparent flex flex-col print:overflow-visible print:h-auto print:bg-white p-3 md:p-5">
@@ -705,8 +739,10 @@ export const App: React.FC = () => {
                     formCode={currentMode}
                     municipalityName={municipality}
                     initialMode={printInitialMode}
+                    initialReportCategory={printInitialCategory}
+                    initialReportYear={printInitialYear}
                     settings={settings}
-                    onClose={() => setActiveModule('table')}
+                    onClose={() => setActiveModule(returnModuleAfterPrint || 'table')}
                   />
                 </div>
               )}

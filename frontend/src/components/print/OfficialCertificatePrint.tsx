@@ -28,6 +28,8 @@ interface OfficialCertificatePrintProps {
   onClose?: () => void;
   municipalityName?: string;
   initialMode?: PrintDocumentMode;
+  initialReportCategory?: string;
+  initialReportYear?: string;
   settings?: SystemSettings;
 }
 
@@ -38,6 +40,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
   onClose,
   municipalityName = 'องค์การบริหารส่วนตำบลโป่งน้ำร้อน',
   initialMode,
+  initialReportCategory,
+  initialReportYear,
   settings
 }) => {
   const currentSettings = settings || DEFAULT_SYSTEM_SETTINGS;
@@ -52,9 +56,21 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
     initialMode || (establishment ? 'garuda' : 'register_report')
   );
 
-  const [reportCategoryFilter, setReportCategoryFilter] = useState<string>('all');
+  const [reportCategoryFilter, setReportCategoryFilter] = useState<string>(initialReportCategory || 'all');
   const [reportStatusFilter, setReportStatusFilter] = useState<string>('all');
-  const [reportYearFilter, setReportYearFilter] = useState<string>('all');
+  const [reportYearFilter, setReportYearFilter] = useState<string>(initialReportYear || 'all');
+
+  useEffect(() => {
+    if (initialMode) setPrintViewMode(initialMode);
+  }, [initialMode]);
+
+  useEffect(() => {
+    if (initialReportCategory) setReportCategoryFilter(initialReportCategory);
+  }, [initialReportCategory]);
+
+  useEffect(() => {
+    if (initialReportYear) setReportYearFilter(initialReportYear);
+  }, [initialReportYear]);
 
   const availableYears = useMemo(() => {
     const set = new Set<string>();
