@@ -149,20 +149,19 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
           <thead>
             <tr className="bg-slate-100 text-slate-900 print:bg-slate-200">
               <th className="border border-slate-400 py-1.5 px-2 text-center w-8">ที่</th>
-              <th className="border border-slate-400 py-1.5 px-2 text-center w-28">เลขทะเบียนคุม</th>
+              <th className="border border-slate-400 py-1.5 px-2 text-center w-28 whitespace-nowrap">เลขทะเบียนคุม</th>
               <th className="border border-slate-400 py-1.5 px-2 text-left">ชื่อสถานประกอบการ</th>
               <th className="border border-slate-400 py-1.5 px-2 text-left">ประเภทกิจการ</th>
-              <th className="border border-slate-400 py-1.5 px-2 text-left">ชื่อผู้ขออนุญาต</th>
-              <th className="border border-slate-400 py-1.5 px-2 text-left">ที่ตั้ง / หมู่บ้าน</th>
-              <th className="border border-slate-400 py-1.5 px-2 text-center w-20">คะแนนสุขลักษณะ</th>
-              <th className="border border-slate-400 py-1.5 px-2 text-center w-24">สถานะ</th>
-              <th className="border border-slate-400 py-1.5 px-2 text-right w-20">ค่าธรรมเนียม</th>
+              <th className="border border-slate-400 py-1.5 px-2 text-left whitespace-nowrap min-w-[130px]">ชื่อผู้ขออนุญาต</th>
+              <th className="border border-slate-400 py-1.5 px-2 text-left whitespace-nowrap">ที่ตั้ง / หมู่บ้าน</th>
+              <th className="border border-slate-400 py-1.5 px-2 text-center w-24 whitespace-nowrap">คะแนนสุขลักษณะ</th>
+              <th className="border border-slate-400 py-1.5 px-2 text-right w-24 whitespace-nowrap">ค่าธรรมเนียม</th>
             </tr>
           </thead>
           <tbody>
             {establishments.length === 0 ? (
               <tr>
-                <td colSpan={9} className="border border-slate-300 py-8 text-center text-slate-400 italic">
+                <td colSpan={8} className="border border-slate-300 py-8 text-center text-slate-400 italic">
                   ไม่พบรายการสถานประกอบการตามเงื่อนไขปีและหมวดหมู่ที่เลือก
                 </td>
               </tr>
@@ -173,7 +172,7 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
                   <React.Fragment key={group.key || groupIdx}>
                     {group.title && selectedCategory === 'all' && (
                       <tr className="bg-slate-100/90 font-bold text-slate-900 border border-slate-400">
-                        <td colSpan={9} className="py-1.5 px-3 text-left bg-slate-200/70 border-y border-slate-400">
+                        <td colSpan={8} className="py-1.5 px-3 text-left bg-slate-200/70 border-y border-slate-400">
                           {group.title} ({group.items.length} แห่ง)
                         </td>
                       </tr>
@@ -183,12 +182,12 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
                       return (
                         <tr key={est.id} className="hover:bg-slate-50">
                           <td className="border border-slate-300 py-1 px-2 text-center font-mono">{runningIndex}</td>
-                          <td className="border border-slate-300 py-1 px-2 text-center font-mono font-semibold">{est.regNumber}</td>
+                          <td className="border border-slate-300 py-1 px-2 text-center font-mono font-semibold whitespace-nowrap">{est.regNumber}</td>
                           <td className="border border-slate-300 py-1 px-2 font-bold text-slate-900">{est.businessName}</td>
                           <td className="border border-slate-300 py-1 px-2 text-[11px] text-slate-700">{est.categoryName} ({est.areaSqm} ตร.ม.)</td>
-                          <td className="border border-slate-300 py-1 px-2 font-medium">{est.ownerName}</td>
-                          <td className="border border-slate-300 py-1 px-2 text-[11px] text-slate-600">{est.village}</td>
-                          <td className="border border-slate-300 py-1 px-2 text-center font-mono font-bold">
+                          <td className="border border-slate-300 py-1 px-2 font-medium whitespace-nowrap">{est.ownerName}</td>
+                          <td className="border border-slate-300 py-1 px-2 text-[11px] text-slate-600 whitespace-nowrap">{est.village}</td>
+                          <td className="border border-slate-300 py-1 px-2 text-center font-mono font-bold whitespace-nowrap">
                             {est.inspectionScore !== undefined ? (
                               <span className={est.inspectionScore >= 80 ? 'text-emerald-800' : 'text-red-700'}>
                                 {est.inspectionScore}/100
@@ -197,14 +196,7 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
                               <span className="text-slate-400">รอนัดตรวจ</span>
                             )}
                           </td>
-                          <td className="border border-slate-300 py-1 px-2 text-center text-[11px]">
-                            {est.status === 'active' && 'ได้รับอนุญาต'}
-                            {est.status === 'expiring' && 'ใกล้หมดอายุ'}
-                            {est.status === 'pending_inspection' && 'รอนัดตรวจ'}
-                            {est.status === 'pending_correction' && 'สั่งปรับปรุง'}
-                            {est.status === 'awaiting_payment' && 'รอชำระเงิน'}
-                          </td>
-                          <td className="border border-slate-300 py-1 px-2 text-right font-mono font-semibold">
+                          <td className="border border-slate-300 py-1 px-2 text-right font-mono font-semibold whitespace-nowrap">
                             {est.feeAmount.toLocaleString()} ฿
                           </td>
                         </tr>
