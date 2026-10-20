@@ -99,7 +99,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
       activeEstablishment?.foodPlaceType === 'storage' ||
       activeEstablishment?.categoryName?.includes('สะสมอาหาร') ||
       activeEstablishment?.businessName?.includes('โกดัง') ||
-      activeEstablishment?.businessName?.includes('คลัง')
+      activeEstablishment?.businessName?.includes('คลัง') ||
+      activeEstablishment?.businessName?.includes('ของชำ')
     );
 
   let formTitle = 'หนังสือรับรองการแจ้ง\nจัดตั้งสถานที่จำหน่ายอาหาร';

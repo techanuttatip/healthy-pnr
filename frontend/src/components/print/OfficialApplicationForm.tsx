@@ -114,10 +114,21 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
       setStatus(establishment.status);
       setConditions(establishment.conditions?.join('\n') || '');
 
-      setFoodPlaceType(establishment.foodPlaceType || (establishment.categoryName?.includes('สะสมอาหาร') ? 'storage' : 'selling'));
-      setFoodTypeDetail(establishment.foodTypeDetail || (establishment.categoryName?.includes('สะสมอาหาร') ? 'อาหารสด และอาหารแห้ง' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม'));
-      setPremiseCharacteristics(establishment.premiseCharacteristics || (establishment.categoryName?.includes('สะสมอาหาร') ? 'อยู่ในอาคารโกดังคอนกรีต' : 'อยู่ในอาคารพาณิชย์'));
-      setDistributionMethod(establishment.distributionMethod || (establishment.categoryName?.includes('สะสมอาหาร') ? 'จำหน่ายส่งและมีบริการจัดส่ง' : 'มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน'));
+      const isStorageEst = Boolean(
+        establishment.foodPlaceType === 'storage' ||
+        establishment.categoryName?.includes('สะสมอาหาร') ||
+        establishment.businessName?.includes('ของชำ') ||
+        establishment.businessName?.includes('โกดัง') ||
+        establishment.businessName?.includes('คลัง')
+      );
+      setFoodPlaceType(isStorageEst ? 'storage' : (establishment.foodPlaceType || 'selling'));
+      setFoodTypeDetail(establishment.foodTypeDetail || (isStorageEst ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม'));
+      setPremiseCharacteristics(establishment.premiseCharacteristics || (isStorageEst ? 'อยู่ในอาคารพาณิชย์' : 'อยู่ในอาคารพาณิชย์'));
+      let initialDist = establishment.distributionMethod;
+      if (isStorageEst && (!initialDist || initialDist.includes('โต๊ะเก้าอี้'))) {
+        initialDist = 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)';
+      }
+      setDistributionMethod(initialDist || 'มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน');
       setOperatingHours(establishment.operatingHours || '07:00 - 19:00 น.');
       setLineId(establishment.lineId || '@pnr-food');
       setFax(establishment.fax || '');
@@ -150,10 +161,11 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
       setConditions(
         '๑. ต้องรักษาความสะอาดของภาชนะใส่อาหารและจัดให้มีที่ล้างมือสำหรับลูกค้า\n๒. ผู้สัมผัสอาหารต้องสวมหมวกคลุมผมและผ้ากันเปื้อนตลอดเวลาปรุงอาหาร\n๓. จัดให้มีถังขยะแบบมีฝาปิดมิดชิดและคัดแยกขยะเศษอาหาร'
       );
-      setFoodPlaceType(mode?.includes('สะสม') ? 'storage' : 'selling');
-      setFoodTypeDetail('อาหารปรุงสำเร็จ และเครื่องดื่ม');
+      const isInitialStorage = mode?.includes('สะสม') || false;
+      setFoodPlaceType(isInitialStorage ? 'storage' : 'selling');
+      setFoodTypeDetail(isInitialStorage ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม');
       setPremiseCharacteristics('อยู่ในอาคารพาณิชย์');
-      setDistributionMethod('มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน');
+      setDistributionMethod(isInitialStorage ? 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)' : 'มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน');
       setOperatingHours('๐๗:๐๐ - ๑๙:๐๐ น.');
       setLineId('@pnr-food');
       setFax('');
@@ -624,7 +636,15 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
-                      onClick={() => setFoodPlaceType('selling')}
+                      onClick={() => {
+                        setFoodPlaceType('selling');
+                        if (distributionMethod === 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)' || distributionMethod === 'จำหน่ายส่งและมีบริการจัดส่ง') {
+                          setDistributionMethod('มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน');
+                        }
+                        if (foodTypeDetail === 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' || foodTypeDetail === 'อาหารแห้ง และสินค้าเกษตรแปรรูป') {
+                          setFoodTypeDetail('อาหารปรุงสำเร็จ และเครื่องดื่ม');
+                        }
+                      }}
                       className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
                         foodPlaceType === 'selling'
                           ? 'bg-blue-50 border-blue-500 text-blue-900 font-bold shadow-2xs'
@@ -642,7 +662,15 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
 
                     <button
                       type="button"
-                      onClick={() => setFoodPlaceType('storage')}
+                      onClick={() => {
+                        setFoodPlaceType('storage');
+                        if (!distributionMethod || distributionMethod.includes('โต๊ะเก้าอี้')) {
+                          setDistributionMethod('จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)');
+                        }
+                        if (!foodTypeDetail || foodTypeDetail.includes('ปรุงสำเร็จ')) {
+                          setFoodTypeDetail('อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม');
+                        }
+                      }}
                       className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
                         foodPlaceType === 'storage'
                           ? 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold shadow-2xs'
@@ -654,7 +682,7 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
                         <span>สถานที่สะสมอาหาร</span>
                       </div>
                       <div className="text-[10.5px] text-slate-500 font-normal mt-0.5">
-                        โกดัง คลังสินค้า ห้องเย็น สถานที่เก็บอาหาร
+                        ร้านขายของชำ มินิมาร์ท โกดัง คลังสินค้า
                       </div>
                     </button>
                   </div>
@@ -696,7 +724,7 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
                       type="text"
                       value={distributionMethod}
                       onChange={(e) => setDistributionMethod(e.target.value)}
-                      placeholder={foodPlaceType === 'storage' ? 'เช่น มีบริการจัดส่งถึงบ้าน, ค้าส่ง' : 'เช่น มีโต๊ะเก้าอี้ไว้ให้บริการ, ซื้อกลับบ้าน'}
+                      placeholder={foodPlaceType === 'storage' ? 'เช่น จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน), จำหน่ายส่ง' : 'เช่น มีโต๊ะเก้าอี้ไว้ให้บริการ, ซื้อกลับบ้าน'}
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none"
                     />
                   </div>

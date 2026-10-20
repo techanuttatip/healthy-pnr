@@ -24,7 +24,43 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
 
   const regType = establishment.regType || '';
   const isHazardous = regType === 'บทส' || establishment.category === 'hazardous';
-  const isStorage = !isHazardous && (establishment.foodPlaceType === 'storage');
+  const isStorage =
+    !isHazardous &&
+    (establishment.foodPlaceType === 'storage' ||
+      tempNoticeTitle?.includes('สะสมอาหาร') ||
+      establishment.categoryName?.includes('สะสมอาหาร') ||
+      establishment.businessName?.includes('โกดัง') ||
+      establishment.businessName?.includes('คลัง') ||
+      establishment.businessName?.includes('ของชำ'));
+
+  const isGrocery =
+    isStorage &&
+    (establishment.businessName?.includes('ของชำ') ||
+      establishment.businessName?.includes('มินิมาร์ท') ||
+      establishment.businessName?.includes('ร้านค้า') ||
+      establishment.businessName?.includes('ขายของ') ||
+      (!establishment.businessName?.includes('โกดัง') && !establishment.businessName?.includes('คลัง')));
+
+  let displayedFoodType = establishment.foodTypeDetail;
+  if (isStorage && (!displayedFoodType || displayedFoodType.includes('ปรุงสำเร็จ'))) {
+    displayedFoodType = isGrocery ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารแห้ง และสินค้าเกษตรแปรรูป';
+  } else if (!displayedFoodType) {
+    displayedFoodType = 'อาหารปรุงสำเร็จ และเครื่องดื่ม';
+  }
+
+  let displayedPremise = establishment.premiseCharacteristics;
+  if (!displayedPremise) {
+    displayedPremise = isStorage
+      ? (isGrocery ? 'อยู่ในอาคารพาณิชย์' : 'อยู่ในอาคารโกดัง')
+      : 'อยู่ในอาคารพาณิชย์';
+  }
+
+  let displayedDistribution = establishment.distributionMethod;
+  if (isStorage && (!displayedDistribution || displayedDistribution.includes('โต๊ะเก้าอี้'))) {
+    displayedDistribution = isGrocery ? 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)' : 'จำหน่ายส่งและมีบริการจัดส่ง';
+  } else if (!displayedDistribution) {
+    displayedDistribution = 'มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน';
+  }
 
   const parsedAddress = parseAddressDetails(establishment.address, establishment.village);
 
@@ -174,18 +210,18 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
                 </span>{' '}
                 {isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}{' '}
                 <span className="font-bold border-b border-dotted border-slate-700 px-2">
-                  {establishment.foodTypeDetail || (isStorage ? 'อาหารแห้ง และสินค้าเกษตรแปรรูป' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม')}
+                  {displayedFoodType}
                 </span>{' '}
                 ลักษณะของสถานที่ประกอบกิจการ{' '}
                 <span className="border-b border-dotted border-slate-700 px-2">
-                  {establishment.premiseCharacteristics || (isStorage ? 'อยู่ในอาคารโกดัง' : 'อยู่ในอาคารพาณิชย์')}
+                  {displayedPremise}
                 </span>
               </p>
 
               <p className="text-justify">
                 วิธีการจำหน่าย{' '}
                 <span className="border-b border-dotted border-slate-700 px-2">
-                  {establishment.distributionMethod || (isStorage ? 'จำหน่ายส่งและมีบริการจัดส่ง' : 'มีโต๊ะเก้าอี้ไว้ให้บริการ')}
+                  {displayedDistribution}
                 </span>{' '}
                 ช่วงเวลาที่จำหน่าย{' '}
                 <span className="border-b border-dotted border-slate-700 px-2 font-mono">
