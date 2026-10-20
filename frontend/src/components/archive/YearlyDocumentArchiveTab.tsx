@@ -953,12 +953,12 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
             </div>
           )}
 
-          {/* Year Folders Selector Bar */}
-          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-200/60 flex-wrap">
+          {/* Unified Year & Status Selector Bar */}
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-200/70 flex-wrap">
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-              <span className="text-xs font-bold text-slate-600 mr-1 flex items-center gap-1 shrink-0">
-                <Calendar className="w-3.5 h-3.5 text-blue-700" />
-                <span>แฟ้มประจำปีงบประมาณ พ.ศ.:</span>
+              <span className="text-xs font-bold text-slate-700 mr-1 flex items-center gap-1.5 shrink-0">
+                <Calendar className="w-3.5 h-3.5 text-emerald-700" />
+                <span>ปีงบประมาณ:</span>
               </span>
 
               {currentArchives.map((dossier) => {
@@ -989,34 +989,22 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
                     key={dossier.year}
                     type="button"
                     onClick={() => setSelectedYear(dossier.year)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border shrink-0 ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border shrink-0 ${
                       isCurrent
-                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-500 shadow-md shadow-emerald-600/25'
-                        : 'bg-white/80 text-slate-700 hover:bg-white border-slate-200/90 backdrop-blur-xs hover:shadow-2xs'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
                     }`}
                   >
                     <span>📁 พ.ศ. {toThaiDigits(dossier.year)}</span>
-                    {isComplete ? (
-                      <span
-                        className={`text-[10px] rounded-full px-1.5 py-0.2 ${
-                          isCurrent
-                            ? 'bg-white/20 text-white font-bold'
-                            : 'bg-emerald-100 text-emerald-800 font-bold'
-                        }`}
-                      >
-                        ๓/๓ สมบูรณ์
-                      </span>
-                    ) : (
-                      <span
-                        className={`text-[10px] rounded-full px-1.5 py-0.2 ${
-                          isCurrent
-                            ? 'bg-amber-400 text-slate-900 font-bold'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}
-                      >
-                        {toThaiDigits(count)}/๓ ช่อง
-                      </span>
-                    )}
+                    <span
+                      className={`text-[10px] rounded-full px-1.5 py-0.2 ${
+                        isCurrent
+                          ? isComplete ? 'bg-white/20 text-white font-bold' : 'bg-amber-300 text-slate-900 font-bold'
+                          : isComplete ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'
+                      }`}
+                    >
+                      {isComplete ? 'ครบสมบูรณ์' : `${toThaiDigits(count)}/๓ ช่อง`}
+                    </span>
                   </button>
                 );
               })}
@@ -1024,62 +1012,43 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
               <button
                 type="button"
                 onClick={handleAddNewYearFolder}
-                className="px-3 py-2 rounded-xl text-xs font-semibold bg-white/70 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-dashed border-slate-300 flex items-center gap-1 transition-all cursor-pointer shadow-2xs shrink-0"
+                className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-dashed border-slate-300 flex items-center gap-1 transition-all cursor-pointer shrink-0"
                 title="สร้างแฟ้มประวัติรอบต่ออายุปีถัดไป"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>เพิ่มแฟ้มปีใหม่</span>
+                <span>เพิ่มปี</span>
               </button>
+
+              {currentArchives.length > 1 && (
+                <button
+                  type="button"
+                  onClick={handleDeleteYearArchive}
+                  className="px-2 py-1 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition-colors flex items-center gap-1 cursor-pointer shrink-0"
+                  title={`ลบแฟ้มเอกสารรอบปี พ.ศ. ${toThaiDigits(selectedYear)}`}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>ลบแฟ้มปี</span>
+                </button>
+              )}
             </div>
 
-            {/* Delete Year Folder Button */}
-            {currentArchives.length > 1 && (
-              <button
-                type="button"
-                onClick={handleDeleteYearArchive}
-                className="px-2.5 py-1 rounded-lg text-xs font-semibold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 transition-colors flex items-center gap-1 cursor-pointer shrink-0"
-                title={`ลบแฟ้มเอกสารรอบปี พ.ศ. ${toThaiDigits(selectedYear)}`}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>ลบแฟ้มปี {toThaiDigits(selectedYear)}</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* ================= COMPACT STATUS & WORKFLOW TOGGLE BAR ================= */}
-        <div className="gov-card px-4 py-2.5 shrink-0 border border-white/80 shadow-xs bg-white/90 backdrop-blur-xl rounded-xl flex flex-wrap items-center justify-between gap-2.5">
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Overall Completeness Pill */}
-            {isDossierComplete ? (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs shadow-2xs">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>✓ แฟ้มปี {toThaiDigits(selectedYear)} เสร็จสมบูรณ์ ๑๐๐% (ครบถ้วนตามระเบียบ)</span>
-              </div>
-            ) : (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs shadow-2xs">
-                <Clock className="w-3.5 h-3.5 text-amber-600" />
-                <span>
-                  สถานะแฟ้ม: อยู่ระหว่างดำเนินการ (ครบแล้ว {toThaiDigits(fulfilledCount)}/๓ ช่อง — ขาดอีก {toThaiDigits(missingList.length)} รายการ)
-                </span>
-              </div>
-            )}
-
-            {!isDossierComplete && missingList.length > 0 && (
-              <div className="hidden lg:flex items-center gap-1.5 text-xs text-amber-800">
-                <span className="font-semibold text-slate-500">ขาด:</span>
-                {missingList.map((m, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 text-[11px] font-medium"
-                  >
-                    ⚠️ {m}
+            {/* Status Summary Pill */}
+            <div className="flex items-center gap-2">
+              {isDossierComplete ? (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs shadow-2xs">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>✓ แฟ้มปี {toThaiDigits(selectedYear)} ครบสมบูรณ์ ๓/๓ ช่อง</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-300 font-bold text-xs shadow-2xs">
+                  <Clock className="w-3.5 h-3.5 text-amber-600" />
+                  <span>
+                    ครบ {toThaiDigits(fulfilledCount)}/๓ ช่อง {missingList.length > 0 && `(ขาด: ${missingList.join(', ')})`}
                   </span>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
-
         </div>
 
         {/* ================= RENEWAL PIPELINE AUTOMATION BANNER ================= */}
@@ -1173,163 +1142,159 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
               const currentDocs = findDocsForSlot(slot.slotNumber);
               const isFulfilled = currentDocs.length > 0;
               const isSlotUploading = uploadingSlotNum === slot.slotNumber;
+              const primaryDoc = currentDocs[0];
 
               return (
                 <div
                   key={slot.slotNumber}
-                  className={`rounded-2xl border transition-all p-3.5 ${
+                  className={`rounded-2xl border transition-all p-4 ${
                     isFulfilled
-                      ? 'bg-white/95 border-emerald-300 shadow-2xs hover:border-emerald-400'
-                      : 'bg-amber-50/30 border-dashed border-amber-300 hover:bg-amber-50/60'
+                      ? 'bg-white border-emerald-300 shadow-xs'
+                      : 'bg-white/80 border-dashed border-amber-300 hover:bg-white'
                   }`}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    {/* Left: Slot Info */}
-                    <div className="flex items-center gap-3 flex-1 min-w-[260px]">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    {/* Left: Slot Number, Title, Status & File Info */}
+                    <div className="flex items-start md:items-center gap-3.5 flex-1 min-w-0">
                       {/* Slot Number Avatar */}
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 border shadow-2xs ${
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base shrink-0 border ${
                           isFulfilled
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                            : 'bg-amber-100 text-amber-800 border-amber-300'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                            : 'bg-amber-50 text-amber-800 border-amber-300'
                         }`}
                       >
                         {toThaiDigits(slot.slotNumber)}
                       </div>
 
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-sm text-slate-900 font-heading">
+                          <span className="font-bold text-sm sm:text-base text-slate-900 font-heading">
                             ช่องที่ {toThaiDigits(slot.slotNumber)}: {slot.title}
                           </span>
                           {isFulfilled ? (
-                            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shrink-0">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                               <span>แนบไฟล์แล้ว</span>
                             </span>
                           ) : (
-                            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3 text-amber-600" />
+                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1 shrink-0">
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                               <span>ยังไม่มีไฟล์</span>
                             </span>
                           )}
                         </div>
 
-                        {/* List of uploaded files in this slot */}
-                        {isFulfilled && (
-                          <div className="mt-2.5 space-y-2">
-                            {currentDocs.map((doc) => (
-                              <div
-                                key={doc.id}
-                                className="p-2.5 rounded-xl bg-slate-50/90 border border-slate-200 flex flex-wrap items-center justify-between gap-2"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <FileCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                                  <div>
-                                    <div className="text-xs font-bold text-slate-800">
-                                      {doc.title}
-                                    </div>
-                                    <div className="text-[10px] text-slate-500 flex items-center gap-2 flex-wrap font-mono">
-                                      <span>ไฟล์: {doc.fileName}</span>
-                                      <span>•</span>
-                                      <span>ขนาด: {doc.fileSize || '1.0 MB'}</span>
-                                      <span>•</span>
-                                      <span>วันที่: {doc.uploadedAt}</span>
-                                      <span>•</span>
-                                      <span>ผู้บันทึก: {doc.uploadedBy || 'เจ้าหน้าที่'}</span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-1.5">
-                                  {doc.notes && (
-                                    <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 hidden sm:inline-block">
-                                      📌 {doc.notes}
-                                    </span>
-                                  )}
-
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenPreview(doc)}
-                                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
-                                    title="เปิดดูไฟล์ (PDF / รูปภาพ)"
-                                  >
-                                    <Eye className="w-3 h-3 text-emerald-700" />
-                                    <span>ดูไฟล์</span>
-                                  </button>
-
-                                  {doc.fileUrl && (
-                                    <a
-                                      href={doc.fileUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      download={doc.fileName}
-                                      className="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer transition-colors border border-slate-200"
-                                      title="ดาวน์โหลดไฟล์"
-                                    >
-                                      <Download className="w-3 h-3" />
-                                    </a>
-                                  )}
-
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteDoc(doc.id, doc.title)}
-                                    className="p-1 rounded-lg bg-red-50 hover:bg-red-600 text-red-600 hover:text-white border border-red-200 hover:border-red-600 transition-colors cursor-pointer"
-                                    title="ลบเอกสารนี้"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
+                        {/* File detail or Missing hint */}
+                        {isFulfilled ? (
+                          <div className="text-xs text-slate-600 mt-1 flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-slate-800">
+                              📄 {primaryDoc.fileName || primaryDoc.title}
+                            </span>
+                            {primaryDoc.uploadedAt && (
+                              <span className="text-slate-400 text-[11px]">
+                                • วันที่บันทึก {primaryDoc.uploadedAt}
+                              </span>
+                            )}
+                            {currentDocs.length > 1 && (
+                              <span className="text-emerald-700 font-bold text-[11px] bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                รวม {currentDocs.length} ไฟล์
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-amber-800/80 mt-0.5">
+                            ยังไม่มีไฟล์เอกสารแนบในช่องนี้ — สามารถกดแนบไฟล์สแกน หรือพิมพ์เอกสารได้ที่ปุ่มด้านขวา
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Right: Actions */}
-                    <div className="flex items-center gap-2 flex-wrap self-center sm:self-start">
-                      {/* Upload / Replace Button */}
-                      <label
-                        className={`px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all ${
-                          isSlotUploading
-                            ? 'bg-amber-600 text-white cursor-wait'
-                            : isFulfilled
-                            ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 shadow-2xs'
-                            : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-600/30 active:scale-95'
-                        }`}
-                      >
-                        {isSlotUploading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>กำลังอัปโหลด...</span>
-                          </>
-                        ) : isFulfilled ? (
-                          <>
-                            <FileUp className="w-3.5 h-3.5 text-slate-600" />
-                            <span>+ อัปโหลดแทนที่ / แนบเพิ่ม</span>
-                          </>
-                        ) : (
-                          <>
-                            <UploadCloud className="w-4 h-4" />
-                            <span>{slot.uploadButtonText}</span>
-                          </>
-                        )}
-                        <input
-                          type="file"
-                          accept="application/pdf,image/*"
-                          onChange={(e) => handleUploadSlotDoc(slot, e)}
-                          disabled={isSlotUploading}
-                          className="hidden"
-                        />
-                      </label>
+                    {/* Right: Unified Action Buttons Group */}
+                    <div className="flex items-center gap-2 flex-wrap self-end md:self-center shrink-0">
+                      {isFulfilled ? (
+                        <>
+                          {/* Primary: Preview Button */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPreview(primaryDoc)}
+                            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                            title="เปิดดูไฟล์เอกสารฉบับจริง (PDF / รูปภาพ)"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>ดูไฟล์</span>
+                          </button>
+
+                          {/* Secondary: Replace File */}
+                          <label
+                            className={`px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-all ${
+                              isSlotUploading ? 'opacity-50 cursor-wait' : ''
+                            }`}
+                            title="อัปโหลดไฟล์ใหม่แทนที่ไฟล์เดิม"
+                          >
+                            {isSlotUploading ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <FileUp className="w-3.5 h-3.5 text-slate-500" />
+                            )}
+                            <span>เปลี่ยนไฟล์</span>
+                            <input
+                              type="file"
+                              accept="application/pdf,image/*"
+                              onChange={(e) => handleUploadSlotDoc(slot, e)}
+                              disabled={isSlotUploading}
+                              className="hidden"
+                            />
+                          </label>
+
+                          {/* Delete File */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteDoc(primaryDoc.id, primaryDoc.title)}
+                            className="p-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 hover:border-red-200 transition-colors cursor-pointer"
+                            title="ลบเอกสารนี้"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {/* Missing Primary Upload Button */}
+                          <label
+                            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer shadow-sm transition-all ${
+                              isSlotUploading
+                                ? 'bg-amber-600 text-white cursor-wait'
+                                : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-700/20 active:scale-95'
+                            }`}
+                          >
+                            {isSlotUploading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>กำลังอัปโหลด...</span>
+                              </>
+                            ) : (
+                              <>
+                                <UploadCloud className="w-4 h-4" />
+                                <span>{slot.uploadButtonText}</span>
+                              </>
+                            )}
+                            <input
+                              type="file"
+                              accept="application/pdf,image/*"
+                              onChange={(e) => handleUploadSlotDoc(slot, e)}
+                              disabled={isSlotUploading}
+                              className="hidden"
+                            />
+                          </label>
+                        </>
+                      )}
 
                       {/* Contextual Shortcut Buttons */}
                       {slot.slotNumber === 1 && (
                         <button
                           type="button"
                           onClick={() => setIsFieldKitModalOpen(true)}
-                          className="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                          className="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
                           title="พิมพ์ชุดตรวจสนามเพื่อนำไปให้ลงชื่อหน้างาน"
                         >
                           <Printer className="w-3.5 h-3.5 text-amber-600" />
@@ -1341,7 +1306,7 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
                         <button
                           type="button"
                           onClick={() => setIsPaymentModalOpen(true)}
-                          className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                          className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
                           title="ลงบันทึกเลขที่ใบเสร็จรับเงิน อปท."
                         >
                           <Receipt className="w-3.5 h-3.5 text-blue-600" />
@@ -1355,7 +1320,7 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
                           onClick={() =>
                             onOpenPrint(activeEst, isHazardous ? 'hazardous_license' : 'garuda')
                           }
-                          className="px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                          className="px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
                           title="พิมพ์ใบอนุญาตเพื่อเสนอนายก อบต. ลงนาม"
                         >
                           <Award className="w-3.5 h-3.5 text-purple-600" />
