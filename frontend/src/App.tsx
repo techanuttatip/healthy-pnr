@@ -444,7 +444,7 @@ export const App: React.FC = () => {
   const handleViewOnMap = (est: Establishment) => {
     setSelectedEstablishment(est);
     setSelectedId(est.id);
-    setActiveModule('map');
+    setActiveModule('dashboard');
   };
 
   const handleEditEstablishment = (est: Establishment) => {
@@ -631,10 +631,11 @@ export const App: React.FC = () => {
 
             {/* Main Content View Switcher */}
             <main className="flex-1 overflow-hidden relative flex bg-transparent print:overflow-visible print:h-auto print:bg-white">
-              {/* MODULE 0: UNIFIED COMMAND CENTER DASHBOARD */}
-              {activeModule === 'dashboard' && (
+              {/* MODULE 0: UNIFIED COMMAND CENTER DASHBOARD (INCLUDING GIS MAP & KPI) */}
+              {(activeModule === 'dashboard' || activeModule === 'map') && (
                 <UnifiedMapDashboard
                   establishments={establishments}
+                  selectedId={selectedId}
                   onOpenNewRequest={() => setIsNewRequestModalOpen(true)}
                   onNavigateToTable={(filter) => {
                     setTableStatusFilter(filter || 'all');
@@ -642,21 +643,6 @@ export const App: React.FC = () => {
                   }}
                   onPrintEstablishment={(est) => handlePrintEstablishment(est, est.regType, 'garuda')}
                   onOpenArchive={handleOpenArchive}
-                />
-              )}
-
-              {/* MODULE 2: FULL GIS MAP & SMART FIELD ROUTE PLANNER */}
-              {activeModule === 'map' && (
-                <GisMapModuleView
-                  establishments={establishments}
-                  selectedEstablishment={selectedEstablishment}
-                  selectedId={selectedId}
-                  onSelectEstablishment={(est) => {
-                    setSelectedEstablishment(est);
-                    setSelectedId(est.id);
-                  }}
-                  onInspectEstablishment={handleInspectEstablishment}
-                  onPrintEstablishment={(est) => handlePrintEstablishment(est, est.regType, 'garuda')}
                 />
               )}
 

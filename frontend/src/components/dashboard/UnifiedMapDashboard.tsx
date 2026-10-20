@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Establishment } from '../../types/publicHealth';
 import { OFFICIAL_VILLAGES } from '../../types/publicHealth';
 import { PublicHealthMap } from '../gis/PublicHealthMap';
@@ -24,6 +24,7 @@ interface UnifiedMapDashboardProps {
   onNavigateToTable: (statusFilter?: string) => void;
   onPrintEstablishment: (est: Establishment) => void;
   onOpenArchive: (est: Establishment) => void;
+  selectedId?: string | null;
 }
 
 export const UnifiedMapDashboard: React.FC<UnifiedMapDashboardProps> = ({
@@ -31,10 +32,17 @@ export const UnifiedMapDashboard: React.FC<UnifiedMapDashboardProps> = ({
   onOpenNewRequest,
   onNavigateToTable,
   onPrintEstablishment,
-  onOpenArchive
+  onOpenArchive,
+  selectedId
 }) => {
   // Selected establishment
-  const [selectedEstId, setSelectedEstId] = useState<string | null>(null);
+  const [selectedEstId, setSelectedEstId] = useState<string | null>(selectedId || null);
+
+  useEffect(() => {
+    if (selectedId) {
+      setSelectedEstId(selectedId);
+    }
+  }, [selectedId]);
 
   // Status Filter from KPI chips: 'all' | 'active' | 'expiring' | 'pending_inspection' | 'awaiting_payment' | 'pending_correction'
   const [activeKpiFilter, setActiveKpiFilter] = useState<string>('all');

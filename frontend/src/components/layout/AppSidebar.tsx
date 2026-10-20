@@ -15,8 +15,7 @@ import {
   FileEdit,
   Smartphone,
   QrCode,
-  LayoutDashboard,
-  Route as RouteIcon
+  LayoutDashboard
 } from 'lucide-react';
 import type { OfficerAccount } from '../../services/sanitationDataService';
 import { LiveClock } from './LiveClock';
@@ -131,25 +130,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           <div className="flex items-center gap-2.5 min-w-0">
             <LayoutDashboard className="w-4 h-4 text-amber-400 shrink-0" />
             {!isSidebarCollapsed && <span className="truncate">ภาพรวมระบบ & สถิติ</span>}
-          </div>
-        </button>
-
-        {/* 1.1: แผนที่ GIS & จัดเส้นทางตรวจสนาม (Map & Smart Route Planner) */}
-        <button
-          type="button"
-          onClick={() => onSelectModule('map')}
-          className={`w-full py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-150 cursor-pointer ${
-            isSidebarCollapsed ? 'justify-center px-1' : 'justify-between px-3'
-          } ${
-            isCurrent('map')
-              ? 'bg-blue-600 text-white font-bold shadow-sm'
-              : 'text-slate-300 hover:bg-white/10 hover:text-white'
-          }`}
-          title="แผนที่พิกัด GIS & วางแผนเส้นทางตรวจสนามอัจฉริยะ"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <RouteIcon className="w-4 h-4 text-emerald-400 shrink-0" />
-            {!isSidebarCollapsed && <span className="truncate">แผนที่ GIS & เส้นทางตรวจ</span>}
           </div>
         </button>
 
