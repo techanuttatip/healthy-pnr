@@ -1,5 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Establishment, PrintDocumentMode } from '../../types/publicHealth';
+import { EstablishmentForm, type EstablishmentFormValues } from '../archive/EstablishmentForm';
+import { sanitationDataService } from '../../services/sanitationDataService';
+import { showToast } from '../../utils/sweetAlert';
 import {
   Building2,
   Search,
@@ -19,7 +22,9 @@ import {
   ExternalLink,
   SlidersHorizontal,
   LayoutGrid,
-  List
+  List,
+  FileEdit,
+  X
 } from 'lucide-react';
 
 export interface SimpleEstablishmentDirectoryProps {
@@ -28,6 +33,9 @@ export interface SimpleEstablishmentDirectoryProps {
   onPrintEstablishment: (est: Establishment, regType: string, docMode: PrintDocumentMode) => void;
   onPrintCategoryReport: (category: string, year: string) => void;
   onOpenArchive: (est: Establishment) => void;
+  onUpdateEstablishment?: (est: Establishment) => void;
+  activeCategoryFilter?: string;
+  onCategoryFilterChange?: (cat: string) => void;
 }
 
 type CategoryTab = 'all' | 'food_notice' | 'food_license' | 'hazardous' | 'market' | 'public_sale' | 'waste_sewage';
@@ -47,14 +55,79 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
   onSelectEstablishment,
   onPrintEstablishment,
   onPrintCategoryReport,
-  onOpenArchive
+  onOpenArchive,
+  onUpdateEstablishment,
+  activeCategoryFilter,
+  onCategoryFilterChange
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<CategoryTab>('all');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryTab>(() => {
+    if (activeCategoryFilter && CATEGORY_TABS.some((t) => t.id === activeCategoryFilter)) {
+      return activeCategoryFilter as CategoryTab;
+    }
+    return 'all';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedVillage, setSelectedVillage] = useState('all');
   const [selectedYear, setSelectedYear] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+
+  // Edit Modal State
+  const [editingEst, setEditingEst] = useState<Establishment | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  useEffect(() => {
+    if (activeCategoryFilter && CATEGORY_TABS.some((t) => t.id === activeCategoryFilter)) {
+      setSelectedCategory(activeCategoryFilter as CategoryTab);
+    }
+  }, [activeCategoryFilter]);
+
+  const handleCategoryTabClick = (tabId: CategoryTab) => {
+    setSelectedCategory(tabId);
+    if (onCategoryFilterChange) {
+      onCategoryFilterChange(tabId);
+    }
+  };
+
+  const handleSaveEdit = async (values: EstablishmentFormValues) => {
+    if (!editingEst) return;
+    setIsSavingEdit(true);
+    try {
+      const updated: Establishment = {
+        ...editingEst,
+        businessName: values.businessName,
+        ownerName: values.ownerName,
+        citizenId: values.citizenId,
+        phone: values.phone,
+        email: values.email,
+        village: values.village,
+        address: values.address,
+        areaSqm: values.areaSqm || 50,
+        workerCount: values.workerCount ?? 1,
+        premiseCharacteristics: values.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์',
+        lat: values.lat,
+        lng: values.lng,
+        regType: values.regType,
+        category: values.category,
+        categoryName: values.categoryName,
+        feeAmount: values.feeAmount,
+        receiptNo: values.receiptNo,
+        inspectorName: values.inspectorName
+      };
+
+      if (onUpdateEstablishment) {
+        onUpdateEstablishment(updated);
+      }
+      await sanitationDataService.saveEstablishment(updated);
+      showToast('บันทึกการแก้ไขข้อมูลสำเร็จ!', 'success');
+      setEditingEst(null);
+    } catch (err) {
+      console.error(err);
+      showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   // Extract available years
   const availableYears = useMemo(() => {
@@ -482,16 +555,28 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                 </div>
 
                 {/* Card Bottom: Quick Actions */}
-                <div className="p-3 bg-white border-t border-slate-100 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onOpenArchive(est)}
-                    className="px-2.5 py-1.5 rounded-xl text-slate-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-medium transition-colors cursor-pointer flex items-center gap-1"
-                    title="เปิดดูแฟ้มคำขอ & ประวัติเอกสาร"
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>แฟ้มเอกสาร</span>
-                  </button>
+                <div className="p-3 bg-white border-t border-slate-100 flex items-center justify-between gap-1.5 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setEditingEst(est)}
+                      className="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-500 text-amber-700 hover:text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1 border border-amber-200 hover:border-amber-500 shadow-2xs"
+                      title="แก้ไขข้อมูลสถานประกอบการและคำขอ"
+                    >
+                      <FileEdit className="w-3.5 h-3.5" />
+                      <span>แก้ไข</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onOpenArchive(est)}
+                      className="px-2.5 py-1.5 rounded-xl text-slate-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-medium transition-colors cursor-pointer flex items-center gap-1 border border-slate-200/80"
+                      title="เปิดดูแฟ้มคำขอ & ประวัติเอกสาร"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>แฟ้มเอกสาร</span>
+                    </button>
+                  </div>
 
                   <button
                     type="button"
@@ -525,7 +610,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                     <th className="py-3 px-3 text-center">คนงาน (คน)</th>
                     <th className="py-3 px-3">ลักษณะสถานที่</th>
                     <th className="py-3 px-3 text-center">สถานะ</th>
-                    <th className="py-3 px-3 text-center w-28">จัดการ</th>
+                    <th className="py-3 px-3 text-center w-32">จัดการ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -551,6 +636,14 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                       <td className="py-3 px-3 text-center whitespace-nowrap">{getStatusBadge(est.status)}</td>
                       <td className="py-3 px-3 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setEditingEst(est)}
+                            className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-500 text-amber-700 hover:text-white transition-colors cursor-pointer"
+                            title="แก้ไขข้อมูลร้าน"
+                          >
+                            <FileEdit className="w-3.5 h-3.5" />
+                          </button>
                           <button
                             type="button"
                             onClick={() => {
@@ -580,6 +673,71 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
           </div>
         )}
       </div>
+
+      {/* Edit Establishment Modal */}
+      {editingEst && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden animate-fadeIn">
+            {/* Modal Header */}
+            <div className="px-5 py-3.5 bg-gradient-to-r from-blue-700 to-indigo-800 text-white flex items-center justify-between shrink-0 shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-white/15">
+                  <FileEdit className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm sm:text-base font-heading">
+                    แก้ไขข้อมูลสถานประกอบการ: {editingEst.businessName}
+                  </h3>
+                  <p className="text-xs text-blue-100">
+                    เลขที่คำขอ: {editingEst.regNumber || editingEst.docNo || '-'} | {editingEst.categoryName}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingEst(null)}
+                className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body: EstablishmentForm */}
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-50/60">
+              <EstablishmentForm
+                initialValues={{
+                  regType: editingEst.regType,
+                  category: editingEst.category,
+                  categoryName: editingEst.categoryName,
+                  docNo: editingEst.docNo || editingEst.regNumber?.split('-').pop() || '001',
+                  targetYear: parseInt(editingEst.regNumber?.match(/[-_](\d{2})[-_]/)?.[1] || '69', 10) + 2500,
+                  businessName: editingEst.businessName,
+                  ownerName: editingEst.ownerName,
+                  citizenId: editingEst.citizenId,
+                  phone: editingEst.phone,
+                  email: editingEst.email || '',
+                  village: editingEst.village,
+                  address: editingEst.address,
+                  lat: editingEst.lat,
+                  lng: editingEst.lng,
+                  areaSqm: editingEst.areaSqm || 50,
+                  workerCount: editingEst.workerCount ?? 1,
+                  premiseCharacteristics: editingEst.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์',
+                  feeAmount: editingEst.feeAmount || 100,
+                  receiptNo: editingEst.receiptNo || '',
+                  applicationSubmissionDate: editingEst.applicationSubmissionDate || editingEst.issueDate || new Date().toISOString().split('T')[0],
+                  inspectorName: editingEst.inspectorName || '',
+                  inspectorPosition: 'นักวิชาการสาธารณสุขปฏิบัติการ'
+                }}
+                onSave={(values) => handleSaveEdit(values)}
+                isSaving={isSavingEdit}
+                onCancel={() => setEditingEst(null)}
+                submitLabel="บันทึกการแก้ไขข้อมูล"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

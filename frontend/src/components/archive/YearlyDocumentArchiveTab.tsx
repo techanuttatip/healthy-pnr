@@ -47,6 +47,7 @@ interface YearlyDocumentArchiveTabProps {
   onUpdateEstablishment: (est: Establishment) => void;
   onOpenPrint: (est: Establishment, docMode: PrintDocumentMode) => void;
   settings?: SystemSettings;
+  initialYear?: number;
 }
 
 const toThaiDigits = (num: number | string) =>
@@ -121,7 +122,8 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
   onSelectEstablishment,
   onUpdateEstablishment,
   onOpenPrint,
-  settings
+  settings,
+  initialYear
 }) => {
   const currentSettings = settings || DEFAULT_SYSTEM_SETTINGS;
   const activeEst = selectedEstablishment || establishments[0];
@@ -129,11 +131,18 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
   const [searchQuery, setSearchQuery] = useState('');
   const [villageFilter, setVillageFilter] = useState('all');
   const [selectedYear, setSelectedYear] = useState<number>(() => {
+    if (initialYear) return initialYear;
     if (activeEst?.yearlyArchives && activeEst.yearlyArchives.length > 0) {
       return activeEst.yearlyArchives[activeEst.yearlyArchives.length - 1].year;
     }
     return 2569;
   });
+
+  React.useEffect(() => {
+    if (initialYear && initialYear !== selectedYear) {
+      setSelectedYear(initialYear);
+    }
+  }, [initialYear]);
 
   // Modal states
   const [isFieldKitModalOpen, setIsFieldKitModalOpen] = useState(false);
@@ -1125,11 +1134,8 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
             <div>
               <h2 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 font-heading">
                 <FolderOpen className="w-5 h-5 text-emerald-600" />
-                <span>ช่องจัดเก็บและอัปโหลดเอกสาร (ปีงบประมาณ พ.ศ. {toThaiDigits(selectedYear)})</span>
+                <span>ช่องจัดเก็บเอกสาร (ปีงบประมาณ พ.ศ. {toThaiDigits(selectedYear)})</span>
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                เลือกคลิกปุ่มสีเขียวในช่องที่ ๑, ๒ หรือ ๓ ด้านล่างเพื่ออัปโหลดไฟล์ได้ทันทีโดยไม่ต้องเลื่อนหา
-              </p>
             </div>
 
             {/* Add Extra/Custom Document Button */}
@@ -1162,7 +1168,7 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
           </div>
 
           {/* 3 Core Slots */}
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             {OFFICIAL_SLOTS.map((slot) => {
               const currentDocs = findDocsForSlot(slot.slotNumber);
               const isFulfilled = currentDocs.length > 0;
@@ -1171,18 +1177,18 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
               return (
                 <div
                   key={slot.slotNumber}
-                  className={`rounded-2xl border transition-all p-4 ${
+                  className={`rounded-2xl border transition-all p-3.5 ${
                     isFulfilled
-                      ? 'bg-white/95 border-emerald-300 shadow-xs hover:border-emerald-400'
-                      : 'bg-amber-50/40 border-dashed border-amber-300/90 hover:bg-amber-50/70'
+                      ? 'bg-white/95 border-emerald-300 shadow-2xs hover:border-emerald-400'
+                      : 'bg-amber-50/30 border-dashed border-amber-300 hover:bg-amber-50/60'
                   }`}
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    {/* Left: Slot Info & Checklist */}
-                    <div className="flex items-start gap-3 flex-1 min-w-[280px]">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    {/* Left: Slot Info */}
+                    <div className="flex items-center gap-3 flex-1 min-w-[260px]">
                       {/* Slot Number Avatar */}
                       <div
-                        className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-sm shrink-0 border shadow-2xs ${
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 border shadow-2xs ${
                           isFulfilled
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                             : 'bg-amber-100 text-amber-800 border-amber-300'
@@ -1191,51 +1197,22 @@ export const YearlyDocumentArchiveTab: React.FC<YearlyDocumentArchiveTabProps> =
                         {toThaiDigits(slot.slotNumber)}
                       </div>
 
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-bold text-sm text-slate-900 font-heading">
                             ช่องที่ {toThaiDigits(slot.slotNumber)}: {slot.title}
                           </span>
                           {isFulfilled ? (
-                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                               <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                              <span>
-                                {slot.slotNumber === 1
-                                  ? 'อัปโหลดแล้ว (ครอบคลุม ๓ รายการครบ)'
-                                  : 'อัปโหลดเรียบร้อย'}
-                              </span>
+                              <span>แนบไฟล์แล้ว</span>
                             </span>
                           ) : (
-                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
+                            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3 text-amber-600" />
-                              <span>ยังขาดเอกสารช่องนี้</span>
+                              <span>ยังไม่มีไฟล์</span>
                             </span>
                           )}
-                          <span className="text-[10px] text-slate-500 font-mono">
-                            [{slot.badge}]
-                          </span>
-                        </div>
-
-                        <p className="text-xs text-slate-500 mt-1">{slot.description}</p>
-
-                        {/* Checklist sub-items breakdown */}
-                        <div className="mt-2 grid grid-cols-1 gap-1 bg-slate-50/70 p-2.5 rounded-xl border border-slate-200/80">
-                          <div className="text-[10.5px] font-bold text-slate-600 mb-0.5">
-                            {slot.slotNumber === 1
-                              ? '📋 รายการเอกสารที่รวมในไฟล์นี้ (อัปโหลด ๑ ไฟล์ ไม่ต้องแยกจากกัน):'
-                              : '📋 ข้อกำหนดตามระเบียบงานสารบรรณ:'}
-                          </div>
-                          {slot.subItems.map((sub, sIdx) => (
-                            <div
-                              key={sIdx}
-                              className="text-xs text-slate-700 flex items-center gap-1.5"
-                            >
-                              <span className={isFulfilled ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
-                                {isFulfilled ? '✓' : '•'}
-                              </span>
-                              <span>{sub}</span>
-                            </div>
-                          ))}
                         </div>
 
                         {/* List of uploaded files in this slot */}

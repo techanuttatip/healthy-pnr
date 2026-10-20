@@ -155,11 +155,21 @@ export const App: React.FC = () => {
   const [tableStatusFilter, setTableStatusFilter] = useState<string>('all');
   const [currentMode, setCurrentMode] = useState<OfficialFormCode | string>('นจ.1');
   const [printInitialMode, setPrintInitialMode] = useState<PrintDocumentMode>('garuda');
-  const [printInitialCategory, setPrintInitialCategory] = useState<string>('all');
-  const [printInitialYear, setPrintInitialYear] = useState<string>('all');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [selectedArchiveYear, setSelectedArchiveYear] = useState<number>(2569);
   const [returnModuleAfterPrint, setReturnModuleAfterPrint] = useState<AppModuleType>('table');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [globalSearch, setGlobalSearch] = useState<string>('');
+
+  const availableArchiveYears = React.useMemo(() => {
+    const set = new Set<number>([2570, 2569, 2568, 2567]);
+    establishments.forEach((e) => {
+      e.yearlyArchives?.forEach((a) => set.add(a.year));
+      const regMatch = e.regNumber?.match(/[-_](\d{2})[-_]/);
+      if (regMatch) set.add(2500 + parseInt(regMatch[1], 10));
+    });
+    return Array.from(set).sort((a, b) => b - a);
+  }, [establishments]);
 
   // 3. Modals State
   const [isFieldRenewalKitOpen, setIsFieldRenewalKitOpen] = useState<boolean>(false);
@@ -438,8 +448,7 @@ export const App: React.FC = () => {
 
   const handlePrintCategoryReport = (category: string, year: string) => {
     setPrintInitialMode('register_report');
-    setPrintInitialCategory(category);
-    setPrintInitialYear(year);
+    setSelectedCategoryFilter(category);
     setReturnModuleAfterPrint('directory');
     setActiveModule('print');
   };
@@ -626,6 +635,11 @@ export const App: React.FC = () => {
             onLogout={handleLogout}
             onFilterTableByStatus={(status) => setTableStatusFilter(status)}
             onOpenPwaQr={() => setIsPwaQrModalOpen(true)}
+            selectedCategory={selectedCategoryFilter}
+            onSelectCategory={(cat) => setSelectedCategoryFilter(cat)}
+            availableYears={availableArchiveYears}
+            selectedYear={selectedArchiveYear}
+            onSelectYear={(yr) => setSelectedArchiveYear(yr)}
           />
 
           {/* Right Workspace Area */}
@@ -705,10 +719,9 @@ export const App: React.FC = () => {
                     setActiveModule('print');
                   }}
                   settings={settings}
+                  initialYear={selectedArchiveYear}
                 />
               )}
-
-
 
               {/* MODULE 1.5: SIMPLE ESTABLISHMENT DIRECTORY */}
               {activeModule === 'directory' && (
@@ -727,6 +740,9 @@ export const App: React.FC = () => {
                     setSelectedId(est.id);
                     setActiveModule('archive');
                   }}
+                  onUpdateEstablishment={(updatedEst) => handleSaveEstablishment(updatedEst)}
+                  activeCategoryFilter={selectedCategoryFilter}
+                  onCategoryFilterChange={(cat) => setSelectedCategoryFilter(cat)}
                 />
               )}
 
@@ -739,8 +755,8 @@ export const App: React.FC = () => {
                     formCode={currentMode}
                     municipalityName={municipality}
                     initialMode={printInitialMode}
-                    initialReportCategory={printInitialCategory}
-                    initialReportYear={printInitialYear}
+                    initialReportCategory={selectedCategoryFilter}
+                    initialReportYear={String(selectedArchiveYear)}
                     settings={settings}
                     onClose={() => setActiveModule(returnModuleAfterPrint || 'table')}
                   />
