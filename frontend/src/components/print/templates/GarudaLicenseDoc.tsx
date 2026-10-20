@@ -153,7 +153,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>
               </p>
 
-              <p className="text-justify">
+              <p className="indent-8 text-justify">
                 เพื่อประกอบกิจการที่เป็นอันตรายต่อสุขภาพ ประเภท{' '}
                 <span className="font-bold border-b border-dotted border-slate-700 px-2 text-slate-900">
                   {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
@@ -168,23 +168,23 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 </span>
               </p>
 
-              <p className="text-justify">
+              <p className="indent-8 text-justify">
                 มีพื้นที่{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
                   {establishment.areaSqm}
                 </span>{' '}
-                ตารางเมตร จำนวนคนงาน{' '}
+                ตารางเมตร <span className="whitespace-nowrap">จำนวนคนงาน{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
                   {establishment.workerCount}
                 </span>{' '}
-                คน กำลังเครื่องจักร{' '}
+                คน</span> กำลังเครื่องจักร{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
                   {establishment.machineHorsepower || '-'}
                 </span>{' '}
                 แรงม้า
               </p>
 
-              <p className="text-justify">
+              <p className="indent-8 text-justify">
                 สถานที่ตั้ง เลขที่{' '}
                 <span className="border-b border-dotted border-slate-700 px-2">
                   {parsedAddress.houseNo}
@@ -193,7 +193,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>
               </p>
 
-              <p className="text-justify">
+              <p className="indent-8 text-justify">
                 เสียค่าธรรมเนียมปีละ{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2 text-emerald-900">
                   {establishment.feeAmount.toLocaleString()}
@@ -262,7 +262,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>
               </p>
 
-              <p className="text-justify">
+              <p className="indent-8 text-justify">
                 ชื่อสถานประกอบกิจการ{' '}
                 <span className="font-bold text-sm border-b border-dotted border-slate-700 px-2 text-blue-950">
                   "{establishment.businessName}"
@@ -277,7 +277,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 </span>
               </p>
 
-              <p className="text-justify">
+              <p className="indent-8 text-justify">
                 วิธีการจำหน่าย{' '}
                 <span className="border-b border-dotted border-slate-700 px-2">
                   {displayedDistribution}
@@ -290,14 +290,14 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
                   {establishment.areaSqm}
                 </span>{' '}
-                ตารางเมตร {isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}{' '}
+                ตารางเมตร <span className="whitespace-nowrap">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
                   {establishment.workerCount}
                 </span>{' '}
-                คน
+                คน</span>
               </p>
 
-              <p className="text-justify">
+              <p className="indent-8 text-justify">
                 สถานที่ตั้ง เลขที่{' '}
                 <span className="border-b border-dotted border-slate-700 px-2">
                   {parsedAddress.houseNo}
@@ -306,7 +306,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>
               </p>
 
-              <p className="text-justify leading-relaxed">
+              <p className="indent-8 text-justify leading-relaxed">
                 เสียค่าธรรมเนียมปีละ{' '}
                 <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2 text-emerald-900">
                   {establishment.feeAmount.toLocaleString()}
