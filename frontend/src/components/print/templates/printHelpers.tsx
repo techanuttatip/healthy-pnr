@@ -72,11 +72,49 @@ export const formatThaiDate = (dateStr?: string, _useThaiDigits = false) => {
  */
 export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) => {
   const addr = (rawAddress || '').replace(/^เลขที่\s*/, '').trim();
-  const v = (rawVillage || '').trim();
+  let v = (rawVillage || '').trim();
   const houseNo = addr.split(' ')[0] || addr || '-';
-  const fullVillageDisplay = v.startsWith('หมู่') ? v : `หมู่ที่ ${v || '-'}`;
+
+  // If village is not provided in rawVillage, try extracting from address if present
+  if (!v && (addr.includes('หมู่') || addr.includes('บ้าน'))) {
+    const mooMatch = addr.match(/(หมู่(?:ที่)?\s*\d+.*)$/);
+    if (mooMatch) {
+      v = mooMatch[1];
+    }
+  }
+
+  let mooPart = '';
+  let villageNamePart = '';
+
+  const match = v.match(/^(หมู่(?:ที่)?\s*\d+)\s*(.*)$/);
+  if (match) {
+    mooPart = match[1].trim();
+    villageNamePart = (match[2] || '').trim();
+  } else if (/^\d+$/.test(v)) {
+    mooPart = `หมู่ที่ ${v}`;
+  } else if (v.startsWith('บ้าน')) {
+    villageNamePart = v;
+  } else if (v) {
+    mooPart = v.startsWith('หมู่') ? v : `หมู่ที่ ${v}`;
+  }
+
+  // To fix: prevent "บ้าน" from wrapping separately from the village name (e.g. "บ้านหนองพนัง")
+  // Wrap villageNamePart in a non-breaking span (whitespace-nowrap inline-block)
+  const fullVillageDisplay: React.ReactNode = (
+    <>
+      {mooPart && <span>{mooPart}</span>}
+      {mooPart && villageNamePart && ' '}
+      {villageNamePart && (
+        <span className="whitespace-nowrap inline-block">{villageNamePart}</span>
+      )}
+      {!mooPart && !villageNamePart && (v ? <span>{v}</span> : '-')}
+    </>
+  );
+
   return {
     houseNo,
+    mooPart,
+    villageNamePart,
     fullVillageDisplay
   };
 };
