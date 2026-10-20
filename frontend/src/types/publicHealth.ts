@@ -228,6 +228,8 @@ export interface SignatorySettings {
   healthChiefPosition: string; // หัวหน้าฝ่ายบริการสาธารณสุข
   officerName: string; // เจ้าพนักงานสาธารณสุขผู้รับคำขอ
   officerPosition: string; // เจ้าพนักงานสาธารณสุขชำนาญงาน
+  officerSignatureUrl?: string; // ลายมือชื่ออิเล็กทรอนิกส์ผู้รับคำขอ/ผู้จัดทำ
+  mayorSignatureUrl?: string; // ลายมือชื่ออิเล็กทรอนิกส์นายก อบต.
 }
 
 export interface FeeRatesSettings {

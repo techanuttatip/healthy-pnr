@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import type { Establishment, SystemSettings } from '../../../types/publicHealth';
+import { DEFAULT_OFFICER_SIGNATURE, sanitationDataService } from '../../../services/sanitationDataService';
 
 interface RegisterReportDocProps {
   establishments: Establishment[];
@@ -19,6 +20,8 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
   selectedCategory = 'all'
 }) => {
   const sig = settings.signatories;
+  const currentOfficer = sanitationDataService.getCurrentOfficer();
+  const officerSig = sig.officerSignatureUrl || currentOfficer?.signatureUrl || DEFAULT_OFFICER_SIGNATURE;
   const orgName = settings.organizationName || 'องค์การบริหารส่วนตำบลโป่งน้ำร้อน';
   const districtName = settings.district || 'อำเภอฝาง';
   const provinceName = settings.province || 'จังหวัดเชียงใหม่';
@@ -217,25 +220,42 @@ export const RegisterReportDoc: React.FC<RegisterReportDocProps> = ({
 
       {/* Signatures for Register Report */}
       <div className="pt-6 mt-4 border-t border-slate-300">
-        <div className="grid grid-cols-3 gap-6 text-xs text-center">
-          <div>
-            <div className="mb-7">ผู้จัดทำรายงานทะเบียนคุม</div>
-            <div className="border-b border-dotted border-slate-600 w-44 mx-auto mb-1" />
-            <div className="font-bold">( {sig.officerName} )</div>
-            <div className="text-[11px] text-slate-600">{sig.officerPosition}</div>
+        <div className="grid grid-cols-3 gap-6 text-xs text-center items-end">
+          <div className="text-center">
+            <div className="text-slate-800 font-medium mb-1">ผู้จัดทำรายงานทะเบียนคุม</div>
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-xs text-slate-700 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="relative flex-1 mx-2 border-b border-dotted border-slate-700 h-8 flex items-end justify-center">
+                {officerSig && (
+                  <img
+                    src={officerSig}
+                    alt="ลายเซ็นผู้จัดทำรายงาน"
+                    className="absolute -bottom-1.5 h-10 object-contain filter contrast-125 pointer-events-none"
+                  />
+                )}
+              </div>
+            </div>
+            <div className="font-bold text-slate-900">( {sig.officerName || currentOfficer?.name} )</div>
+            <div className="text-[11px] text-slate-600">{sig.officerPosition || currentOfficer?.position}</div>
           </div>
 
-          <div>
-            <div className="mb-7">ผู้ตรวจสอบข้อมูลสารบรรณ</div>
-            <div className="border-b border-dotted border-slate-600 w-44 mx-auto mb-1" />
-            <div className="font-bold">( {sig.healthChiefName} )</div>
+          <div className="text-center">
+            <div className="text-slate-800 font-medium mb-1">ผู้ตรวจสอบข้อมูลสารบรรณ</div>
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-xs text-slate-700 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
+            </div>
+            <div className="font-bold text-slate-900">( {sig.healthChiefName} )</div>
             <div className="text-[11px] text-slate-600">{sig.healthChiefPosition}</div>
           </div>
 
-          <div>
-            <div className="mb-7">ผู้รับรองรายงานทะเบียน</div>
-            <div className="border-b border-dotted border-slate-600 w-44 mx-auto mb-1" />
-            <div className="font-bold">( {sig.healthDirectorName} )</div>
+          <div className="text-center">
+            <div className="text-slate-800 font-medium mb-1">ผู้รับรองรายงานทะเบียน</div>
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-xs text-slate-700 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
+            </div>
+            <div className="font-bold text-slate-900">( {sig.healthDirectorName} )</div>
             <div className="text-[11px] text-slate-600">{sig.healthDirectorPosition}</div>
           </div>
         </div>

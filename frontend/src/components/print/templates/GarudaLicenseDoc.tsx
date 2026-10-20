@@ -368,7 +368,15 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
             />
             <div className="relative flex items-end justify-center min-h-[44px] mb-1">
               <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
-              <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
+              <div className="relative flex-1 mx-2 border-b border-dotted border-slate-700 h-8 flex items-end justify-center">
+                {sig.mayorSignatureUrl && (
+                  <img
+                    src={sig.mayorSignatureUrl}
+                    alt="ลายมือชื่อนายก อบต."
+                    className="absolute -bottom-1.5 h-10 object-contain filter contrast-125 pointer-events-none"
+                  />
+                )}
+              </div>
             </div>
             <div className="font-bold text-sm text-slate-900 relative z-10">
               ( {sig.mayorName && !sig.mayorName.includes('สมหมาย') ? sig.mayorName : 'นายสมคิด พงษ์สุข'} )

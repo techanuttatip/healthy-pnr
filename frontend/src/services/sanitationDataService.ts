@@ -266,6 +266,16 @@ class SanitationDataService {
     }
 
     try {
+      const curOfficerStr = localStorage.getItem('PNR_CURRENT_OFFICER');
+      if (curOfficerStr) {
+        const cur = JSON.parse(curOfficerStr);
+        if (cur.officerCode === officer.officerCode || cur.id === officer.id) {
+          localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(officer));
+        }
+      }
+    } catch {}
+
+    try {
       window.dispatchEvent(new Event('storage'));
       const bc = new BroadcastChannel('PNR_SANITATION_CHANNEL');
       bc.postMessage({ type: 'OFFICER_UPDATED', data: officer });
@@ -351,9 +361,11 @@ class SanitationDataService {
     if (!officer) {
       officer = { ...DEFAULT_OFFICERS[0] };
     }
-    // Guarantee electronic signature for นางสาวรุ่งทิวา อุปนันท์
-    if (officer && (!officer.signatureUrl || officer.name.includes('รุ่งทิวา') || officer.id === 'off-1')) {
-      officer.signatureUrl = DEFAULT_OFFICER_SIGNATURE;
+    // Guarantee electronic signature fallback for default officer if none uploaded
+    if (officer && !officer.signatureUrl) {
+      if (officer.name.includes('รุ่งทิวา') || officer.id === 'off-1') {
+        officer.signatureUrl = DEFAULT_OFFICER_SIGNATURE;
+      }
     }
     return officer;
   }
@@ -693,16 +705,20 @@ class SanitationDataService {
 
       if (typeof dataUrlOrFile === 'string') {
         if (!dataUrlOrFile.startsWith('data:')) return dataUrlOrFile; // Already a cloud CDN URL
-        const [header, base64Data] = dataUrlOrFile.split(',');
+        const [header, payload] = dataUrlOrFile.split(',');
         const mimeMatch = header.match(/:(.*?);/);
         if (mimeMatch) contentType = mimeMatch[1];
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        if (header.includes(';base64')) {
+          const byteCharacters = atob(payload);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          fileBody = new Blob([byteArray], { type: contentType });
+        } else {
+          fileBody = new Blob([decodeURIComponent(payload)], { type: contentType });
         }
-        const byteArray = new Uint8Array(byteNumbers);
-        fileBody = new Blob([byteArray], { type: contentType });
       } else {
         fileBody = dataUrlOrFile;
         contentType = dataUrlOrFile.type || 'image/jpeg';

@@ -29,7 +29,8 @@ import {
   Sparkles,
   Layers,
   Store,
-  Factory
+  Factory,
+  Camera
 } from 'lucide-react';
 
 interface SystemSettingsModalProps {
@@ -504,6 +505,48 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
                     />
                   </div>
                 </div>
+
+                {/* Mayor Signature Upload */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <div className="text-slate-600 font-medium">ลายมือชื่ออิเล็กทรอนิกส์ (นายก อบต.):</div>
+                  <div className="flex items-center gap-2">
+                    {formData.signatories.mayorSignatureUrl && (
+                      <div className="flex items-center gap-2 p-1 bg-slate-50 border border-slate-200 rounded-lg">
+                        <img src={formData.signatories.mayorSignatureUrl} alt="ลายเซ็นนายก" className="h-6 object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, signatories: { ...formData.signatories, mayorSignatureUrl: '' } })}
+                          className="text-[10px] text-red-600 hover:text-red-700 cursor-pointer font-bold"
+                        >
+                          ลบ
+                        </button>
+                      </div>
+                    )}
+                    <label className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg cursor-pointer flex items-center gap-1 text-[11px]">
+                      <Camera className="w-3 h-3" />
+                      <span>{formData.signatories.mayorSignatureUrl ? 'เปลี่ยนรูป' : 'อัปโหลดลายเซ็นนายก'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (evt) => {
+                            const dataUrl = evt.target?.result as string;
+                            if (dataUrl) {
+                              setFormData({ ...formData, signatories: { ...formData.signatories, mayorSignatureUrl: dataUrl } });
+                              showToast('✓ อัปโหลดลายเซ็นนายก อบต. แล้ว', 'success');
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
 
               {/* 2. ผู้อำนวยการกองสาธารณสุข */}
@@ -631,6 +674,48 @@ export const SystemSettingsModal: React.FC<SystemSettingsModalProps> = ({
                       }
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                     />
+                  </div>
+                </div>
+
+                {/* Officer Signature Upload */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <div className="text-slate-600 font-medium">ลายมือชื่ออิเล็กทรอนิกส์ (เจ้าพนักงานผู้รับคำขอ):</div>
+                  <div className="flex items-center gap-2">
+                    {formData.signatories.officerSignatureUrl && (
+                      <div className="flex items-center gap-2 p-1 bg-slate-50 border border-slate-200 rounded-lg">
+                        <img src={formData.signatories.officerSignatureUrl} alt="ลายเซ็นเจ้าหน้าที่" className="h-6 object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, signatories: { ...formData.signatories, officerSignatureUrl: '' } })}
+                          className="text-[10px] text-red-600 hover:text-red-700 cursor-pointer font-bold"
+                        >
+                          ลบ
+                        </button>
+                      </div>
+                    )}
+                    <label className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg cursor-pointer flex items-center gap-1 text-[11px]">
+                      <Camera className="w-3 h-3" />
+                      <span>{formData.signatories.officerSignatureUrl ? 'เปลี่ยนรูป' : 'อัปโหลดลายเซ็นผู้รับคำขอ'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (evt) => {
+                            const dataUrl = evt.target?.result as string;
+                            if (dataUrl) {
+                              setFormData({ ...formData, signatories: { ...formData.signatories, officerSignatureUrl: dataUrl } });
+                              showToast('✓ อัปโหลดลายเซ็นเจ้าหน้าที่แล้ว', 'success');
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
                   </div>
                 </div>
               </div>

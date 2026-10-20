@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { OfficerAccount } from '../../services/sanitationDataService';
 import { sanitationDataService } from '../../services/sanitationDataService';
 import {
@@ -70,6 +70,41 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [signatureUrl, setSignatureUrl] = useState<string>(currentOfficer.signatureUrl || '');
   const [isDrawing, setIsDrawing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const hasDrawnRef = useRef(false);
+
+  // Helper to render signature onto canvas smoothly
+  const drawImageOnCanvas = useCallback((dataUrl: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !dataUrl) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const padding = 12;
+      const maxW = canvas.width - padding * 2;
+      const maxH = canvas.height - padding * 2;
+      const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      const x = (canvas.width - w) / 2;
+      const y = (canvas.height - h) / 2;
+      ctx.drawImage(img, x, y, w, h);
+    };
+    img.src = dataUrl;
+  }, []);
+
+  // Sync signature onto canvas whenever Tab 3 is open
+  useEffect(() => {
+    if (activeTab === 'signature' && signatureUrl) {
+      const timer = setTimeout(() => {
+        drawImageOnCanvas(signatureUrl);
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, signatureUrl, drawImageOnCanvas]);
 
   // Sync state whenever opened
   useEffect(() => {
@@ -85,6 +120,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setCurrentPinInput('');
       setNewPin('');
       setConfirmPin('');
+      hasDrawnRef.current = false;
     }
   }, [isOpen, currentOfficer]);
 
@@ -97,6 +133,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     if (!file.type.startsWith('image/')) {
       showWarningAlert('ไฟล์ไม่ถูกต้อง', 'กรุณาเลือกไฟล์รูปภาพ (JPEG, PNG) เท่านั้น');
+      e.target.value = '';
       return;
     }
 
@@ -109,6 +146,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       }
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   // Handle Signature Image Upload
@@ -116,20 +154,30 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+      showWarningAlert('ไฟล์ไม่ถูกต้อง', 'กรุณาเลือกไฟล์รูปภาพ (JPEG, PNG, SVG) เท่านั้น');
+      e.target.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
       if (dataUrl) {
         setSignatureUrl(dataUrl);
-        showToast('อัปโหลดลายมือชื่อดิจิทัลแล้ว', 'success');
+        hasDrawnRef.current = false;
+        drawImageOnCanvas(dataUrl);
+        showToast('✓ อัปโหลดและแสดงลายมือชื่อดิจิทัลแล้ว', 'success');
       }
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   // Canvas Drawing Handlers for Digital Signature
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
+    hasDrawnRef.current = true;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -166,12 +214,13 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     if (!isDrawing) return;
     setIsDrawing(false);
     const canvas = canvasRef.current;
-    if (canvas) {
+    if (canvas && hasDrawnRef.current) {
       setSignatureUrl(canvas.toDataURL('image/png'));
     }
   };
 
   const clearCanvasSignature = () => {
+    hasDrawnRef.current = false;
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext('2d');
@@ -235,7 +284,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           signatories: {
             ...userSettings.signatories,
             officerName: updatedOfficer.name,
-            officerPosition: updatedOfficer.position
+            officerPosition: updatedOfficer.position,
+            officerSignatureUrl: updatedOfficer.signatureUrl
           }
         };
         await sanitationDataService.saveSettings(syncedSettings, updatedOfficer.id);
@@ -606,9 +656,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 </div>
 
                 {/* Drawing Canvas Area */}
-                <div className="border-2 border-dashed border-slate-300 rounded-2xl p-4 bg-slate-50/50 flex flex-col items-center justify-center">
-                  <div className="text-[11px] text-slate-400 mb-2 font-medium">
-                    (ใช้เมาส์ หรือนิ้วมือเซ็นชื่อลงในกรอบสี่เหลี่ยมด้านล่างนี้)
+                <div className="border-2 border-dashed border-emerald-300/80 rounded-2xl p-4 bg-slate-50/70 flex flex-col items-center justify-center">
+                  <div className="flex items-center justify-between w-full max-w-md mb-2">
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      (วาดลายเซ็นสดลงในกรอบ หรือกด "อัปโหลดรูปภาพ" ด้านบน)
+                    </span>
+                    {signatureUrl && (
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-300">
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span>มีลายเซ็นพร้อมใช้งาน</span>
+                      </span>
+                    )}
                   </div>
 
                   <canvas
@@ -622,22 +680,25 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     onTouchStart={startDrawing}
                     onTouchMove={draw}
                     onTouchEnd={stopDrawing}
-                    className="bg-white rounded-xl border border-slate-200 shadow-inner cursor-crosshair touch-none w-full max-w-md h-36"
+                    className="bg-white rounded-xl border border-slate-300 shadow-inner cursor-crosshair touch-none w-full max-w-md h-36"
                   />
 
                   {signatureUrl && (
-                    <div className="mt-3 text-center">
-                      <div className="text-[10px] text-slate-400 mb-1">ตัวอย่างการแสดงผลบนเอกสาร:</div>
-                      <div className="inline-block p-2 bg-white rounded-lg border border-slate-200 shadow-2xs">
+                    <div className="mt-3.5 text-center w-full max-w-md bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                      <div className="text-[10px] text-slate-500 font-semibold mb-1 flex items-center justify-center gap-1">
+                        <Award className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>ตัวอย่างการประทับลงในเอกสารราชการ:</span>
+                      </div>
+                      <div className="inline-block p-2.5 bg-slate-50/90 rounded-lg border border-slate-200">
                         <img
                           src={signatureUrl}
                           alt="ตัวอย่างลายเซ็น"
-                          className="h-10 object-contain mx-auto"
+                          className="h-12 object-contain mx-auto filter contrast-125"
                         />
-                        <div className="text-[11px] font-bold text-slate-800 mt-1">
+                        <div className="text-[11px] font-bold text-slate-900 mt-1">
                           ( {name} )
                         </div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-slate-600">
                           {position}
                         </div>
                       </div>

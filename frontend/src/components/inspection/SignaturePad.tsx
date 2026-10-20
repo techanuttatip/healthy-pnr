@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Eraser, PenTool } from 'lucide-react';
+import { Eraser, PenTool, Camera } from 'lucide-react';
 
 interface SignaturePadProps {
   label: string;
@@ -130,16 +130,41 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({
           <span className="font-bold text-slate-800">{label}</span>
           {titleRole && <span className="text-[10px] text-slate-500">({titleRole})</span>}
         </div>
-        {hasContent && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="text-[10px] text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer font-medium hover:underline"
-          >
-            <Eraser className="w-3 h-3" />
-            <span>ล้างลายเซ็น</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <label className="text-[10px] text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer font-medium hover:underline">
+            <Camera className="w-3 h-3" />
+            <span>อัปโหลดรูป</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                  const dataUrl = evt.target?.result as string;
+                  if (dataUrl) {
+                    onSave(dataUrl);
+                    setHasContent(true);
+                  }
+                };
+                reader.readAsDataURL(file);
+                e.target.value = '';
+              }}
+            />
+          </label>
+          {hasContent && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="text-[10px] text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer font-medium hover:underline"
+            >
+              <Eraser className="w-3 h-3" />
+              <span>ล้าง</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Signature Canvas */}
