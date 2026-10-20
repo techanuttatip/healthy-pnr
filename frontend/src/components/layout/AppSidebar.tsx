@@ -129,21 +129,18 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         isSidebarCollapsed ? 'w-16' : 'w-[260px]'
       } shrink-0 h-full relative overflow-hidden text-white flex flex-col justify-between z-30 transition-all duration-200 print:hidden shadow-2xl border-r border-white/10`}
     >
-      {/* ๑. Scenic Hot Springs / Pong Nam Ron Landscape Background with Frosted Glass Overlay */}
+      {/* ๑. Modern Deep Royal Sapphire & Midnight Slate Gradient with Ambient Luminous Lighting */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-        <img
-          src="/pnr_landscape_bg.png"
-          alt="ทัศนียภาพ อบต.โป่งน้ำร้อน"
-          className="w-full h-full object-cover object-center scale-105 opacity-55 filter brightness-95 saturate-125"
-        />
-        {/* Deep Sapphire & Royal Slate Frosted Glass Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-indigo-950/75 to-blue-950/85 backdrop-blur-md" />
-        {/* Subtle glass reflection sheen */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-blue-400/10 pointer-events-none" />
-        {/* Luminous Ambient Glow Orbs */}
-        <div className="absolute -top-10 -left-10 w-48 h-48 bg-blue-500/25 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 -right-10 w-48 h-48 bg-indigo-500/25 rounded-full blur-3xl" />
-        <div className="absolute -bottom-10 left-5 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl" />
+        {/* Rich multi-stop gradient: Deep slate navy to royal sapphire */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0d1629] via-[#132247] to-[#09101d]" />
+        
+        {/* Luminous Ambient Glow Orbs - sleek high-tech lighting */}
+        <div className="absolute -top-16 -left-16 w-56 h-56 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 -right-16 w-52 h-52 bg-indigo-600/18 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-12 left-2 w-48 h-48 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
+        
+        {/* Subtle mesh highlight for ultra-crisp modern finish */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none" />
       </div>
 
       {/* ๒. Top: Emblem, Organization Branding & Collapse Toggle */}

@@ -219,25 +219,25 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <p className="text-justify indent-8">
                 (3) ผู้ได้รับใบอนุญาตต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
               </p>
-              <div className="pl-6 space-y-1 text-xs text-slate-800">
+              <div className="pl-14 space-y-1 text-xs text-slate-800">
                 <div>3.1) ต้องควบคุม ป้องกัน และระมัดระวังมิให้เกิดอันตราย อัคคีภัย การรั่วไหลของน้ำมันเชื้อเพลิง เสียง หรือมลพิษอื่นใดอันเป็นเหตุรำคาญหรือเป็นอันตรายต่อสุขภาพและความปลอดภัยของประชาชน</div>
                 <div>3.2) ต้องติดตั้งอุปกรณ์ความปลอดภัย ระบบป้องกันและระงับอัคคีภัย ถังดับเพลิงเคมีที่ได้มาตรฐานให้อยู่ในสภาพพร้อมใช้งานได้ตลอดเวลา</div>
                 <div>3.3) ปฏิบัติตามคำแนะนำของเจ้าพนักงานสาธารณสุขและคำสั่งของเจ้าพนักงานท้องถิ่นโดยเคร่งครัด</div>
               </div>
 
-              <div className="space-y-1.5 text-xs text-slate-800 pt-2 font-medium">
-                <div>
+              <div className="space-y-1 text-xs text-slate-800 pt-2 font-medium">
+                <p className="text-justify indent-8">
                   (4) ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่{' '}
                   <span className="font-mono font-bold border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
                     {formatThaiDate(establishment.issueDate, false)}
                   </span>
-                </div>
-                <div>
+                </p>
+                <p className="text-justify indent-8">
                   (5) ใบอนุญาตฉบับนี้สิ้นอายุวันที่{' '}
                   <span className="font-mono font-bold text-red-900 border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
                     {formatThaiDate(establishment.expireDate, false)}
                   </span>
-                </div>
+                </p>
               </div>
             </>
           ) : (
@@ -332,24 +332,24 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <p className="text-justify indent-8">
                 (3) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
               </p>
-              <div className="pl-6 space-y-1 text-xs text-slate-800">
+              <div className="pl-14 space-y-1 text-xs text-slate-800">
                 <div>3.1) ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุขและข้อบัญญัติ อปท.</div>
                 <div>3.2) {isStorage ? 'การจัดเก็บต้องวางบนพาเลทหรือยกสูงจากพื้นอย่างน้อย 15 ซม. และมีระบบป้องกันสัตว์แมลงนำโรค' : 'ผู้สัมผัสอาหารทุกคนต้องผ่านการอบรมหลักสูตรสุขาภิบาลอาหาร และมีสุขภาพร่างกายสมบูรณ์ไม่เป็นโรคติดต่อ'}</div>
               </div>
 
-              <div className="space-y-1.5 text-xs text-slate-800 pt-2 font-medium">
-                <div>
+              <div className="space-y-1 text-xs text-slate-800 pt-2 font-medium">
+                <p className="text-justify indent-8">
                   (4) {isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}{' '}
                   <span className="font-mono font-bold border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
                     {formatThaiDate(establishment.issueDate, false)}
                   </span>
-                </div>
-                <div>
+                </p>
+                <p className="text-justify indent-8">
                   (5) {isFoodLicense ? 'ใบอนุญาตฉบับนี้สิ้นอายุวันที่' : 'ครบกำหนดวันชำระค่าธรรมเนียม วันที่'}{' '}
                   <span className="font-mono font-bold text-red-900 border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
                     {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate, false)}
                   </span>
-                </div>
+                </p>
               </div>
             </>
           )}
