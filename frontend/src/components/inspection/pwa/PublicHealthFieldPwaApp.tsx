@@ -379,8 +379,14 @@ export function PublicHealthFieldPwaApp({
           const cur = authService.getCurrentOfficer()
           const matched = freshOfficers.find(o => o.officerCode === cur.officerCode || o.id === cur.id)
           if (matched) {
-            authService.saveCurrentOfficer({ ...cur, ...matched })
-            setCurrentOfficer({ ...cur, ...matched })
+            const merged = {
+              ...cur,
+              ...matched,
+              avatarUrl: matched.avatarUrl || cur.avatarUrl,
+              signatureUrl: matched.signatureUrl || cur.signatureUrl
+            }
+            authService.saveCurrentOfficer(merged)
+            setCurrentOfficer(merged)
           }
         }
       } catch (e) {
@@ -431,8 +437,14 @@ export function PublicHealthFieldPwaApp({
               const cur = authService.getCurrentOfficer()
               const matched = list.find(o => o.officerCode === cur.officerCode || o.id === cur.id)
               if (matched) {
-                authService.saveCurrentOfficer(matched)
-                setCurrentOfficer(matched)
+                const merged = {
+                  ...cur,
+                  ...matched,
+                  avatarUrl: matched.avatarUrl || cur.avatarUrl,
+                  signatureUrl: matched.signatureUrl || cur.signatureUrl
+                }
+                authService.saveCurrentOfficer(merged)
+                setCurrentOfficer(merged)
               }
             }
           })

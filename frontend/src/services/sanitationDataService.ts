@@ -78,7 +78,8 @@ export const DEFAULT_OFFICERS: OfficerAccount[] = [
     email: 'o.rungthiwa@gmail.com',
     pinCode: 'prn123',
     avatarColor: 'bg-emerald-600',
-    signatureUrl: DEFAULT_OFFICER_SIGNATURE
+    avatarUrl: 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg',
+    signatureUrl: 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg'
   },
   {
     id: 'off-2',
@@ -178,21 +179,30 @@ class SanitationDataService {
           .order('officer_code', { ascending: true });
 
         if (!error && data && data.length > 0) {
-          const cloudOfficers: OfficerAccount[] = data.map((row: any) => ({
-            id: row.id,
-            officerCode: row.officer_code,
-            name: row.name,
-            position: row.position,
-            role: row.role,
-            roleName: row.role_name || row.position,
-            phone: row.phone || '',
-            email: row.email || '',
-            pinCode: row.pin_code,
-            avatarColor: row.avatar_color || 'bg-emerald-600',
-            avatarUrl: row.avatar_url || undefined,
-            signatureUrl: row.signature_url || undefined,
-            lineId: row.line_id || undefined
-          }));
+          let localCached: OfficerAccount[] = [];
+          try {
+            const saved = localStorage.getItem('PNR_OFFICERS_LIST');
+            if (saved) localCached = JSON.parse(saved);
+          } catch {}
+
+          const cloudOfficers: OfficerAccount[] = data.map((row: any) => {
+            const local = localCached.find(l => l.officerCode === row.officer_code || l.id === row.id);
+            return {
+              id: row.id,
+              officerCode: row.officer_code,
+              name: row.name,
+              position: row.position,
+              role: row.role,
+              roleName: row.role_name || row.position,
+              phone: row.phone || '',
+              email: row.email || '',
+              pinCode: row.pin_code,
+              avatarColor: row.avatar_color || 'bg-emerald-600',
+              avatarUrl: row.avatar_url || local?.avatarUrl || (row.officer_code === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg' : undefined),
+              signatureUrl: row.signature_url || local?.signatureUrl || (row.officer_code === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg' : undefined),
+              lineId: row.line_id || undefined
+            };
+          });
           try {
             localStorage.setItem('PNR_OFFICERS_LIST', JSON.stringify(cloudOfficers));
           } catch {}
@@ -214,7 +224,63 @@ class SanitationDataService {
   }
 
   // บันทึก / เพิ่มเจ้าหน้าที่ใหม่
-  async saveOfficer(officer: OfficerAccount): Promise<boolean> {
+  async saveOfficer(officer: OfficerAccount): Promise<OfficerAccount> {
+    let resolvedAvatarUrl = officer.avatarUrl;
+    let resolvedSigUrl = officer.signatureUrl;
+
+    if (this.isCloudActive && this.supabase) {
+      try {
+        if (resolvedAvatarUrl && resolvedAvatarUrl.startsWith('data:')) {
+          resolvedAvatarUrl = await this.uploadImage(resolvedAvatarUrl, 'avatars', officer.officerCode || 'officer');
+        }
+        if (resolvedSigUrl && resolvedSigUrl.startsWith('data:')) {
+          resolvedSigUrl = await this.uploadImage(resolvedSigUrl, 'signatures', officer.officerCode || 'officer');
+        }
+
+        const syncedOfficer: OfficerAccount = {
+          ...officer,
+          avatarUrl: resolvedAvatarUrl,
+          signatureUrl: resolvedSigUrl
+        };
+
+        const dbPayload = {
+          officer_code: syncedOfficer.officerCode,
+          name: syncedOfficer.name,
+          position: syncedOfficer.position,
+          role: syncedOfficer.role || 'inspector',
+          role_name: syncedOfficer.roleName || syncedOfficer.position,
+          phone: syncedOfficer.phone || '',
+          email: syncedOfficer.email || '',
+          pin_code: syncedOfficer.pinCode,
+          avatar_color: syncedOfficer.avatarColor || 'bg-emerald-600',
+          avatar_url: syncedOfficer.avatarUrl || null,
+          signature_url: syncedOfficer.signatureUrl || null,
+          line_id: syncedOfficer.lineId || null,
+          is_active: true,
+          updated_at: new Date().toISOString()
+        };
+
+        const { data: updateData, error: updateErr } = await this.supabase
+          .from('officers')
+          .update(dbPayload)
+          .eq('officer_code', syncedOfficer.officerCode)
+          .select();
+
+        if (updateErr || !updateData || updateData.length === 0) {
+          const { error: insErr } = await this.supabase
+            .from('officers')
+            .upsert(dbPayload, { onConflict: 'officer_code' });
+          if (insErr) {
+            console.warn('Could not upsert officer to cloud:', insErr);
+          }
+        }
+
+        officer = syncedOfficer;
+      } catch (err) {
+        console.warn('Could not sync officer to cloud:', err);
+      }
+    }
+
     try {
       const list = await this.getOfficers();
       const idx = list.findIndex(o => o.officerCode === officer.officerCode || o.id === officer.id);
@@ -230,50 +296,14 @@ class SanitationDataService {
       console.error(e);
     }
 
-    let resolvedAvatarUrl = officer.avatarUrl;
-    let resolvedSigUrl = officer.signatureUrl;
-
-    if (this.isCloudActive && this.supabase) {
-      try {
-        if (resolvedAvatarUrl && resolvedAvatarUrl.startsWith('data:')) {
-          resolvedAvatarUrl = await this.uploadImage(resolvedAvatarUrl, 'avatars', officer.officerCode || 'officer');
-        }
-        if (resolvedSigUrl && resolvedSigUrl.startsWith('data:')) {
-          resolvedSigUrl = await this.uploadImage(resolvedSigUrl, 'signatures', officer.officerCode || 'officer');
-        }
-
-        const syncedOfficer = { ...officer, avatarUrl: resolvedAvatarUrl, signatureUrl: resolvedSigUrl };
-        await this.supabase.from('officers').upsert({
-          officer_code: syncedOfficer.officerCode,
-          name: syncedOfficer.name,
-          position: syncedOfficer.position,
-          role: syncedOfficer.role,
-          role_name: syncedOfficer.roleName,
-          phone: syncedOfficer.phone,
-          email: syncedOfficer.email,
-          pin_code: syncedOfficer.pinCode,
-          avatar_color: syncedOfficer.avatarColor,
-          avatar_url: syncedOfficer.avatarUrl || null,
-          signature_url: syncedOfficer.signatureUrl || null,
-          line_id: syncedOfficer.lineId || null,
-          is_active: true
-        }, { onConflict: 'officer_code' });
-
-        officer = syncedOfficer;
-      } catch (err) {
-        console.warn('Could not sync officer to cloud:', err);
-      }
-    }
-
     try {
-      const curOfficerStr = localStorage.getItem('PNR_CURRENT_OFFICER');
-      if (curOfficerStr) {
-        const cur = JSON.parse(curOfficerStr);
-        if (cur.officerCode === officer.officerCode || cur.id === officer.id) {
-          localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(officer));
-        }
-      }
+      localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(officer));
     } catch {}
+
+    const defIdx = DEFAULT_OFFICERS.findIndex(o => o.officerCode === officer.officerCode || o.id === officer.id);
+    if (defIdx >= 0) {
+      DEFAULT_OFFICERS[defIdx] = { ...DEFAULT_OFFICERS[defIdx], ...officer };
+    }
 
     try {
       window.dispatchEvent(new Event('storage'));
@@ -282,7 +312,7 @@ class SanitationDataService {
       bc.close();
     } catch {}
 
-    return true;
+    return officer;
   }
 
   // ตรวจสอบความถูกต้องของรหัส PIN (รองรับทั้ง Plain Text และ SHA-256 Hash)
@@ -342,7 +372,14 @@ class SanitationDataService {
         if (listStr) {
           const list: OfficerAccount[] = JSON.parse(listStr);
           const matched = list.find(o => o.officerCode === parsed.officerCode || o.id === parsed.id);
-          if (matched) officer = { ...matched, ...parsed };
+          if (matched) {
+            officer = {
+              ...matched,
+              ...parsed,
+              avatarUrl: parsed.avatarUrl || matched.avatarUrl,
+              signatureUrl: parsed.signatureUrl || matched.signatureUrl
+            };
+          }
         }
         if (!officer) officer = parsed;
       }
@@ -361,10 +398,13 @@ class SanitationDataService {
     if (!officer) {
       officer = { ...DEFAULT_OFFICERS[0] };
     }
-    // Guarantee electronic signature fallback for default officer if none uploaded
-    if (officer && !officer.signatureUrl) {
-      if (officer.name.includes('รุ่งทิวา') || officer.id === 'off-1') {
-        officer.signatureUrl = DEFAULT_OFFICER_SIGNATURE;
+    // Guarantee official avatar & electronic signature fallback for default officer
+    if (officer && (officer.officerCode === 'PNR-HL-01' || officer.name.includes('รุ่งทิวา') || officer.id === 'off-1')) {
+      if (!officer.avatarUrl) {
+        officer.avatarUrl = 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg';
+      }
+      if (!officer.signatureUrl || officer.signatureUrl.includes('<svg') || officer.signatureUrl.includes('data:image/svg+xml')) {
+        officer.signatureUrl = 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg';
       }
     }
     return officer;

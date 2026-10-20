@@ -86,7 +86,9 @@ export const DEFAULT_OFFICERS: OfficerAccount[] = [
     phone: '081-000-0001',
     email: 'o.rungthiwa@gmail.com',
     pinCode: 'prn123',
-    avatarColor: 'bg-emerald-600'
+    avatarColor: 'bg-emerald-600',
+    avatarUrl: 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg',
+    signatureUrl: 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg'
   },
   {
     id: 'off-2',
@@ -161,7 +163,9 @@ export const authService = {
             email: row.email || '',
             pinCode: row.pin_code,
             avatarColor: row.avatar_color || 'bg-emerald-600',
-            avatarUrl: row.avatar_url || undefined
+            avatarUrl: row.avatar_url || (row.officer_code === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg' : undefined),
+            signatureUrl: row.signature_url || (row.officer_code === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg' : undefined),
+            lineId: row.line_id || undefined
           }))
           try {
             localStorage.setItem('PNR_OFFICERS_LIST', JSON.stringify(list))
@@ -184,14 +188,27 @@ export const authService = {
           const officers = this.getOfficersSync()
           const matched = officers.find(o => o.officerCode === parsed.officerCode || o.id === parsed.id)
           if (matched) {
-            return { ...matched, ...parsed, avatarUrl: parsed.avatarUrl || matched.avatarUrl }
+            return {
+              ...matched,
+              ...parsed,
+              avatarUrl: parsed.avatarUrl || matched.avatarUrl || (parsed.officerCode === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg' : undefined),
+              signatureUrl: parsed.signatureUrl || matched.signatureUrl || (parsed.officerCode === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg' : undefined)
+            }
           }
           return parsed
         }
       }
     } catch {}
     const list = this.getOfficersSync()
-    return list[0] || DEFAULT_OFFICERS[0]
+    const fallback = list[0] || DEFAULT_OFFICERS[0]
+    if (fallback && fallback.officerCode === 'PNR-HL-01') {
+      return {
+        ...fallback,
+        avatarUrl: fallback.avatarUrl || 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg',
+        signatureUrl: fallback.signatureUrl || 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg'
+      }
+    }
+    return fallback
   },
 
   saveCurrentOfficer(officer: OfficerAccount): void {
@@ -223,7 +240,12 @@ export const authService = {
     try {
       const current = this.getCurrentOfficer()
       if (current && (current.id === officer.id || current.officerCode === officer.officerCode)) {
-        officer = { ...officer, ...current, avatarUrl: current.avatarUrl || officer.avatarUrl }
+        officer = {
+          ...officer,
+          ...current,
+          avatarUrl: current.avatarUrl || officer.avatarUrl,
+          signatureUrl: current.signatureUrl || officer.signatureUrl
+        }
       }
       localStorage.setItem('PNR_AUTH_VALID', 'true')
       localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(officer))
@@ -243,7 +265,9 @@ export const authService = {
             email: data.email || '',
             pinCode: data.pin_code,
             avatarColor: data.avatar_color || 'bg-emerald-600',
-            avatarUrl: data.avatar_url || undefined
+            avatarUrl: data.avatar_url || (data.officer_code === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg' : undefined),
+            signatureUrl: data.signature_url || (data.officer_code === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg' : undefined),
+            lineId: data.line_id || undefined
           }
           localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(fresh))
         }

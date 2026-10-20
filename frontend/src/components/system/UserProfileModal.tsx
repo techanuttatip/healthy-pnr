@@ -115,8 +115,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setEmail(currentOfficer.email || '');
       setLineId(currentOfficer.lineId || '');
       setAvatarColor(currentOfficer.avatarColor || 'bg-emerald-600');
-      setAvatarUrl(currentOfficer.avatarUrl || '');
-      setSignatureUrl(currentOfficer.signatureUrl || '');
+      const effAvatar = currentOfficer.avatarUrl || (currentOfficer.officerCode === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/avatars/PNR-HL-01_1792488788728.jpg' : '');
+      const effSig = currentOfficer.signatureUrl || (currentOfficer.officerCode === 'PNR-HL-01' ? 'https://rqoehhdrinpdiabufqwj.supabase.co/storage/v1/object/public/pnr-documents/signatures/PNR-HL-01_1792488795940.jpg' : '');
+      setAvatarUrl(effAvatar);
+      setSignatureUrl(effSig);
       setCurrentPinInput('');
       setNewPin('');
       setConfirmPin('');
@@ -299,35 +301,34 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       signatureUrl
     };
 
-    // ๑. Save updated officer in service & storage
-    await sanitationDataService.saveOfficer(updatedOfficer);
-    localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(updatedOfficer));
+    // ๑. Save updated officer in service & storage (auto-uploads to Cloud Storage & syncs with Supabase)
+    const savedOfficer = await sanitationDataService.saveOfficer(updatedOfficer);
 
     // ๒. Auto-sync officer name & position to user's personal signatory settings
     try {
-      const userSettings = await sanitationDataService.getSettings(updatedOfficer.id);
+      const userSettings = await sanitationDataService.getSettings(savedOfficer.id);
       if (userSettings) {
         const syncedSettings = {
           ...userSettings,
           signatories: {
             ...userSettings.signatories,
-            officerName: updatedOfficer.name,
-            officerPosition: updatedOfficer.position,
-            officerSignatureUrl: updatedOfficer.signatureUrl
+            officerName: savedOfficer.name,
+            officerPosition: savedOfficer.position,
+            officerSignatureUrl: savedOfficer.signatureUrl
           }
         };
-        await sanitationDataService.saveSettings(syncedSettings, updatedOfficer.id);
+        await sanitationDataService.saveSettings(syncedSettings, savedOfficer.id);
       }
     } catch (err) {
       console.warn('Could not auto-sync signatories:', err);
     }
 
     // ๓. Propagate change to App state
-    onOfficerChange(updatedOfficer);
+    onOfficerChange(savedOfficer);
 
     showSuccessAlert(
       'บันทึกข้อมูลผู้ปฏิบัติงานสำเร็จ!',
-      `อัปเดตข้อมูลและบันทึกการตั้งค่าของ "${updatedOfficer.name}" เรียบร้อยแล้ว ระบบจะนำลายมือชื่อดิจิทัลและข้อมูลเจ้าหน้าที่ไปใช้ในเอกสารราชการโดยอัตโนมัติ`
+      `อัปเดตข้อมูลและบันทึกการตั้งค่าของ "${savedOfficer.name}" เรียบร้อยแล้ว ระบบจะนำภาพถ่ายและลายมือชื่อดิจิทัลไปใช้ในระบบและสมาร์ทโฟนโดยอัตโนมัติ`
     );
 
     setCurrentPinInput('');

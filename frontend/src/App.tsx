@@ -352,7 +352,12 @@ export const App: React.FC = () => {
           if (cur) {
             const matched = officers.find(o => o.officerCode === cur.officerCode || o.id === cur.id);
             if (matched) {
-              const merged = { ...cur, ...matched };
+              const merged: OfficerAccount = {
+                ...cur,
+                ...matched,
+                avatarUrl: matched.avatarUrl || cur.avatarUrl,
+                signatureUrl: matched.signatureUrl || cur.signatureUrl
+              };
               localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(merged));
               setCurrentOfficer(merged);
             }
