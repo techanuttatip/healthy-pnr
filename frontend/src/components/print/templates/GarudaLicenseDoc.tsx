@@ -522,12 +522,12 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
 
               {/* Line 6: ลักษณะสถานที่ และวิธีการจำหน่าย */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
-                <div className="w-44 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">ลักษณะของสถานที่ประกอบกิจการ</span>
+                <div className="w-28 shrink-0 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(displayedPremise)}
                 </div>
-                <span className="shrink-0 mx-2">วิธีการจำหน่าย</span>
-                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
+                <span className="shrink-0 mx-1.5">วิธีการจำหน่าย</span>
+                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-1.5 relative whitespace-nowrap overflow-visible">
                   {displayedDistribution}
                 </div>
               </div>
