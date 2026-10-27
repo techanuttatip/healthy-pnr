@@ -99,7 +99,6 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
 
       const updated: Establishment = {
         ...editingEst,
-        regNumber: values.regNumber?.trim() || editingEst.regNumber,
         businessName: values.businessName,
         ownerName: values.ownerName,
         ownerAge: values.ownerAge || editingEst.ownerAge || (values.citizenId === '3500901026441' || values.ownerName.includes('จำนงค์') ? 67 : 35),
@@ -185,8 +184,8 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
         const estYear = regMatch
           ? String(2500 + parseInt(regMatch[1], 10))
           : est.issueDate
-          ? String(parseInt(est.issueDate.substring(0, 4), 10) > 2400 ? parseInt(est.issueDate.substring(0, 4), 10) : parseInt(est.issueDate.substring(0, 4), 10) + 543)
-          : '';
+            ? String(parseInt(est.issueDate.substring(0, 4), 10) > 2400 ? parseInt(est.issueDate.substring(0, 4), 10) : parseInt(est.issueDate.substring(0, 4), 10) + 543)
+            : '';
         if (estYear !== selectedYear) return false;
       }
 
@@ -337,9 +336,8 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
-                  viewMode === 'grid' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
-                }`}
+                className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                  }`}
                 title="มุมมองการ์ด (อ่านสบาย)"
               >
                 <LayoutGrid className="w-4 h-4" />
@@ -347,9 +345,8 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
-                className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
-                  viewMode === 'table' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
-                }`}
+                className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${viewMode === 'table' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                  }`}
                 title="มุมมองตารางสรุปย่อ"
               >
                 <List className="w-4 h-4" />
@@ -368,18 +365,16 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                 key={tab.id}
                 type="button"
                 onClick={() => setSelectedCategory(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 shrink-0 border ${
-                  isSelected
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 shrink-0 border ${isSelected
                     ? `${tab.color} border-transparent shadow-2xs font-bold scale-[1.02]`
                     : 'bg-white text-slate-600 hover:bg-slate-100 border-slate-200'
-                }`}
+                  }`}
                 title={tab.desc}
               >
                 <span>{tab.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                    isSelected ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-600'
-                  }`}
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${isSelected ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-600'
+                    }`}
                 >
                   {count}
                 </span>
@@ -725,7 +720,6 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
               <EstablishmentForm
                 key={editingEst.id}
                 initialValues={{
-                  regNumber: editingEst.regNumber,
                   regType: editingEst.regType,
                   category: editingEst.category,
                   categoryName: editingEst.categoryName,

@@ -75,7 +75,6 @@ export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) =>
   let v = (rawVillage || '').trim();
   const houseNo = addr.split(' ')[0] || addr || '-';
 
-  // If village is not provided in rawVillage, try extracting from address if present
   if (!v && (addr.includes('หมู่') || addr.includes('บ้าน'))) {
     const mooMatch = addr.match(/(หมู่(?:ที่)?\s*\d+.*)$/);
     if (mooMatch) {
@@ -103,7 +102,6 @@ export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) =>
     if (numMatch) mooNumber = numMatch[0];
   }
 
-  // Fallback to extract moo number from addr if not found in v
   if (!mooNumber) {
     const addrMooMatch = addr.match(/หมู่(?:ที่)?\s*(\d+)/);
     if (addrMooMatch) {
@@ -112,12 +110,12 @@ export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) =>
     }
   }
 
-  const combinedVillage = mooPart && villageNamePart 
-    ? `${mooPart} ${villageNamePart}` 
+  const combinedVillage = mooPart && villageNamePart
+    ? `${mooPart} ${villageNamePart}`
     : (mooPart || villageNamePart || v || '-');
 
   const fullVillageDisplay: React.ReactNode = (
-    <span>
+    <span className="whitespace-nowrap inline-block">
       {combinedVillage}
     </span>
   );

@@ -20,7 +20,6 @@ const VILLAGE_COORDS: Record<string, { lat: number; lng: number }> = {
 };
 
 export interface EstablishmentFormValues {
-  regNumber?: string;
   regType: RegimeType;
   category: EstablishmentCategory;
   categoryName: string;
@@ -82,7 +81,6 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
   };
 
   const [regType, setRegType] = useState<RegimeType>(initialValues?.regType || 'บทส');
-  const [regNumber, setRegNumber] = useState<string>(initialValues?.regNumber || '');
   const [category, setCategory] = useState<EstablishmentCategory>(initialValues?.category || 'hazardous');
   const [categoryName, setCategoryName] = useState<string>(
     initialValues?.categoryName || 'กิจการที่เป็นอันตรายต่อสุขภาพ'
@@ -95,7 +93,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
   const [ownerName, setOwnerName] = useState<string>(initialValues?.ownerName || '');
   const [ownerAge, setOwnerAge] = useState<number>(
     initialValues?.ownerAge ||
-      (initialValues?.citizenId === '3500901026441' || initialValues?.ownerName?.includes('จำนงค์') ? 67 : 35)
+    (initialValues?.citizenId === '3500901026441' || initialValues?.ownerName?.includes('จำนงค์') ? 67 : 35)
   );
   const [citizenId, setCitizenId] = useState<string>(initialValues?.citizenId || '');
   const [phone, setPhone] = useState<string>(initialValues?.phone || '');
@@ -155,7 +153,6 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       prevInitialValuesRef.current = currentSerialized;
 
       if (initialValues.regType) setRegType(initialValues.regType);
-      if (initialValues.regNumber !== undefined) setRegNumber(initialValues.regNumber);
       if (initialValues.category) setCategory(initialValues.category);
       if (initialValues.categoryName !== undefined) setCategoryName(initialValues.categoryName);
       if (initialValues.bookNo !== undefined) setBookNo(initialValues.bookNo);
@@ -212,15 +209,6 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
 
   const handleRegTypeChange = (t: RegimeType) => {
     setRegType(t);
-    if (regNumber) {
-      const clean = regNumber.trim();
-      const parts = clean.split('-');
-      if (parts.length >= 2) {
-        setRegNumber(`${t}-${parts.slice(1).join('-')}`);
-      } else {
-        setRegNumber(`${t}-${clean}`);
-      }
-    }
     if (t === 'บทส') {
       setCategory('hazardous');
       setCategoryName('กิจการที่เป็นอันตรายต่อสุขภาพ');
@@ -258,7 +246,6 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
     }
 
     const payload: EstablishmentFormValues = {
-      regNumber: regNumber.trim(),
       regType,
       category,
       categoryName,
@@ -303,7 +290,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       <div className="ui-card ui-card-pad space-y-4">
         <h3 className="ui-section-title">ข้อมูลคำขอและประเภทใบอนุญาต</h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="ui-grid-4">
           <div>
             <label className="ui-label">
               ประเภทคำขอ (Regime)<span className="req">*</span>
@@ -320,17 +307,6 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
               <option value="นส">แบบ นส. (ขายที่สาธารณะ)</option>
               <option value="ปป">แบบ ปป. (สิ่งปฏิกูล)</option>
             </select>
-          </div>
-
-          <div>
-            <label className="ui-label">เลขคำขอ / เลขทะเบียน</label>
-            <input
-              type="text"
-              value={regNumber}
-              onChange={(e) => setRegNumber(e.target.value)}
-              placeholder="เช่น นจ-69-0011"
-              className="ui-input font-mono font-bold text-blue-700 bg-blue-50/50"
-            />
           </div>
 
           <div>

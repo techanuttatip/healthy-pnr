@@ -241,43 +241,12 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
   const totalFees = filteredReportList.reduce((acc, curr) => acc + (curr.feeAmount || 0), 0);
 
   return (
-    <div className="flex flex-col h-full bg-transparent text-slate-800 print:block print:h-auto print:overflow-visible">
+    <div className="flex flex-col h-full bg-transparent text-slate-800">
       <style>{`
         @media print {
           @page {
             size: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? 'landscape' : 'portrait'};
-            margin: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '10mm 12mm 10mm 15mm' : '10mm 12mm 10mm 18mm'};
-          }
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          #printable-certificate,
-          #printable-temp-notice,
-          #printable-application-form,
-          .printable-doc-root {
-            padding: 0 !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            width: 100% !important;
-            max-width: none !important;
-            min-height: auto !important;
-            height: auto !important;
-            overflow: visible !important;
-            font-family: 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif !important;
-            text-align: left !important;
-          }
-          .printable-doc-root p,
-          #printable-certificate p,
-          #printable-temp-notice p,
-          #printable-application-form p {
-            text-align: left !important;
-            text-justify: none !important;
-            word-break: normal !important;
+            margin: 8mm;
           }
         }
       `}</style>
@@ -299,14 +268,14 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
                   {printViewMode === 'garuda'
                     ? displayCode
                     : printViewMode === 'temp_notice'
-                    ? tempNoticeCode
-                    : printViewMode === 'replacement_cert'
-                    ? `${displayCode} (ใบแทน)`
-                    : printViewMode === 'application'
-                    ? applicationCode
-                    : printViewMode === 'register_report'
-                    ? (reportYearFilter !== 'all' ? `ทะเบียนคุม ปี ${reportYearFilter}` : 'ทะเบียนคุมรายการ (ทุกปี)')
-                    : displayCode}
+                      ? tempNoticeCode
+                      : printViewMode === 'replacement_cert'
+                        ? `${displayCode} (ใบแทน)`
+                        : printViewMode === 'application'
+                          ? applicationCode
+                          : printViewMode === 'register_report'
+                            ? (reportYearFilter !== 'all' ? `ทะเบียนคุม ปี ${reportYearFilter}` : 'ทะเบียนคุมรายการ (ทุกปี)')
+                            : displayCode}
                 </span>
               </div>
             </div>
@@ -412,9 +381,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             <button
               type="button"
               onClick={() => setPrintViewMode('garuda')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                printViewMode === 'garuda' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-              }`}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${printViewMode === 'garuda' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                }`}
               title="ใบอนุญาตตัวจริง / หนังสือรับรองตัวจริงพร้อมตราครุฑ"
             >
               <FileText className={`w-3.5 h-3.5 ${printViewMode === 'garuda' ? 'text-white' : 'text-blue-600'}`} />
@@ -424,9 +392,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             <button
               type="button"
               onClick={() => setPrintViewMode('temp_notice')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                printViewMode === 'temp_notice' ? 'bg-cyan-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-              }`}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${printViewMode === 'temp_notice' ? 'bg-cyan-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                }`}
               title="ใบรับคำขอออกในวันเดียวกัน (Day-1)"
             >
               <FileCheck2 className={`w-3.5 h-3.5 ${printViewMode === 'temp_notice' ? 'text-white' : 'text-cyan-600'}`} />
@@ -436,9 +403,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             <button
               type="button"
               onClick={() => setPrintViewMode('application')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                printViewMode === 'application' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-              }`}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${printViewMode === 'application' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                }`}
               title="แบบคำขอรับใบอนุญาต/ต่ออายุ"
             >
               <FileText className={`w-3.5 h-3.5 ${printViewMode === 'application' ? 'text-white' : 'text-emerald-600'}`} />
@@ -448,9 +414,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             <button
               type="button"
               onClick={() => setPrintViewMode('replacement_cert')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                printViewMode === 'replacement_cert' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-              }`}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${printViewMode === 'replacement_cert' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                }`}
               title="ใบแทนใบอนุญาต กรณีสูญหาย/ชำรุด"
             >
               <ShieldCheck className={`w-3.5 h-3.5 ${printViewMode === 'replacement_cert' ? 'text-white' : 'text-rose-600'}`} />
@@ -460,9 +425,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             <button
               type="button"
               onClick={() => setPrintViewMode('register_report')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                printViewMode === 'register_report' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-              }`}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${printViewMode === 'register_report' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                }`}
               title="รายงานทะเบียนคุมรายการทั้งหมด A4 แนวนอน"
             >
               <TableProperties className={`w-3.5 h-3.5 ${printViewMode === 'register_report' ? 'text-white' : 'text-teal-600'}`} />
@@ -474,7 +438,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
 
 
       {/* A4 Paper Viewport */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 flex justify-center bg-slate-900/10 backdrop-blur-xs rounded-2xl print:block print:p-0 print:bg-white print:overflow-visible print:backdrop-blur-none print:border-none print:rounded-none border border-white/60">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 flex justify-center bg-slate-900/10 backdrop-blur-xs rounded-2xl print:p-0 print:bg-white print:overflow-visible border border-white/60">
         {(printViewMode === 'garuda' || printViewMode === 'replacement_cert') && activeEstablishment && (
           <GarudaLicenseDoc
             establishment={activeEstablishment}

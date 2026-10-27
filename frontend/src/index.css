@@ -44,10 +44,12 @@
   overflow-y: auto;
   padding: 24px 28px 40px;
 }
+
 .ui-page-narrow {
   max-width: 880px;
   margin: 0 auto;
 }
+
 .ui-page-header {
   display: flex;
   align-items: flex-end;
@@ -56,6 +58,7 @@
   flex-wrap: wrap;
   margin-bottom: 20px;
 }
+
 .ui-title {
   font-size: 22px;
   font-weight: 700;
@@ -63,11 +66,13 @@
   line-height: 1.3;
   margin: 0;
 }
+
 .ui-subtitle {
   font-size: 14px;
   color: var(--ui-muted);
   margin-top: 4px;
 }
+
 .ui-section-title {
   font-size: 16px;
   font-weight: 600;
@@ -82,7 +87,11 @@
   border-radius: var(--ui-radius-lg);
   box-shadow: var(--ui-shadow);
 }
-.ui-card-pad { padding: 20px; }
+
+.ui-card-pad {
+  padding: 20px;
+}
+
 .ui-card-head {
   padding: 16px 20px;
   border-bottom: 1px solid var(--ui-border);
@@ -100,7 +109,12 @@
   color: var(--ui-text-2);
   margin-bottom: 6px;
 }
-.ui-label .req { color: var(--ui-danger); margin-left: 2px; }
+
+.ui-label .req {
+  color: var(--ui-danger);
+  margin-left: 2px;
+}
+
 .ui-input {
   width: 100%;
   height: 42px;
@@ -114,19 +128,55 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   font-family: inherit;
 }
-textarea.ui-input { height: auto; padding: 10px 12px; min-height: 84px; resize: vertical; }
+
+textarea.ui-input {
+  height: auto;
+  padding: 10px 12px;
+  min-height: 84px;
+  resize: vertical;
+}
+
 .ui-input:focus {
   border-color: var(--ui-primary);
   box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
 }
-.ui-input::placeholder { color: #9ca3af; }
-.ui-hint { font-size: 12px; color: var(--ui-muted); margin-top: 4px; }
-.ui-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.ui-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+
+.ui-input::placeholder {
+  color: #9ca3af;
+}
+
+.ui-hint {
+  font-size: 12px;
+  color: var(--ui-muted);
+  margin-top: 4px;
+}
+
+.ui-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ui-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
 @media (max-width: 720px) {
-  .ui-grid-2, .ui-grid-3 { grid-template-columns: 1fr; }
-  .ui-page { padding: 16px 14px 96px; }
-  .ui-title { font-size: 20px; }
+
+  .ui-grid-2,
+  .ui-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .ui-page {
+    padding: 16px 14px 96px;
+  }
+
+  .ui-title {
+    font-size: 20px;
+  }
 }
 
 /* ---------- Buttons ---------- */
@@ -146,21 +196,83 @@ textarea.ui-input { height: auto; padding: 10px 12px; min-height: 84px; resize: 
   font-family: inherit;
   user-select: none;
 }
-.ui-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.ui-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-.ui-btn-primary { background: var(--ui-primary); color: #fff; }
-.ui-btn-primary:hover:not(:disabled) { background: var(--ui-primary-hover); }
-.ui-btn-secondary { background: var(--ui-surface); color: var(--ui-text-2); border-color: var(--ui-border-strong); }
-.ui-btn-secondary:hover:not(:disabled) { background: var(--ui-surface-2); color: var(--ui-text); }
-.ui-btn-ghost { background: transparent; color: var(--ui-text-2); }
-.ui-btn-ghost:hover:not(:disabled) { background: #eef1f5; }
-.ui-btn-success { background: var(--ui-success); color: #fff; }
-.ui-btn-success:hover:not(:disabled) { background: #065f46; }
-.ui-btn-danger { background: var(--ui-surface); color: var(--ui-danger); border-color: #f3c4c4; }
-.ui-btn-danger:hover:not(:disabled) { background: var(--ui-danger-soft); }
-.ui-btn-lg { height: 52px; font-size: 16px; padding: 0 24px; border-radius: 12px; }
-.ui-btn-sm { height: 34px; font-size: 13px; padding: 0 12px; }
-.ui-btn-icon { width: 38px; padding: 0; }
+
+.ui-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ui-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.ui-btn-primary {
+  background: var(--ui-primary);
+  color: #fff;
+}
+
+.ui-btn-primary:hover:not(:disabled) {
+  background: var(--ui-primary-hover);
+}
+
+.ui-btn-secondary {
+  background: var(--ui-surface);
+  color: var(--ui-text-2);
+  border-color: var(--ui-border-strong);
+}
+
+.ui-btn-secondary:hover:not(:disabled) {
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+}
+
+.ui-btn-ghost {
+  background: transparent;
+  color: var(--ui-text-2);
+}
+
+.ui-btn-ghost:hover:not(:disabled) {
+  background: #eef1f5;
+}
+
+.ui-btn-success {
+  background: var(--ui-success);
+  color: #fff;
+}
+
+.ui-btn-success:hover:not(:disabled) {
+  background: #065f46;
+}
+
+.ui-btn-danger {
+  background: var(--ui-surface);
+  color: var(--ui-danger);
+  border-color: #f3c4c4;
+}
+
+.ui-btn-danger:hover:not(:disabled) {
+  background: var(--ui-danger-soft);
+}
+
+.ui-btn-lg {
+  height: 52px;
+  font-size: 16px;
+  padding: 0 24px;
+  border-radius: 12px;
+}
+
+.ui-btn-sm {
+  height: 34px;
+  font-size: 13px;
+  padding: 0 12px;
+}
+
+.ui-btn-icon {
+  width: 38px;
+  padding: 0;
+}
 
 /* ---------- Pills / Status ---------- */
 .ui-pill {
@@ -176,10 +288,26 @@ textarea.ui-input { height: auto; padding: 10px 12px; min-height: 84px; resize: 
   color: var(--ui-text-2);
   white-space: nowrap;
 }
-.ui-pill-success { background: var(--ui-success-soft); color: var(--ui-success); }
-.ui-pill-warning { background: var(--ui-warning-soft); color: var(--ui-warning); }
-.ui-pill-danger { background: var(--ui-danger-soft); color: var(--ui-danger); }
-.ui-pill-primary { background: var(--ui-primary-soft); color: var(--ui-primary); }
+
+.ui-pill-success {
+  background: var(--ui-success-soft);
+  color: var(--ui-success);
+}
+
+.ui-pill-warning {
+  background: var(--ui-warning-soft);
+  color: var(--ui-warning);
+}
+
+.ui-pill-danger {
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger);
+}
+
+.ui-pill-primary {
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary);
+}
 
 /* ---------- Tabs ---------- */
 .ui-tabs {
@@ -189,6 +317,7 @@ textarea.ui-input { height: auto; padding: 10px 12px; min-height: 84px; resize: 
   background: #e9edf2;
   border-radius: 12px;
 }
+
 .ui-tab {
   height: 36px;
   padding: 0 16px;
@@ -201,17 +330,34 @@ textarea.ui-input { height: auto; padding: 10px 12px; min-height: 84px; resize: 
   cursor: pointer;
   font-family: inherit;
 }
-.ui-tab[aria-selected="true"] { background: #fff; color: var(--ui-text); box-shadow: var(--ui-shadow); }
+
+.ui-tab[aria-selected="true"] {
+  background: #fff;
+  color: var(--ui-text);
+  box-shadow: var(--ui-shadow);
+}
 
 /* ---------- Workspace density fix ----------
    Legacy screens used 9–11px text everywhere. Inside the workspace we raise
    the minimum so pages read comfortably on 13–14" laptops. */
 .ui-scope .text-\[9px\],
-.ui-scope .text-\[9\.5px\] { font-size: 11px !important; }
+.ui-scope .text-\[9\.5px\] {
+  font-size: 11px !important;
+}
+
 .ui-scope .text-\[10px\],
-.ui-scope .text-\[10\.5px\] { font-size: 12px !important; }
-.ui-scope .text-\[11px\] { font-size: 12.5px !important; }
-.ui-scope .text-xs { font-size: 13px; line-height: 1.45; }
+.ui-scope .text-\[10\.5px\] {
+  font-size: 12px !important;
+}
+
+.ui-scope .text-\[11px\] {
+  font-size: 12.5px !important;
+}
+
+.ui-scope .text-xs {
+  font-size: 13px;
+  line-height: 1.45;
+}
 
 /* Sticky action bar (forms) */
 .ui-actionbar {
@@ -228,12 +374,24 @@ textarea.ui-input { height: auto; padding: 10px 12px; min-height: 84px; resize: 
 }
 
 @keyframes ui-fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
-}
-.ui-fade-in { animation: ui-fade-in 0.2s ease-out; }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
 
-html, body, #root {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ui-fade-in {
+  animation: ui-fade-in 0.2s ease-out;
+}
+
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -246,7 +404,11 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, .font-heading {
+h1,
+h2,
+h3,
+h4,
+.font-heading {
   font-family: "IBM Plex Sans Thai", "Prompt", sans-serif;
   letter-spacing: -0.01em;
 }
@@ -377,31 +539,37 @@ h1, h2, h3, h4, .font-heading {
   font-weight: 600;
   line-height: 1rem;
 }
+
 .badge-gov-success {
   background-color: #ecfdf5;
   color: #047857;
   border: 1px solid #a7f3d0;
 }
+
 .badge-gov-info {
   background-color: #eff6ff;
   color: #1d4ed8;
   border: 1px solid #bfdbfe;
 }
+
 .badge-gov-warning {
   background-color: #fffbeb;
   color: #b45309;
   border: 1px solid #fde68a;
 }
+
 .badge-gov-danger {
   background-color: #fef2f2;
   color: #b91c1c;
   border: 1px solid #fecaca;
 }
+
 .badge-gov-purple {
   background-color: #faf5ff;
   color: #6b21a8;
   border: 1px solid #e9d5ff;
 }
+
 .badge-gov-neutral {
   background-color: #f1f5f9;
   color: #475569;
@@ -410,8 +578,13 @@ h1, h2, h3, h4, .font-heading {
 
 /* Skeleton Loading Animation */
 @keyframes gov-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton-shimmer {
@@ -424,6 +597,7 @@ h1, h2, h3, h4, .font-heading {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -435,10 +609,12 @@ h1, h2, h3, h4, .font-heading {
   width: 4px;
   height: 4px;
 }
+
 .bg-slate-900 ::-webkit-scrollbar-track,
 .bg-slate-900::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .bg-slate-900 ::-webkit-scrollbar-thumb,
 .bg-slate-900::-webkit-scrollbar-thumb {
   background: #334155;
@@ -450,13 +626,16 @@ h1, h2, h3, h4, .font-heading {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
@@ -472,7 +651,9 @@ a:focus-visible {
 }
 
 /* Smooth transitions for interactive elements */
-button, a, select {
+button,
+a,
+select {
   transition: all 0.15s ease;
 }
 
@@ -505,7 +686,8 @@ button, a, select {
     overflow: visible !important;
   }
 
-  html, body {
+  html,
+  body {
     height: auto !important;
     min-height: 100% !important;
     width: 100% !important;
@@ -520,7 +702,7 @@ button, a, select {
   }
 
   body:not(.has-print-modal):not(:has(.modal-print-container)) #root,
-  body:not(.has-print-modal):not(:has(.modal-print-container)) #root > div,
+  body:not(.has-print-modal):not(:has(.modal-print-container)) #root>div,
   body:not(.has-print-modal):not(:has(.modal-print-container)) main {
     height: auto !important;
     width: 100% !important;
@@ -628,24 +810,4 @@ button, a, select {
   #printable-register-report th {
     background-color: transparent !important;
   }
-}
-
-/* Official Thai Government Standard Typography (ระเบียบสำนักนายกรัฐมนตรีว่าด้วยงานสารบรรณ) */
-.font-sarabun,
-.printable-doc-root,
-#printable-certificate,
-#printable-temp-notice,
-#printable-application-form,
-#printable-register-report,
-#printable-renewal-notice {
-  font-family: 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', 'Charm', sans-serif !important;
-}
-
-.printable-doc-root p,
-#printable-certificate p,
-#printable-temp-notice p,
-#printable-application-form p {
-  text-align: left !important;
-  text-justify: none !important;
-  word-break: normal !important;
 }

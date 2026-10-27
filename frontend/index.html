@@ -1,49 +1,56 @@
 <!doctype html>
 <html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/pnr_logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0c1a2e" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="ตรวจสนาม PNR" />
-    <link rel="apple-touch-icon" href="/pnr_logo.png" />
-    <link rel="manifest" href="/manifest-inspector.webmanifest" />
-    <script>
-      (function() {
-        try {
-          var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-          var search = window.location.search;
-          var pathname = window.location.pathname.toLowerCase();
-          var isInspector = search.indexOf('inspector') !== -1 || 
-                            search.indexOf('mobile') !== -1 || 
-                            search.indexOf('pwa') !== -1 ||
-                            pathname.indexOf('/inspector') !== -1 ||
-                            pathname.indexOf('/mobile') !== -1 ||
-                            pathname.indexOf('/pwa') !== -1;
 
-          if (isInspector) {
-            localStorage.setItem('pwa_launch_mode', 'inspector');
-          } else if (isStandalone || (window.innerWidth <= 820 && localStorage.getItem('pwa_launch_mode') === 'inspector')) {
-            if (pathname === '/' || pathname === '') {
-              window.location.replace('/?app=inspector');
-            }
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/pnr_logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0c1a2e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ตรวจสนาม PNR" />
+  <link rel="apple-touch-icon" href="/pnr_logo.png" />
+  <link rel="manifest" href="/manifest-inspector.webmanifest" />
+  <script>
+    (function () {
+      try {
+        var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        var search = window.location.search;
+        var pathname = window.location.pathname.toLowerCase();
+        var isInspector = search.indexOf('inspector') !== -1 ||
+          search.indexOf('mobile') !== -1 ||
+          search.indexOf('pwa') !== -1 ||
+          pathname.indexOf('/inspector') !== -1 ||
+          pathname.indexOf('/mobile') !== -1 ||
+          pathname.indexOf('/pwa') !== -1;
+
+        if (isInspector) {
+          localStorage.setItem('pwa_launch_mode', 'inspector');
+        } else if (isStandalone || (window.innerWidth <= 820 && localStorage.getItem('pwa_launch_mode') === 'inspector')) {
+          if (pathname === '/' || pathname === '') {
+            window.location.replace('/?app=inspector');
           }
-        } catch (e) {}
-      })();
-    </script>
-    <meta name="description" content="ระบบบริการอิเล็กทรอนิกส์ด้านการอนุญาต/การแจ้ง (e-Service) ตาม พ.ร.บ. การสาธารณสุข พ.ศ. ๒๕๓๕ องค์การบริหารส่วนตำบลโป่งน้ำร้อน อำเภอฝาง จังหวัดเชียงใหม่" />
-    <title>ระบบบริการ e-Service งานทะเบียนใบอนุญาต (พ.ร.บ. สาธารณสุข ๓๕) — อบต.โป่งน้ำร้อน</title>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <!-- Google Fonts: IBM Plex Sans Thai, Sarabun, Prompt -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Prompt:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-slate-100 text-slate-800 overflow-hidden font-sans">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+        }
+      } catch (e) { }
+    })();
+  </script>
+  <meta name="description"
+    content="ระบบบริการอิเล็กทรอนิกส์ด้านการอนุญาต/การแจ้ง (e-Service) ตาม พ.ร.บ. การสาธารณสุข พ.ศ. ๒๕๓๕ องค์การบริหารส่วนตำบลโป่งน้ำร้อน อำเภอฝาง จังหวัดเชียงใหม่" />
+  <title>ระบบบริการ e-Service งานทะเบียนใบอนุญาต (พ.ร.บ. สาธารณสุข ๓๕) — อบต.โป่งน้ำร้อน</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Google Fonts: IBM Plex Sans Thai, Sarabun, Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Prompt:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body class="bg-slate-100 text-slate-800 overflow-hidden font-sans">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

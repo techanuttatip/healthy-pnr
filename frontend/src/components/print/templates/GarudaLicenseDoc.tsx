@@ -104,13 +104,14 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
   return (
     <div
       id="printable-certificate"
-      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-8 sm:p-10 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative overflow-hidden"
+      className="printable-doc-root w-full max-w-[210mm] bg-white text-black p-6 sm:p-8 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative"
       style={{
         fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
         textAlign: 'left',
-        fontSize: '16pt',
-        lineHeight: '1.65',
-        color: '#000000'
+        fontSize: '15pt',
+        lineHeight: '1.5',
+        color: '#000000',
+        minHeight: '297mm'
       }}
     >
       {/* Background Watermark */}
@@ -124,107 +125,244 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
 
       {/* Header Section */}
       <div className="relative z-10">
-        <div className="flex justify-between items-start text-[15pt] text-black mb-1">
-          <div className="font-bold">
-            เล่มที่{' '}
-            <span className="font-bold text-black px-1">
+        {/* Top Header: เล่มที่ / เลขที่ / แบบพิมพ์ */}
+        <div className="flex justify-between items-start text-[14pt] text-black mb-1">
+          <div className="font-bold flex items-center">
+            <span>เล่มที่</span>
+            <div className="border-b border-dotted border-black min-w-[70px] text-center font-bold px-2 ml-1">
               {establishment.bookNo && establishment.bookNo !== '-'
                 ? establishment.bookNo
                 : establishment.receiptBookNo && establishment.receiptBookNo !== '-'
                 ? establishment.receiptBookNo
                 : '............'}
-            </span>
+            </div>
           </div>
           <div className="text-right flex flex-col items-end">
             {mode === 'replacement_cert' && (
-              <span className="font-bold text-red-600 border border-red-600 px-2.5 py-0.5 rounded text-[13pt] tracking-wider mb-1">
+              <span className="font-bold text-red-600 border border-red-600 px-2 py-0.5 rounded text-[12pt] tracking-wider mb-0.5">
                 [ ใบแทน ]
               </span>
             )}
-            <span className="font-bold border border-black px-3 py-0.5 rounded text-[14pt]">
+            <span className="font-bold border border-black px-2.5 py-0.5 rounded text-[13pt] leading-tight">
               {officialBadgeCode}
             </span>
-            <div className="mt-1 font-bold">
-              เลขที่{' '}
-              <span className="font-bold text-black px-1">
+            <div className="mt-0.5 font-bold flex items-center justify-end">
+              <span>เลขที่</span>
+              <div className="border-b border-dotted border-black min-w-[90px] text-center font-bold px-2 ml-1">
                 {establishment.docNo || establishment.regNumber || '............'}
-              </span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Garuda Emblem */}
-        <div className="garuda-emblem-container flex justify-center my-1 relative z-10">
+        <div className="garuda-emblem-container flex justify-center my-0.5 relative z-10">
           <img
             src="/garuda.png"
             alt="ตราครุฑประจำแบบพิมพ์ราชการ"
-            className="w-[30mm] h-[30mm] object-contain filter contrast-125"
+            className="w-[28mm] h-[28mm] object-contain filter contrast-125"
           />
         </div>
 
         {/* Title Header */}
-        <div className="text-center my-2">
-          <h1 className="text-[22pt] font-bold tracking-tight text-black leading-snug whitespace-pre-line">
+        <div className="text-center my-1.5">
+          <h1 className="text-[20pt] font-bold tracking-tight text-black leading-snug whitespace-pre-line">
             {formTitle}
           </h1>
-          <p className="text-[15pt] text-black mt-0.5">
+          <p className="text-[14pt] text-black mt-0.5">
             อาศัยอำนาจตามความในพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕
           </p>
         </div>
 
-        {/* Body Content */}
+        {/* Body Content - Form Lines */}
         <div
-          className="doc-body-content text-[16pt] text-black mt-3 text-left"
+          className="doc-body-content text-[15pt] text-black space-y-1.5 mt-2 text-left"
           style={{
             fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
-            textAlign: 'left',
-            lineHeight: '26pt'
+            textAlign: 'left'
           }}
         >
           {isHazardous ? (
             /* ================== แบบ อภ.๒: กิจการที่เป็นอันตรายต่อสุขภาพ ================== */
             <>
-              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
-                <span className="font-bold">(๑)</span> เจ้าพนักงานท้องถิ่นออกใบอนุญาตให้{' '}
-                <span className="font-bold">{establishment.ownerName}</span> อายุ{' '}
-                <span className="font-bold">{resolvedAge}</span> ปี สัญชาติไทย อยู่บ้านเลขที่{' '}
-                <span className="font-bold">{ownerAddr.formatted}</span>{' '}
-                โทรศัพท์ <span className="font-bold">{establishment.phone || '-'}</span>{' '}
-                {establishment.fax && establishment.fax !== '-' ? (
-                  <>โทรสาร <span className="font-bold">{establishment.fax}</span>{' '}</>
-                ) : null}
-                เพื่อประกอบกิจการที่เป็นอันตรายต่อสุขภาพ ประเภท{' '}
-                <span className="font-bold">
-                  {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
-                </span>{' '}
-                ชื่อสถานประกอบกิจการ <span className="font-bold">"{establishment.businessName}"</span>{' '}
-                ลักษณะของสถานที่ประกอบกิจการ <span className="font-bold">{displayedPremise}</span>{' '}
-                มีพื้นที่ <span className="font-bold">{establishment.areaSqm}</span> ตารางเมตร{' '}
-                จำนวนคนงาน <span className="font-bold">{establishment.workerCount}</span> คน{' '}
-                {establishment.machineHorsepower ? (
-                  <>กำลังเครื่องจักร <span className="font-bold">{establishment.machineHorsepower}</span> แรงม้า{' '}</>
-                ) : null}
-                สถานที่ตั้ง เลขที่ <span className="font-bold">{premiseAddr.formatted}</span>{' '}
-                โทรศัพท์ <span className="font-bold">{establishment.phone || '-'}</span>{' '}
-                เสียค่าธรรมเนียมปีละ{' '}
-                <span className="font-bold">
-                  {establishment.feeAmount.toLocaleString()}
-                </span>{' '}
-                บาท ({thaiBahtText(establishment.feeAmount)}){' '}
-                ตามใบเสร็จรับเงินเล่มที่ <span className="font-bold">{receiptBookDisplay}</span>{' '}
-                เลขที่ <span className="font-bold">{receiptNoDisplay}</span>{' '}
-                ลงวันที่ <span className="font-bold">{receiptDateDisplay || '........................'}</span>
-              </p>
+              {/* Line 1: ผู้รับใบอนุญาต */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 font-bold mr-1">(๑)</span>
+                <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่นออกใบอนุญาตให้</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                  {establishment.ownerName}
+                </div>
+                <span className="shrink-0 mx-1.5">อายุ</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {resolvedAge}
+                </div>
+                <span className="shrink-0 mx-1.5">ปี</span>
+                <span className="shrink-0 mr-1.5">สัญชาติ</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  ไทย
+                </div>
+              </div>
 
-              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', marginTop: '10pt', marginBottom: 0 }}>
+              {/* Line 2: ที่อยู่ตามทะเบียนบ้าน */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {ownerAddr.houseNo || '-'}
+                </div>
+                <span className="shrink-0 mx-1.5">หมู่ที่</span>
+                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {ownerAddr.mooNumber || '-'}
+                </div>
+                {ownerAddr.villageName ? (
+                  <>
+                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                      {ownerAddr.villageName}
+                    </div>
+                    <span className="shrink-0 mx-0.5"></span>
+                  </>
+                ) : null}
+                <span className="shrink-0 mx-1.5">ตำบล</span>
+                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  โป่งน้ำร้อน
+                </div>
+                <span className="shrink-0 mx-1.5">อำเภอ</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {districtName.replace('อำเภอ', '')}
+                </div>
+                <span className="shrink-0 mx-1.5">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {provinceName.replace('จังหวัด', '')}
+                </div>
+              </div>
+
+              {/* Line 3: โทรศัพท์ / โทรสาร */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">โทรศัพท์</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                  {establishment.phone || '-'}
+                </div>
+                <span className="shrink-0 mx-3">โทรสาร</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                  {establishment.fax && establishment.fax !== '-' ? establishment.fax : '-'}
+                </div>
+              </div>
+
+              {/* Line 4: ประเภทกิจการ */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">เพื่อประกอบกิจการที่เป็นอันตรายต่อสุขภาพ ประเภท</span>
+                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative truncate text-[14pt]">
+                  {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
+                </div>
+              </div>
+
+              {/* Line 5: ชื่อสถานประกอบกิจการ */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">ชื่อสถานประกอบกิจการ</span>
+                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative text-blue-950">
+                  "{establishment.businessName}"
+                </div>
+              </div>
+
+              {/* Line 6: ลักษณะสถานที่ */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
+                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
+                  {displayedPremise}
+                </div>
+              </div>
+
+              {/* Line 7: พื้นที่ / คนงาน / เครื่องจักร */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">มีพื้นที่</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {establishment.areaSqm}
+                </div>
+                <span className="shrink-0 mx-1.5">ตารางเมตร</span>
+                <span className="shrink-0 mx-1.5">จำนวนคนงาน</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {establishment.workerCount}
+                </div>
+                <span className="shrink-0 mx-1.5">คน</span>
+                <span className="shrink-0 mx-1.5">กำลังเครื่องจักร</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[60px]">
+                  {establishment.machineHorsepower || '-'}
+                </div>
+                <span className="shrink-0 ml-1.5">แรงม้า</span>
+              </div>
+
+              {/* Line 8: สถานที่ตั้งร้าน */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {premiseAddr.houseNo || '-'}
+                </div>
+                <span className="shrink-0 mx-1.5">หมู่ที่</span>
+                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {premiseAddr.mooNumber || '-'}
+                </div>
+                {premiseAddr.villageName ? (
+                  <>
+                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                      {premiseAddr.villageName}
+                    </div>
+                    <span className="shrink-0 mx-0.5"></span>
+                  </>
+                ) : null}
+                <span className="shrink-0 mx-1.5">ตำบล</span>
+                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  โป่งน้ำร้อน
+                </div>
+                <span className="shrink-0 mx-1.5">อำเภอ</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {districtName.replace('อำเภอ', '')}
+                </div>
+                <span className="shrink-0 mx-1.5">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {provinceName.replace('จังหวัด', '')}
+                </div>
+              </div>
+
+              {/* Line 9: ค่าธรรมเนียม */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">เสียค่าธรรมเนียมปีละ</span>
+                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {establishment.feeAmount.toLocaleString()}
+                </div>
+                <span className="shrink-0 mx-1.5">บาท</span>
+                <span className="shrink-0 mr-1">(</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative">
+                  {thaiBahtText(establishment.feeAmount)}
+                </div>
+                <span className="shrink-0 ml-1">)</span>
+              </div>
+
+              {/* Line 10: ใบเสร็จรับเงิน */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">ตามใบเสร็จรับเงินเล่มที่</span>
+                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {receiptBookDisplay}
+                </div>
+                <span className="shrink-0 mx-1.5">เลขที่</span>
+                <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {receiptNoDisplay}
+                </div>
+                <span className="shrink-0 mx-1.5">ลงวันที่</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative">
+                  {receiptDateDisplay || '................................'}
+                </div>
+              </div>
+
+              {/* Section 2 */}
+              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '20pt', marginTop: '6pt', marginBottom: 0 }}>
                 <span className="font-bold">(๒)</span> ผู้ได้รับใบอนุญาตต้องปฏิบัติตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ และที่แก้ไขเพิ่มเติม กฎกระทรวง และประกาศที่ออกตามพระราชบัญญัตินี้
               </p>
 
-              <div style={{ marginTop: '10pt' }}>
-                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
+              {/* Section 3 */}
+              <div style={{ marginTop: '5pt' }}>
+                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '20pt', margin: 0 }}>
                   <span className="font-bold">(๓)</span> ผู้ได้รับใบอนุญาตต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
                 </p>
-                <div style={{ paddingLeft: '3.5cm', fontSize: '15pt', lineHeight: '24pt', marginTop: '3pt' }} className="space-y-1">
+                <div style={{ paddingLeft: '3cm', fontSize: '13.5pt', lineHeight: '18pt', marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
                   <div>
                     <span className="font-semibold">๓.๑)</span> ต้องควบคุม ป้องกัน และระมัดระวังมิให้เกิดอันตราย อัคคีภัย การรั่วไหลของน้ำมันเชื้อเพลิง เสียง หรือมลพิษอื่นใดอันเป็นเหตุรำคาญหรือเป็นอันตรายต่อสุขภาพและความปลอดภัยของประชาชน
                   </div>
@@ -237,64 +375,208 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 </div>
               </div>
 
-              <div style={{ marginTop: '10pt' }} className="space-y-1">
-                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
-                  <span className="font-bold">(๔)</span> ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่{' '}
-                  <span className="font-bold">
+              {/* Section 4 & 5 */}
+              <div style={{ marginTop: '5pt' }} className="space-y-1">
+                <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
+                  <span className="shrink-0 font-bold mr-1">(๔)</span>
+                  <span className="shrink-0 mr-1.5">ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่</span>
+                  <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
                     {formatThaiDate(establishment.issueDate, false)}
-                  </span>
-                </p>
-                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
-                  <span className="font-bold">(๕)</span> ใบอนุญาตฉบับนี้สิ้นอายุวันที่{' '}
-                  <span className="font-bold">
+                  </div>
+                </div>
+                <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
+                  <span className="shrink-0 font-bold mr-1">(๕)</span>
+                  <span className="shrink-0 mr-1.5">ใบอนุญาตฉบับนี้สิ้นอายุวันที่</span>
+                  <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
                     {formatThaiDate(establishment.expireDate, false)}
-                  </span>
-                </p>
+                  </div>
+                </div>
               </div>
             </>
           ) : (
             /* ================== แบบ นจ.๓ หรือ แบบ บทอ.: จำหน่าย/สะสมอาหาร ================== */
             <>
-              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
-                <span className="font-bold">(๑)</span> เจ้าพนักงานท้องถิ่น{isFoodLicense ? 'ออกใบอนุญาตให้' : 'ออกหนังสือรับรองการแจ้งให้'}{' '}
-                <span className="font-bold">{establishment.ownerName}</span> อายุ{' '}
-                <span className="font-bold">{resolvedAge}</span> ปี สัญชาติไทย อยู่บ้านเลขที่{' '}
-                <span className="font-bold">{ownerAddr.formatted}</span>{' '}
-                โทรศัพท์ <span className="font-bold">{establishment.phone || '-'}</span>{' '}
-                {establishment.fax && establishment.fax !== '-' ? (
-                  <>โทรสาร <span className="font-bold">{establishment.fax}</span>{' '}</>
-                ) : null}
-                เพื่อจัดตั้ง{isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหาร'}{' '}
-                ชื่อสถานประกอบกิจการ <span className="font-bold">"{establishment.businessName}"</span>{' '}
-                {isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}{' '}
-                <span className="font-bold">{displayedFoodType}</span>{' '}
-                ลักษณะของสถานที่ประกอบกิจการ <span className="font-bold">{displayedPremise}</span>{' '}
-                วิธีการจำหน่าย <span className="font-bold">{displayedDistribution}</span>{' '}
-                ช่วงเวลาที่จำหน่าย <span className="font-bold">{establishment.operatingHours || '07:00 - 19:00 น.'}</span>{' '}
-                มีพื้นที่ <span className="font-bold">{establishment.areaSqm}</span> ตารางเมตร{' '}
-                {isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}{' '}
-                <span className="font-bold">{establishment.workerCount}</span> คน{' '}
-                สถานที่ตั้ง เลขที่ <span className="font-bold">{premiseAddr.formatted}</span>{' '}
-                โทรศัพท์ <span className="font-bold">{establishment.phone || '-'}</span>{' '}
-                เสียค่าธรรมเนียมปีละ{' '}
-                <span className="font-bold">
-                  {establishment.feeAmount.toLocaleString()}
-                </span>{' '}
-                บาท ({thaiBahtText(establishment.feeAmount)}){' '}
-                ตามใบเสร็จรับเงินเล่มที่ <span className="font-bold">{receiptBookDisplay}</span>{' '}
-                เลขที่ <span className="font-bold">{receiptNoDisplay}</span>{' '}
-                ลงวันที่ <span className="font-bold">{receiptDateDisplay || '........................'}</span>
-              </p>
+              {/* Line 1: ผู้รับหนังสือรับรอง */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 font-bold mr-1">(๑)</span>
+                <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่น{isFoodLicense ? 'ออกใบอนุญาตให้' : 'ออกหนังสือรับรองการแจ้งให้'}</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                  {establishment.ownerName}
+                </div>
+                <span className="shrink-0 mx-1.5">อายุ</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {resolvedAge}
+                </div>
+                <span className="shrink-0 mx-1.5">ปี</span>
+                <span className="shrink-0 mr-1.5">สัญชาติ</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  ไทย
+                </div>
+              </div>
 
-              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', marginTop: '10pt', marginBottom: 0 }}>
+              {/* Line 2: ที่อยู่ตามทะเบียนบ้าน */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {ownerAddr.houseNo || '-'}
+                </div>
+                <span className="shrink-0 mx-1.5">หมู่ที่</span>
+                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {ownerAddr.mooNumber || '-'}
+                </div>
+                {ownerAddr.villageName ? (
+                  <>
+                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                      {ownerAddr.villageName}
+                    </div>
+                    <span className="shrink-0 mx-0.5"></span>
+                  </>
+                ) : null}
+                <span className="shrink-0 mx-1.5">ตำบล</span>
+                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  โป่งน้ำร้อน
+                </div>
+                <span className="shrink-0 mx-1.5">อำเภอ</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {districtName.replace('อำเภอ', '')}
+                </div>
+                <span className="shrink-0 mx-1.5">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {provinceName.replace('จังหวัด', '')}
+                </div>
+              </div>
+
+              {/* Line 3: โทรศัพท์ / โทรสาร */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">โทรศัพท์</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                  {establishment.phone || '-'}
+                </div>
+                <span className="shrink-0 mx-3">โทรสาร</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                  {establishment.fax && establishment.fax !== '-' ? establishment.fax : '-'}
+                </div>
+              </div>
+
+              {/* Line 4: เพื่อจัดตั้งสถานที่ */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">เพื่อจัดตั้ง{isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหาร'} ชื่อสถานประกอบกิจการ</span>
+                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative text-blue-950">
+                  "{establishment.businessName}"
+                </div>
+              </div>
+
+              {/* Line 5: ประเภทอาหาร */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">{isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}</span>
+                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
+                  {displayedFoodType}
+                </div>
+              </div>
+
+              {/* Line 6: ลักษณะสถานที่ และวิธีการจำหน่าย */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
+                <div className="w-44 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {displayedPremise}
+                </div>
+                <span className="shrink-0 mx-2">วิธีการจำหน่าย</span>
+                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
+                  {displayedDistribution}
+                </div>
+              </div>
+
+              {/* Line 7: เวลา / พื้นที่ / คนงาน */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
+                <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {establishment.operatingHours || '07:00 - 19:00 น.'}
+                </div>
+                <span className="shrink-0 mx-1.5">มีพื้นที่</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {establishment.areaSqm}
+                </div>
+                <span className="shrink-0 mx-1.5">ตารางเมตร</span>
+                <span className="shrink-0 mx-1.5">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[50px]">
+                  {establishment.workerCount}
+                </div>
+                <span className="shrink-0 ml-1.5">คน</span>
+              </div>
+
+              {/* Line 8: สถานที่ตั้งร้าน */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {premiseAddr.houseNo || '-'}
+                </div>
+                <span className="shrink-0 mx-1.5">หมู่ที่</span>
+                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {premiseAddr.mooNumber || '-'}
+                </div>
+                {premiseAddr.villageName ? (
+                  <>
+                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                      {premiseAddr.villageName}
+                    </div>
+                    <span className="shrink-0 mx-0.5"></span>
+                  </>
+                ) : null}
+                <span className="shrink-0 mx-1.5">ตำบล</span>
+                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  โป่งน้ำร้อน
+                </div>
+                <span className="shrink-0 mx-1.5">อำเภอ</span>
+                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {districtName.replace('อำเภอ', '')}
+                </div>
+                <span className="shrink-0 mx-1.5">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {provinceName.replace('จังหวัด', '')}
+                </div>
+              </div>
+
+              {/* Line 9: ค่าธรรมเนียม */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">เสียค่าธรรมเนียมปีละ</span>
+                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {establishment.feeAmount.toLocaleString()}
+                </div>
+                <span className="shrink-0 mx-1.5">บาท</span>
+                <span className="shrink-0 mr-1">(</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative">
+                  {thaiBahtText(establishment.feeAmount)}
+                </div>
+                <span className="shrink-0 ml-1">)</span>
+              </div>
+
+              {/* Line 10: ใบเสร็จรับเงิน */}
+              <div className="flex items-end w-full leading-[1.6]">
+                <span className="shrink-0 mr-1.5">ตามใบเสร็จรับเงินเล่มที่</span>
+                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {receiptBookDisplay}
+                </div>
+                <span className="shrink-0 mx-1.5">เลขที่</span>
+                <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
+                  {receiptNoDisplay}
+                </div>
+                <span className="shrink-0 mx-1.5">ลงวันที่</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative">
+                  {receiptDateDisplay || '................................'}
+                </div>
+              </div>
+
+              {/* Section 2 */}
+              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '20pt', marginTop: '6pt', marginBottom: 0 }}>
                 <span className="font-bold">(๒)</span> {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ และที่แก้ไขเพิ่มเติม กฎกระทรวง และประกาศที่ออกตามพระราชบัญญัตินี้
               </p>
 
-              <div style={{ marginTop: '10pt' }}>
-                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
+              {/* Section 3 */}
+              <div style={{ marginTop: '5pt' }}>
+                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '20pt', margin: 0 }}>
                   <span className="font-bold">(๓)</span> {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
                 </p>
-                <div style={{ paddingLeft: '3.5cm', fontSize: '15pt', lineHeight: '24pt', marginTop: '3pt' }} className="space-y-1">
+                <div style={{ paddingLeft: '3cm', fontSize: '13.5pt', lineHeight: '18pt', marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
                   <div>
                     <span className="font-semibold">๓.๑)</span> ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุข และข้อบัญญัติท้องถิ่น
                   </div>
@@ -304,19 +586,22 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 </div>
               </div>
 
-              <div style={{ marginTop: '10pt' }} className="space-y-1">
-                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
-                  <span className="font-bold">(๔)</span> {isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}{' '}
-                  <span className="font-bold">
+              {/* Section 4 & 5 */}
+              <div style={{ marginTop: '5pt' }} className="space-y-1">
+                <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
+                  <span className="font-bold mr-1">(๔)</span>
+                  <span className="shrink-0 mr-1.5">{isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}</span>
+                  <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
                     {formatThaiDate(establishment.issueDate, false)}
-                  </span>
-                </p>
-                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
-                  <span className="font-bold">(๕)</span> {isFoodLicense ? 'ใบอนุญาตฉบับนี้สิ้นอายุวันที่' : 'ครบกำหนดวันชำระค่าธรรมเนียม วันที่'}{' '}
-                  <span className="font-bold">
+                  </div>
+                </div>
+                <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
+                  <span className="font-bold mr-1">(๕)</span>
+                  <span className="shrink-0 mr-1.5">{isFoodLicense ? 'ใบอนุญาตฉบับนี้สิ้นอายุวันที่' : 'ครบกำหนดวันชำระค่าธรรมเนียม วันที่'}</span>
+                  <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
                     {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate, false)}
-                  </span>
-                </p>
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -324,41 +609,41 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
       </div>
 
       {/* Official Signatures Section */}
-      <div className="signatures-container relative z-10" style={{ marginTop: '20pt' }}>
+      <div className="signatures-container relative z-10" style={{ marginTop: '12pt' }}>
         <div className="flex justify-end items-end">
           {/* Local Mayor Signature */}
-          <div className="text-center w-80 relative">
+          <div className="text-center w-72 relative">
             <img
               src="/pnr_logo.png"
               alt="ตราประทับ อบต.โป่งน้ำร้อน"
-              className="w-28 h-28 object-contain opacity-25 absolute -top-4 left-4 rotate-[-6deg] pointer-events-none select-none print:opacity-35"
+              className="w-24 h-24 object-contain opacity-25 absolute -top-3 left-4 rotate-[-6deg] pointer-events-none select-none print:opacity-35"
             />
-            <div className="relative flex items-end justify-center min-h-[48px] mb-1">
-              <span className="text-[15pt] text-black shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
+              <span className="text-[14pt] text-black shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
               <div className="relative flex-1 mx-2 border-b border-dotted border-black h-8 flex items-end justify-center">
                 {sig.mayorSignatureUrl && (
                   <img
                     src={sig.mayorSignatureUrl}
                     alt="ลายมือชื่อนายก อบต."
-                    className="absolute -bottom-2 h-12 object-contain filter contrast-125 pointer-events-none"
+                    className="absolute -bottom-1.5 h-10 object-contain filter contrast-125 pointer-events-none"
                   />
                 )}
               </div>
             </div>
-            <div className="font-bold text-[16pt] text-black relative z-10 leading-tight">
+            <div className="font-bold text-[15pt] text-black relative z-10 leading-tight">
               ( {sig.mayorName && !sig.mayorName.includes('สมหมาย') ? sig.mayorName : 'นายสมคิด พงษ์สุข'} )
             </div>
-            <div className="text-[15pt] text-black mt-1 relative z-10 leading-tight">
+            <div className="text-[14pt] text-black mt-0.5 relative z-10 leading-tight">
               {sig.mayorPosition || 'นายกองค์การบริหารส่วนตำบลโป่งน้ำร้อน'}
             </div>
-            <div className="text-[14pt] font-semibold text-black mt-0.5 relative z-10 leading-tight">
+            <div className="text-[13pt] font-semibold text-black mt-0.5 relative z-10 leading-tight">
               {sig.mayorRoleTitle || 'เจ้าพนักงานท้องถิ่น'}
             </div>
           </div>
         </div>
 
         {/* Notes */}
-        <div className="border-t border-slate-300 text-[11pt] text-slate-700 leading-snug space-y-1" style={{ marginTop: '14pt', paddingTop: '6pt' }}>
+        <div className="border-t border-slate-300 text-[10pt] text-slate-700 leading-snug space-y-0.5" style={{ marginTop: '8pt', paddingTop: '4pt' }}>
           {mode === 'replacement_cert' && (
             <p className="font-medium text-black">
               <strong>หมายเหตุ (๑)</strong> {isHazardous ? 'ใบอนุญาตฉบับนี้เป็นการออกใบแทนใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ' : 'หนังสือรับรองการแจ้งฉบับนี้เป็นการออกใบแทนหนังสือรับรองการแจ้ง'} กรณีที่มีการแจ้งสูญหาย ถูกทำลาย หรือชำรุดในสาระสำคัญ ตามคำขอใบแทนเมื่อวันที่ {formatThaiDate(establishment.replacementRequestDate || establishment.issueDate, false)}

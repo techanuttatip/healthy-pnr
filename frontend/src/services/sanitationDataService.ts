@@ -139,7 +139,7 @@ class SanitationDataService {
 
   // ติดตามการเปลี่ยนแปลงข้อมูลแบบ Real-time จาก Supabase Cloud
   subscribeToChanges(callback: () => void): () => void {
-    if (!this.isCloudActive || !this.supabase) return () => {};
+    if (!this.isCloudActive || !this.supabase) return () => { };
     try {
       const channel = this.supabase
         .channel('pnr-sanitation-live-sync')
@@ -160,11 +160,11 @@ class SanitationDataService {
       return () => {
         try {
           this.supabase?.removeChannel(channel);
-        } catch {}
+        } catch { }
       };
     } catch (e) {
       console.warn('Realtime subscription error:', e);
-      return () => {};
+      return () => { };
     }
   }
 
@@ -183,7 +183,7 @@ class SanitationDataService {
           try {
             const saved = localStorage.getItem('PNR_OFFICERS_LIST');
             if (saved) localCached = JSON.parse(saved);
-          } catch {}
+          } catch { }
 
           const cloudOfficers: OfficerAccount[] = data.map((row: any) => {
             const local = localCached.find(l => l.officerCode === row.officer_code || l.id === row.id);
@@ -205,7 +205,7 @@ class SanitationDataService {
           });
           try {
             localStorage.setItem('PNR_OFFICERS_LIST', JSON.stringify(cloudOfficers));
-          } catch {}
+          } catch { }
           return cloudOfficers;
         }
       } catch (err) {
@@ -298,7 +298,7 @@ class SanitationDataService {
 
     try {
       localStorage.setItem('PNR_CURRENT_OFFICER', JSON.stringify(officer));
-    } catch {}
+    } catch { }
 
     const defIdx = DEFAULT_OFFICERS.findIndex(o => o.officerCode === officer.officerCode || o.id === officer.id);
     if (defIdx >= 0) {
@@ -310,7 +310,7 @@ class SanitationDataService {
       const bc = new BroadcastChannel('PNR_SANITATION_CHANNEL');
       bc.postMessage({ type: 'OFFICER_UPDATED', data: officer });
       bc.close();
-    } catch {}
+    } catch { }
 
     return officer;
   }
@@ -392,7 +392,7 @@ class SanitationDataService {
         try {
           const list: OfficerAccount[] = JSON.parse(listStr);
           if (list && list.length > 0) officer = list[0];
-        } catch {}
+        } catch { }
       }
     }
     if (!officer) {
@@ -516,8 +516,8 @@ class SanitationDataService {
     const effectivePremiseCharacteristics = (row.premise_characteristics && row.premise_characteristics !== '-')
       ? row.premise_characteristics
       : (fallbackEst?.premiseCharacteristics && fallbackEst.premiseCharacteristics !== '-')
-      ? fallbackEst.premiseCharacteristics
-      : 'ตึกเดี่ยว 1 ชั้น';
+        ? fallbackEst.premiseCharacteristics
+        : 'ตึกเดี่ยว 1 ชั้น';
     const effectiveScore = latestInsp ? Number(latestInsp.total_score) : (fallbackEst?.inspectionScore || 100);
 
     const effectiveLat = row.lat || latestInsp?.gps_checkin?.lat || fallbackEst?.lat || 19.9288;
@@ -635,7 +635,7 @@ class SanitationDataService {
       'est-045', 'est-046', 'est-047'
     ];
 
-    localCache = localCache.filter(item => 
+    localCache = localCache.filter(item =>
       !MOCK_IDS.includes(item.id) &&
       !MOCK_IDS.includes(item.regNumber) &&
       !deletedIds.includes(item.id) &&
@@ -692,7 +692,7 @@ class SanitationDataService {
           .order('created_at', { ascending: false });
 
         if (!error && data && data.length > 0) {
-          const nonDeletedData = data.filter((row: any) => 
+          const nonDeletedData = data.filter((row: any) =>
             !deletedIds.includes(row.id) && !deletedIds.includes(row.reg_number)
           );
           const merged = nonDeletedData.map((row: any) => {
@@ -834,32 +834,15 @@ class SanitationDataService {
       const dbRow = this.mapToDbRow(est);
       let estId: string = est.id;
 
-      // ๑. ตรวจสอบข้อมูลในตาราง establishments (ตรวจสอบด้วย ID ก่อน เพื่อรองรับกรณีผู้ใช้แก้ไขเลขที่คำขอ / reg_number)
-      let existingId: string | null = null;
-      if (est.id && !est.id.startsWith('est-')) {
-        const { data: byId } = await this.supabase
-          .from('establishments')
-          .select('id')
-          .eq('id', est.id)
-          .limit(1);
-        if (byId && byId.length > 0) {
-          existingId = byId[0].id;
-        }
-      }
+      // ๑. ตรวจสอบข้อมูลในตาราง establishments
+      const { data: existing } = await this.supabase
+        .from('establishments')
+        .select('id')
+        .eq('reg_number', est.regNumber)
+        .limit(1);
 
-      if (!existingId) {
-        const { data: existing } = await this.supabase
-          .from('establishments')
-          .select('id')
-          .eq('reg_number', est.regNumber)
-          .limit(1);
-        if (existing && existing.length > 0) {
-          existingId = existing[0].id;
-        }
-      }
-
-      if (existingId) {
-        estId = existingId;
+      if (existing && existing.length > 0) {
+        estId = existing[0].id;
         const { error: updErr } = await this.supabase
           .from('establishments')
           .update({
@@ -999,7 +982,7 @@ class SanitationDataService {
       const bc = new BroadcastChannel('PNR_SANITATION_CHANNEL');
       bc.postMessage({ type: 'ESTABLISHMENT_SAVED', data: est });
       bc.close();
-    } catch {}
+    } catch { }
 
     return est;
   }
@@ -1018,8 +1001,8 @@ class SanitationDataService {
       let currentList: Establishment[] = rawLocal ? JSON.parse(rawLocal) : [];
       const target = currentList.find(
         item => item.id === idOrRegNumber ||
-                item.regNumber === idOrRegNumber ||
-                (regNumberFallback && item.regNumber === regNumberFallback)
+          item.regNumber === idOrRegNumber ||
+          (regNumberFallback && item.regNumber === regNumberFallback)
       );
       const targetReg = target?.regNumber || regNumberFallback || idOrRegNumber;
       if (target?.regNumber && !deletedIds.includes(target.regNumber)) {
@@ -1032,8 +1015,8 @@ class SanitationDataService {
 
       const updatedList = currentList.filter(
         item => item.id !== idOrRegNumber &&
-                item.regNumber !== targetReg &&
-                (target ? item.id !== target.id : true)
+          item.regNumber !== targetReg &&
+          (target ? item.id !== target.id : true)
       );
       localStorage.setItem('PNR_SANITATION_ESTABLISHMENTS', JSON.stringify(updatedList));
 
@@ -1086,7 +1069,7 @@ class SanitationDataService {
         const bc = new BroadcastChannel('PNR_SANITATION_CHANNEL');
         bc.postMessage({ type: 'ESTABLISHMENT_DELETED', id: idOrRegNumber });
         bc.close();
-      } catch {}
+      } catch { }
 
       return true;
     } catch (e) {
@@ -1540,7 +1523,7 @@ class SanitationDataService {
 
     try {
       localStorage.setItem('pnr_health_audit_logs', JSON.stringify(seedLogs));
-    } catch {}
+    } catch { }
 
     return seedLogs;
   }
@@ -1665,7 +1648,7 @@ class SanitationDataService {
     try {
       const saved = localStorage.getItem('PNR_SANITATION_INSPECTIONS');
       if (saved) inspections = JSON.parse(saved);
-    } catch {}
+    } catch { }
 
     const backupPayload = {
       version: '2.0-ssss',
@@ -1741,7 +1724,7 @@ class SanitationDataService {
       // Restore to LocalStorage (both naming formats for absolute reliability)
       localStorage.setItem('pnr_health_establishments', JSON.stringify(data.establishments));
       localStorage.setItem('PNR_SANITATION_ESTABLISHMENTS', JSON.stringify(data.establishments));
-      
+
       if (Array.isArray(data.inspections)) {
         localStorage.setItem('PNR_SANITATION_INSPECTIONS', JSON.stringify(data.inspections));
         localStorage.setItem('pnr_health_inspections', JSON.stringify(data.inspections));
