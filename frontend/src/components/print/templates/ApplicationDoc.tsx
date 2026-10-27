@@ -69,15 +69,15 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
   return (
     <div
       id="printable-application-form"
-      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-8 sm:p-12 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
-      style={{ fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', serif" }}
+      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-8 sm:p-12 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative overflow-hidden"
+      style={{ fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif", textAlign: 'left' }}
     >
       <div className="relative z-10">
         {/* Form Code Header */}
         <div className="flex justify-between items-start text-xs text-slate-700 mb-1">
           <div>
-            <div>เลขรับคำขอ: <span className="font-mono font-bold border-b border-dotted border-slate-600 px-2">{establishment.regNumber}</span></div>
-            <div className="mt-0.5">วันที่รับเรื่อง: <span className="font-mono border-b border-dotted border-slate-600 px-2">{formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, false)}</span></div>
+            <div>เลขรับคำขอ: <span className="font-bold border-b border-dotted border-slate-600 px-2">{establishment.regNumber}</span></div>
+            <div className="mt-0.5">วันที่รับเรื่อง: <span className="font-bold border-b border-dotted border-slate-600 px-2">{formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, false)}</span></div>
           </div>
           <div className="text-right">
             <span className="font-bold border border-slate-700 px-2.5 py-0.5 rounded-xs text-xs">
@@ -113,11 +113,19 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                 {renderCitizenIdBoxes(establishment.citizenId)}
               </div>
               <div className="mt-0.5">
-                อยู่บ้านเลขที่ <span className="border-b border-dotted border-slate-700 px-2">{parsedAddress.houseNo}</span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบล/แขวง <span className="border-b border-dotted border-slate-700 px-1.5">โป่งน้ำร้อน</span>{' '}
+                อยู่บ้านเลขที่ <span className="border-b border-dotted border-slate-700 px-1.5">{parsedAddress.houseNo}</span>{' '}
+                {parsedAddress.mooNumber ? (
+                  <>หมู่ที่ <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">{parsedAddress.mooNumber}</span>{' '}</>
+                ) : null}
+                {parsedAddress.villageNamePart ? (
+                  <><span className="border-b border-dotted border-slate-700 px-1.5">{parsedAddress.villageNamePart}</span>{' '}</>
+                ) : (!parsedAddress.mooNumber && parsedAddress.combinedVillage && parsedAddress.combinedVillage !== '-' ? (
+                  <><span className="border-b border-dotted border-slate-700 px-1.5">{parsedAddress.combinedVillage}</span>{' '}</>
+                ) : null)}
+                ตำบล/แขวง <span className="border-b border-dotted border-slate-700 px-1.5">โป่งน้ำร้อน</span>{' '}
                 อำเภอ/เขต <span className="border-b border-dotted border-slate-700 px-1.5">{districtName.replace('อำเภอ', '')}</span>{' '}
                 จังหวัด <span className="border-b border-dotted border-slate-700 px-1.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="border-b border-dotted border-slate-700 px-1.5 font-mono">{establishment.phone}</span>{' '}
+                โทรศัพท์ <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.phone || '-'}</span>{' '}
                 โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>
               </div>
             </div>
@@ -211,9 +219,17 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
 
               <div>
                 สถานที่ตั้ง: เลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">{parsedAddress.houseNo}</span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบลโป่งน้ำร้อน {districtName} {provinceName} โทรศัพท์{' '}
-                <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>{' '}
+                <span className="border-b border-dotted border-slate-700 px-1.5">{parsedAddress.houseNo}</span>{' '}
+                {parsedAddress.mooNumber ? (
+                  <>หมู่ที่ <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">{parsedAddress.mooNumber}</span>{' '}</>
+                ) : null}
+                {parsedAddress.villageNamePart ? (
+                  <><span className="border-b border-dotted border-slate-700 px-1.5">{parsedAddress.villageNamePart}</span>{' '}</>
+                ) : (!parsedAddress.mooNumber && parsedAddress.combinedVillage && parsedAddress.combinedVillage !== '-' ? (
+                  <><span className="border-b border-dotted border-slate-700 px-1.5">{parsedAddress.combinedVillage}</span>{' '}</>
+                ) : null)}
+                ตำบลโป่งน้ำร้อน {districtName} {provinceName} โทรศัพท์{' '}
+                <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.phone || '-'}</span>{' '}
                 อีเมล <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.email || '-'}</span>{' '}
                 ID: Line <span className="border-b border-dotted border-slate-700 px-1.5 font-bold text-emerald-800">{establishment.lineId || '-'}</span>
               </div>

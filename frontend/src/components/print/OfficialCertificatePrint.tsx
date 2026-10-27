@@ -269,6 +269,16 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             page-break-after: avoid !important;
+            font-family: 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif !important;
+            text-align: left !important;
+          }
+          .printable-doc-root p,
+          #printable-certificate p,
+          #printable-temp-notice p,
+          #printable-application-form p {
+            text-align: left !important;
+            text-justify: none !important;
+            word-break: normal !important;
           }
         }
       `}</style>

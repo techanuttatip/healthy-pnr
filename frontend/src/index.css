@@ -629,3 +629,23 @@ button, a, select {
     background-color: transparent !important;
   }
 }
+
+/* Official Thai Government Standard Typography (ระเบียบสำนักนายกรัฐมนตรีว่าด้วยงานสารบรรณ) */
+.font-sarabun,
+.printable-doc-root,
+#printable-certificate,
+#printable-temp-notice,
+#printable-application-form,
+#printable-register-report,
+#printable-renewal-notice {
+  font-family: 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', 'Charm', sans-serif !important;
+}
+
+.printable-doc-root p,
+#printable-certificate p,
+#printable-temp-notice p,
+#printable-application-form p {
+  text-align: left !important;
+  text-justify: none !important;
+  word-break: normal !important;
+}

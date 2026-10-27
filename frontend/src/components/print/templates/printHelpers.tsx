@@ -84,35 +84,50 @@ export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) =>
   }
 
   let mooPart = '';
+  let mooNumber = '';
   let villageNamePart = '';
 
-  const match = v.match(/^(หมู่(?:ที่)?\s*\d+)\s*(.*)$/);
+  const match = v.match(/^(หมู่(?:ที่)?\s*(\d+))\s*(.*)$/);
   if (match) {
     mooPart = match[1].trim();
-    villageNamePart = (match[2] || '').trim();
+    mooNumber = match[2].trim();
+    villageNamePart = (match[3] || '').trim();
   } else if (/^\d+$/.test(v)) {
     mooPart = `หมู่ที่ ${v}`;
+    mooNumber = v;
   } else if (v.startsWith('บ้าน')) {
     villageNamePart = v;
   } else if (v) {
     mooPart = v.startsWith('หมู่') ? v : `หมู่ที่ ${v}`;
+    const numMatch = v.match(/\d+/);
+    if (numMatch) mooNumber = numMatch[0];
   }
 
-  // Wrap combined moo and village name in non-breaking span to prevent awkward line breaks
+  // Fallback to extract moo number from addr if not found in v
+  if (!mooNumber) {
+    const addrMooMatch = addr.match(/หมู่(?:ที่)?\s*(\d+)/);
+    if (addrMooMatch) {
+      mooNumber = addrMooMatch[1];
+      if (!mooPart) mooPart = `หมู่ที่ ${mooNumber}`;
+    }
+  }
+
   const combinedVillage = mooPart && villageNamePart 
     ? `${mooPart} ${villageNamePart}` 
     : (mooPart || villageNamePart || v || '-');
 
   const fullVillageDisplay: React.ReactNode = (
-    <span className="whitespace-nowrap inline-block">
+    <span>
       {combinedVillage}
     </span>
   );
 
   return {
     houseNo,
+    mooNumber,
     mooPart,
     villageNamePart,
+    combinedVillage,
     fullVillageDisplay
   };
 };
