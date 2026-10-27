@@ -131,10 +131,8 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
             <span>เล่มที่</span>
             <div className="border-b border-dotted border-black min-w-[70px] text-center font-bold px-2 ml-1">
               {establishment.bookNo && establishment.bookNo !== '-'
-                ? establishment.bookNo
-                : establishment.receiptBookNo && establishment.receiptBookNo !== '-'
-                ? establishment.receiptBookNo
-                : '............'}
+                ? toThaiDigits(establishment.bookNo)
+                : '\u00A0'}
             </div>
           </div>
           <div className="text-right flex flex-col items-end">
@@ -149,7 +147,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
             <div className="mt-0.5 font-bold flex items-center justify-end">
               <span>เลขที่</span>
               <div className="border-b border-dotted border-black min-w-[90px] text-center font-bold px-2 ml-1">
-                {establishment.docNo || establishment.regNumber || '............'}
+                {toThaiDigits(establishment.docNo || establishment.regNumber || '') || '\u00A0'}
               </div>
             </div>
           </div>
@@ -194,7 +192,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 </div>
                 <span className="shrink-0 mx-1.5">อายุ</span>
                 <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {resolvedAge}
+                  {toThaiDigits(resolvedAge)}
                 </div>
                 <span className="shrink-0 mx-1.5">ปี</span>
                 <span className="shrink-0 mr-1.5">สัญชาติ</span>
@@ -207,11 +205,11 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {ownerAddr.houseNo || '-'}
+                  {toThaiDigits(ownerAddr.houseNo || '-')}
                 </div>
                 <span className="shrink-0 mx-1.5">หมู่ที่</span>
                 <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {ownerAddr.mooNumber || '-'}
+                  {toThaiDigits(ownerAddr.mooNumber || '-')}
                 </div>
                 {ownerAddr.villageName ? (
                   <>
@@ -239,11 +237,11 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">โทรศัพท์</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
-                  {establishment.phone || '-'}
+                  {toThaiDigits(establishment.phone || '-')}
                 </div>
                 <span className="shrink-0 mx-3">โทรสาร</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
-                  {establishment.fax && establishment.fax !== '-' ? establishment.fax : '-'}
+                  {toThaiDigits(establishment.fax && establishment.fax !== '-' ? establishment.fax : '-')}
                 </div>
               </div>
 
@@ -251,7 +249,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">เพื่อประกอบกิจการที่เป็นอันตรายต่อสุขภาพ ประเภท</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative truncate text-[14pt]">
-                  {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
+                  {toThaiDigits(establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)')}
                 </div>
               </div>
 
@@ -267,7 +265,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
-                  {displayedPremise}
+                  {toThaiDigits(displayedPremise)}
                 </div>
               </div>
 
@@ -275,17 +273,17 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">มีพื้นที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {establishment.areaSqm}
+                  {toThaiDigits(establishment.areaSqm)}
                 </div>
                 <span className="shrink-0 mx-1.5">ตารางเมตร</span>
                 <span className="shrink-0 mx-1.5">จำนวนคนงาน</span>
                 <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {establishment.workerCount}
+                  {toThaiDigits(establishment.workerCount)}
                 </div>
                 <span className="shrink-0 mx-1.5">คน</span>
                 <span className="shrink-0 mx-1.5">กำลังเครื่องจักร</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[60px]">
-                  {establishment.machineHorsepower || '-'}
+                  {toThaiDigits(establishment.machineHorsepower || '-')}
                 </div>
                 <span className="shrink-0 ml-1.5">แรงม้า</span>
               </div>
@@ -294,11 +292,11 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {premiseAddr.houseNo || '-'}
+                  {toThaiDigits(premiseAddr.houseNo || '-')}
                 </div>
                 <span className="shrink-0 mx-1.5">หมู่ที่</span>
                 <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {premiseAddr.mooNumber || '-'}
+                  {toThaiDigits(premiseAddr.mooNumber || '-')}
                 </div>
                 {premiseAddr.villageName ? (
                   <>
@@ -326,7 +324,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">เสียค่าธรรมเนียมปีละ</span>
                 <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {establishment.feeAmount.toLocaleString()}
+                  {toThaiDigits(establishment.feeAmount.toLocaleString())}
                 </div>
                 <span className="shrink-0 mx-1.5">บาท</span>
                 <span className="shrink-0 mr-1">(</span>
@@ -336,19 +334,19 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 <span className="shrink-0 ml-1">)</span>
               </div>
 
-              {/* Line 10: ใบเสร็จรับเงิน */}
+              {/* Line 10: ใบเสร็จรับเงิน (เว้นว่างไว้เขียนมือตามมาตรฐาน อบต.) */}
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">ตามใบเสร็จรับเงินเล่มที่</span>
                 <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {receiptBookDisplay}
+                  &nbsp;
                 </div>
                 <span className="shrink-0 mx-1.5">เลขที่</span>
                 <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {receiptNoDisplay}
+                  &nbsp;
                 </div>
                 <span className="shrink-0 mx-1.5">ลงวันที่</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative">
-                  {receiptDateDisplay || '................................'}
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                  &nbsp;
                 </div>
               </div>
 
@@ -381,14 +379,14 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                   <span className="shrink-0 font-bold mr-1">(๔)</span>
                   <span className="shrink-0 mr-1.5">ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่</span>
                   <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
-                    {formatThaiDate(establishment.issueDate, false)}
+                    {formatThaiDate(establishment.issueDate, true)}
                   </div>
                 </div>
                 <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
                   <span className="shrink-0 font-bold mr-1">(๕)</span>
                   <span className="shrink-0 mr-1.5">ใบอนุญาตฉบับนี้สิ้นอายุวันที่</span>
                   <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
-                    {formatThaiDate(establishment.expireDate, false)}
+                    {formatThaiDate(establishment.expireDate, true)}
                   </div>
                 </div>
               </div>
@@ -405,7 +403,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 </div>
                 <span className="shrink-0 mx-1.5">อายุ</span>
                 <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {resolvedAge}
+                  {toThaiDigits(resolvedAge)}
                 </div>
                 <span className="shrink-0 mx-1.5">ปี</span>
                 <span className="shrink-0 mr-1.5">สัญชาติ</span>
@@ -418,11 +416,11 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {ownerAddr.houseNo || '-'}
+                  {toThaiDigits(ownerAddr.houseNo || '-')}
                 </div>
                 <span className="shrink-0 mx-1.5">หมู่ที่</span>
                 <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {ownerAddr.mooNumber || '-'}
+                  {toThaiDigits(ownerAddr.mooNumber || '-')}
                 </div>
                 {ownerAddr.villageName ? (
                   <>
@@ -450,11 +448,11 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">โทรศัพท์</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
-                  {establishment.phone || '-'}
+                  {toThaiDigits(establishment.phone || '-')}
                 </div>
                 <span className="shrink-0 mx-3">โทรสาร</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
-                  {establishment.fax && establishment.fax !== '-' ? establishment.fax : '-'}
+                  {toThaiDigits(establishment.fax && establishment.fax !== '-' ? establishment.fax : '-')}
                 </div>
               </div>
 
@@ -478,7 +476,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
                 <div className="w-44 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {displayedPremise}
+                  {toThaiDigits(displayedPremise)}
                 </div>
                 <span className="shrink-0 mx-2">วิธีการจำหน่าย</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
@@ -490,16 +488,16 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
                 <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {establishment.operatingHours || '07:00 - 19:00 น.'}
+                  {toThaiDigits(establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.')}
                 </div>
                 <span className="shrink-0 mx-1.5">มีพื้นที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {establishment.areaSqm}
+                  {toThaiDigits(establishment.areaSqm)}
                 </div>
                 <span className="shrink-0 mx-1.5">ตารางเมตร</span>
                 <span className="shrink-0 mx-1.5">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[50px]">
-                  {establishment.workerCount}
+                  {toThaiDigits(establishment.workerCount)}
                 </div>
                 <span className="shrink-0 ml-1.5">คน</span>
               </div>
@@ -508,11 +506,11 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {premiseAddr.houseNo || '-'}
+                  {toThaiDigits(premiseAddr.houseNo || '-')}
                 </div>
                 <span className="shrink-0 mx-1.5">หมู่ที่</span>
                 <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {premiseAddr.mooNumber || '-'}
+                  {toThaiDigits(premiseAddr.mooNumber || '-')}
                 </div>
                 {premiseAddr.villageName ? (
                   <>
@@ -540,7 +538,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">เสียค่าธรรมเนียมปีละ</span>
                 <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {establishment.feeAmount.toLocaleString()}
+                  {toThaiDigits(establishment.feeAmount.toLocaleString())}
                 </div>
                 <span className="shrink-0 mx-1.5">บาท</span>
                 <span className="shrink-0 mr-1">(</span>
@@ -550,19 +548,19 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 <span className="shrink-0 ml-1">)</span>
               </div>
 
-              {/* Line 10: ใบเสร็จรับเงิน */}
+              {/* Line 10: ใบเสร็จรับเงิน (เว้นว่างไว้เขียนมือตามมาตรฐาน อบต.) */}
               <div className="flex items-end w-full leading-[1.6]">
                 <span className="shrink-0 mr-1.5">ตามใบเสร็จรับเงินเล่มที่</span>
                 <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {receiptBookDisplay}
+                  &nbsp;
                 </div>
                 <span className="shrink-0 mx-1.5">เลขที่</span>
                 <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
-                  {receiptNoDisplay}
+                  &nbsp;
                 </div>
                 <span className="shrink-0 mx-1.5">ลงวันที่</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative">
-                  {receiptDateDisplay || '................................'}
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                  &nbsp;
                 </div>
               </div>
 
@@ -581,7 +579,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                     <span className="font-semibold">๓.๑)</span> ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุข และข้อบัญญัติท้องถิ่น
                   </div>
                   <div>
-                    <span className="font-semibold">๓.๒)</span> {isStorage ? 'การจัดเก็บต้องวางบนพาเลทหรือยกสูงจากพื้นอย่างน้อย 15 ซม. และมีระบบป้องกันสัตว์แมลงนำโรค' : 'ผู้สัมผัสอาหารทุกคนต้องผ่านการอบรมหลักสูตรสุขาภิบาลอาหาร และมีสุขภาพร่างกายสมบูรณ์ไม่เป็นโรคติดต่อ'}
+                    <span className="font-semibold">๓.๒)</span> {isStorage ? 'การจัดเก็บต้องวางบนพาเลทหรือยกสูงจากพื้นอย่างน้อย ๑๕ ซม. และมีระบบป้องกันสัตว์แมลงนำโรค' : 'ผู้สัมผัสอาหารทุกคนต้องผ่านการอบรมหลักสูตรสุขาภิบาลอาหาร และมีสุขภาพร่างกายสมบูรณ์ไม่เป็นโรคติดต่อ'}
                   </div>
                 </div>
               </div>
@@ -592,14 +590,14 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                   <span className="font-bold mr-1">(๔)</span>
                   <span className="shrink-0 mr-1.5">{isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}</span>
                   <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
-                    {formatThaiDate(establishment.issueDate, false)}
+                    {formatThaiDate(establishment.issueDate, true)}
                   </div>
                 </div>
                 <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
                   <span className="font-bold mr-1">(๕)</span>
                   <span className="shrink-0 mr-1.5">{isFoodLicense ? 'ใบอนุญาตฉบับนี้สิ้นอายุวันที่' : 'ครบกำหนดวันชำระค่าธรรมเนียม วันที่'}</span>
                   <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
-                    {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate, false)}
+                    {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate, true)}
                   </div>
                 </div>
               </div>
@@ -646,7 +644,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         <div className="border-t border-slate-300 text-[10pt] text-slate-700 leading-snug space-y-0.5" style={{ marginTop: '8pt', paddingTop: '4pt' }}>
           {mode === 'replacement_cert' && (
             <p className="font-medium text-black">
-              <strong>หมายเหตุ (๑)</strong> {isHazardous ? 'ใบอนุญาตฉบับนี้เป็นการออกใบแทนใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ' : 'หนังสือรับรองการแจ้งฉบับนี้เป็นการออกใบแทนหนังสือรับรองการแจ้ง'} กรณีที่มีการแจ้งสูญหาย ถูกทำลาย หรือชำรุดในสาระสำคัญ ตามคำขอใบแทนเมื่อวันที่ {formatThaiDate(establishment.replacementRequestDate || establishment.issueDate, false)}
+              <strong>หมายเหตุ (๑)</strong> {isHazardous ? 'ใบอนุญาตฉบับนี้เป็นการออกใบแทนใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ' : 'หนังสือรับรองการแจ้งฉบับนี้เป็นการออกใบแทนหนังสือรับรองการแจ้ง'} กรณีที่มีการแจ้งสูญหาย ถูกทำลาย หรือชำรุดในสาระสำคัญ ตามคำขอใบแทนเมื่อวันที่ {formatThaiDate(establishment.replacementRequestDate || establishment.issueDate, true)}
             </p>
           )}
           {isHazardous ? (

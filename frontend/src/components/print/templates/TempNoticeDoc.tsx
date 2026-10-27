@@ -92,14 +92,14 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
       {/* Header Section */}
       <div className="relative z-10">
         <div className="flex justify-between items-start text-xs text-slate-700 mb-2">
-          <div className="font-bold">
-            เลขรับคำขอที่: <span className="font-mono text-sm">{establishment.regNumber}</span>
+          <div className="font-bold text-[14pt]">
+            เลขรับคำขอที่: <span className="font-bold border-b border-dotted border-black px-2">{toThaiDigits(establishment.regNumber)}</span>
           </div>
           <div className="text-right">
-            <span className="font-bold border border-cyan-700 text-cyan-900 bg-cyan-50 px-2 py-0.5 rounded-xs text-xs">
-              {tempNoticeCode} (เอกสารชั่วคราว)
+            <span className="font-bold border border-black px-2.5 py-0.5 rounded text-[13pt] leading-tight">
+              {toThaiDigits(tempNoticeCode)} (เอกสารชั่วคราว)
             </span>
-            <div className="mt-1 text-[11px] text-slate-500">
+            <div className="mt-0.5 text-[11pt] text-slate-600">
               ออกให้ ณ วันที่ยื่นเรื่อง (Day-1 Slip)
             </div>
           </div>
@@ -443,13 +443,13 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
             <div className="flex items-end">
               <span>ได้รับเรื่องเมื่อวันที่</span>
               <div className="border-b border-dotted border-black px-3 font-bold ml-1.5">
-                {formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, false)}
+                {formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, true)}
               </div>
             </div>
             <div className="flex items-end">
               <span>ออกให้เมื่อวันที่</span>
               <div className="border-b border-dotted border-black px-3 font-bold ml-1.5">
-                {formatThaiDate(establishment.temporarySlipIssuedDate || establishment.applicationSubmissionDate || establishment.issueDate, false)}
+                {formatThaiDate(establishment.temporarySlipIssuedDate || establishment.applicationSubmissionDate || establishment.issueDate, true)}
               </div>
               <span className="text-[12pt] text-emerald-800 font-bold ml-2">(ออกภายในวันเดียวกัน)</span>
             </div>

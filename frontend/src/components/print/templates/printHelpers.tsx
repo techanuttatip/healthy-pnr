@@ -50,12 +50,12 @@ export const renderCitizenIdBoxes = (idStr?: string) => {
 };
 
 /**
- * Format ISO date string into official Thai format with Arabic digits (e.g. 15 ตุลาคม 2569)
+ * Format ISO date string into official Thai format with Arabic or Thai digits (e.g. 15 ตุลาคม 2569 or ๑๕ ตุลาคม ๒๕๖๙)
  */
-export const formatThaiDate = (dateStr?: string, _useThaiDigits = false) => {
+export const formatThaiDate = (dateStr?: string, useThaiDigits = false) => {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
-  if (parts.length < 3) return dateStr;
+  if (parts.length < 3) return useThaiDigits ? toThaiDigits(dateStr) : dateStr;
   const [y, m, d] = parts;
   const months = [
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -64,7 +64,8 @@ export const formatThaiDate = (dateStr?: string, _useThaiDigits = false) => {
   const day = parseInt(d, 10);
   const month = months[parseInt(m, 10) - 1] || '';
   const year = parseInt(y, 10) + 543;
-  return `${day} ${month} ${year}`;
+  const res = `${day} ${month} ${year}`;
+  return useThaiDigits ? toThaiDigits(res) : res;
 };
 
 /**
@@ -133,7 +134,8 @@ export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) =>
 /**
  * Convert Arabic numbers to authentic Thai numerals (e.g. 1 -> ๑)
  */
-export const toThaiDigits = (input: string | number): string => {
+export const toThaiDigits = (input?: string | number | null): string => {
+  if (input === undefined || input === null) return '';
   const thaiDigits = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
   return String(input).replace(/\d/g, (d) => thaiDigits[parseInt(d, 10)]);
 };
