@@ -1,6 +1,10 @@
 import React from 'react';
 import type { Establishment, SystemSettings } from '../../../types/publicHealth';
-import { formatThaiDate, parseAddressDetails } from './printHelpers';
+import {
+  formatThaiDate,
+  formatOfficialAddress,
+  toThaiDigits
+} from './printHelpers';
 import { DEFAULT_OFFICER_SIGNATURE, sanitationDataService } from '../../../services/sanitationDataService';
 
 interface TempNoticeDocProps {
@@ -65,41 +69,60 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
     displayedDistribution = 'มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน';
   }
 
-  const parsedAddress = parseAddressDetails(establishment.address, establishment.village);
+  const ownerAddr = formatOfficialAddress(
+    establishment.address,
+    establishment.village,
+    districtName,
+    provinceName
+  );
+  const premiseAddr = formatOfficialAddress(
+    establishment.address,
+    establishment.village,
+    districtName,
+    provinceName
+  );
+
+  const officialBadgeCode = toThaiDigits(tempNoticeCode);
 
   return (
     <div
       id="printable-temp-notice"
-      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-8 sm:p-12 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative overflow-hidden"
-      style={{ fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif", textAlign: 'left' }}
+      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-8 sm:p-10 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative overflow-hidden"
+      style={{
+        fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
+        textAlign: 'left',
+        fontSize: '16pt',
+        lineHeight: '1.65',
+        color: '#000000'
+      }}
     >
       {/* Background Watermark */}
       <div className="watermark-container absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden select-none">
         <img
           src="/pnr_logo.png"
           alt="ลายน้ำตราสัญลักษณ์ อบต.โป่งน้ำร้อน"
-          className="w-[130mm] h-[130mm] object-contain opacity-[0.07] select-none filter contrast-125 print:opacity-[0.08]"
+          className="w-[125mm] h-[125mm] object-contain opacity-[0.06] select-none filter contrast-125 print:opacity-[0.08]"
         />
       </div>
 
       {/* Header Section */}
       <div className="relative z-10">
-        <div className="flex justify-between items-start text-xs text-slate-700 mb-2">
+        <div className="flex justify-between items-start text-[15pt] text-black mb-1">
           <div className="font-bold">
-            เลขรับคำขอที่: <span className="text-sm font-bold">{establishment.regNumber}</span>
+            เลขรับคำขอที่: <span className="font-bold text-black px-1">{establishment.regNumber || '............'}</span>
           </div>
-          <div className="text-right">
-            <span className="font-bold border border-cyan-700 text-cyan-900 bg-cyan-50 px-2 py-0.5 rounded-xs text-xs">
-              {tempNoticeCode} (เอกสารชั่วคราว)
+          <div className="text-right flex flex-col items-end">
+            <span className="font-bold border border-black px-3 py-0.5 rounded text-[14pt]">
+              {officialBadgeCode} (เอกสารชั่วคราว)
             </span>
-            <div className="mt-1 text-[11px] text-slate-500">
+            <div className="mt-0.5 text-[13pt] text-slate-700">
               ออกให้ ณ วันที่ยื่นเรื่อง (Day-1 Slip)
             </div>
           </div>
         </div>
 
         {/* Garuda Emblem */}
-        <div className="garuda-emblem-container flex justify-center my-3 relative z-10 transition-transform">
+        <div className="garuda-emblem-container flex justify-center my-1 relative z-10">
           <img
             src="/garuda.png"
             alt="ตราครุฑประจำแบบพิมพ์ราชการ"
@@ -108,192 +131,152 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         </div>
 
         {/* Title Header */}
-        <div className="text-center my-3">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug">
+        <div className="text-center my-2">
+          <h1 className="text-[22pt] font-bold tracking-tight text-black leading-snug whitespace-pre-line">
             {tempNoticeTitle}
           </h1>
-          <p className="text-xs text-slate-600 mt-1">
+          <p className="text-[15pt] text-black mt-0.5">
             องค์การบริหารส่วนตำบลโป่งน้ำร้อน อำเภอฝาง จังหวัดเชียงใหม่
           </p>
         </div>
 
         {/* Body Content */}
-        <div className="doc-body-content text-[15px] leading-[2.2] text-slate-900 space-y-3 mt-4 text-left" style={{ textAlign: 'left', textJustify: 'none' }}>
+        <div
+          className="doc-body-content text-[16pt] text-black mt-3 text-left"
+          style={{
+            fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
+            textAlign: 'left',
+            lineHeight: '26pt'
+          }}
+        >
           {isHazardous ? (
             /* ================== ใบรับคำขอ อภ.1 (กิจการที่เป็นอันตรายต่อสุขภาพ) ================== */
-            <>
-              <p className="indent-10">
-                เจ้าพนักงานท้องถิ่นได้รับคำขอรับใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพจาก (นาย, นาง, นางสาว){' '}
-                <span className="font-bold border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">
-                  {establishment.ownerName}
-                </span>{' '}
-                อายุ <span className="border-b border-dotted border-slate-700/80 px-1 pb-0.5 font-medium">{resolvedAge}</span> ปี{' '}
-                สัญชาติ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-medium">ไทย</span>{' '}
-                อยู่บ้านเลขที่ <span className="border-b border-dotted border-slate-700/80 px-1 pb-0.5 font-medium">{parsedAddress.houseNo}</span>{' '}
-                {parsedAddress.mooNumber ? (
-                  <>หมู่ที่ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-medium">{parsedAddress.mooNumber}</span>{' '}</>
-                ) : null}
-                {parsedAddress.villageNamePart ? (
-                  <><span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{parsedAddress.villageNamePart}</span>{' '}</>
-                ) : (!parsedAddress.mooNumber && parsedAddress.combinedVillage && parsedAddress.combinedVillage !== '-' ? (
-                  <><span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{parsedAddress.combinedVillage}</span>{' '}</>
-                ) : null)}
-                ตำบล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">โป่งน้ำร้อน</span>{' '}
-                อำเภอ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{districtName.replace('อำเภอ', '')}</span>{' '}
-                จังหวัด <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span>{' '}
-                ชื่อสถานประกอบกิจการ <span className="font-bold border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 text-blue-950">"{establishment.businessName}"</span>{' '}
-                ประเภทกิจการที่เป็นอันตรายต่อสุขภาพ{' '}
-                <span className="font-bold border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 text-slate-900">
-                  {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
-                </span>{' '}
-                ลักษณะของสถานที่ประกอบกิจการ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{displayedPremise}</span>{' '}
-                มีพื้นที่ <span className="font-bold border-b border-dotted border-slate-700/80 px-1 pb-0.5">{establishment.areaSqm}</span> ตารางเมตร{' '}
-                จำนวนคนงาน <span className="font-bold border-b border-dotted border-slate-700/80 px-1 pb-0.5">{establishment.workerCount}</span> คน{' '}
-                กำลังเครื่องจักร <span className="border-b border-dotted border-slate-700/80 px-1 pb-0.5">{establishment.machineHorsepower || '-'}</span> แรงม้า{' '}
-                สถานที่ตั้งสถานประกอบกิจการ เลขที่ <span className="border-b border-dotted border-slate-700/80 px-1 pb-0.5">{parsedAddress.houseNo}</span>{' '}
-                {parsedAddress.mooNumber ? (
-                  <>หมู่ที่ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-medium">{parsedAddress.mooNumber}</span>{' '}</>
-                ) : null}
-                {parsedAddress.villageNamePart ? (
-                  <><span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{parsedAddress.villageNamePart}</span>{' '}</>
-                ) : (!parsedAddress.mooNumber && parsedAddress.combinedVillage && parsedAddress.combinedVillage !== '-' ? (
-                  <><span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{parsedAddress.combinedVillage}</span>{' '}</>
-                ) : null)}
-                ตำบล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">โป่งน้ำร้อน</span>{' '}
-                อำเภอ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{districtName.replace('อำเภอ', '')}</span>{' '}
-                จังหวัด <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span>{' '}
-                อีเมล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.email || '-'}</span>{' '}
-                Line ID: <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-bold text-emerald-800">{establishment.lineId || '-'}</span>
-              </p>
-            </>
+            <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
+              เจ้าพนักงานท้องถิ่นได้รับคำขอรับใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพจาก{' '}
+              <span className="font-bold">{establishment.ownerName}</span> อายุ{' '}
+              <span className="font-bold">{resolvedAge}</span> ปี สัญชาติไทย อยู่บ้านเลขที่{' '}
+              <span className="font-bold">{ownerAddr.formatted}</span>{' '}
+              โทรศัพท์ <span className="font-bold">{establishment.phone || '-'}</span>{' '}
+              {establishment.fax && establishment.fax !== '-' ? (
+                <>โทรสาร <span className="font-bold">{establishment.fax}</span>{' '}</>
+              ) : null}
+              เพื่อประกอบกิจการที่เป็นอันตรายต่อสุขภาพ ประเภท{' '}
+              <span className="font-bold">
+                {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
+              </span>{' '}
+              ชื่อสถานประกอบกิจการ <span className="font-bold">"{establishment.businessName}"</span>{' '}
+              ลักษณะของสถานที่ประกอบกิจการ <span className="font-bold">{displayedPremise}</span>{' '}
+              มีพื้นที่ <span className="font-bold">{establishment.areaSqm}</span> ตารางเมตร{' '}
+              จำนวนคนงาน <span className="font-bold">{establishment.workerCount}</span> คน{' '}
+              {establishment.machineHorsepower ? (
+                <>กำลังเครื่องจักร <span className="font-bold">{establishment.machineHorsepower}</span> แรงม้า{' '}</>
+              ) : null}
+              สถานที่ตั้งสถานประกอบกิจการ เลขที่ <span className="font-bold">{premiseAddr.formatted}</span>{' '}
+              โทรศัพท์ <span className="font-bold">{establishment.phone || '-'}</span>{' '}
+              {establishment.email && establishment.email !== '-' ? (
+                <>อีเมล <span className="font-bold">{establishment.email}</span>{' '}</>
+              ) : null}
+              {establishment.lineId && establishment.lineId !== '-' ? (
+                <>Line ID: <span className="font-bold">{establishment.lineId}</span></>
+              ) : null}
+            </p>
           ) : (
             /* ================== ใบรับแจ้ง นจ.2 (สถานที่จำหน่าย/สะสมอาหาร) ================== */
-            <>
-              <p className="indent-10">
-                เจ้าพนักงานท้องถิ่นออกใบรับแจ้งให้ (นาย, นาง, นางสาว){' '}
-                <span className="font-bold border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">
-                  {establishment.ownerName}
-                </span>{' '}
-                อายุ <span className="border-b border-dotted border-slate-700/80 px-1 pb-0.5 font-medium">{resolvedAge}</span> ปี{' '}
-                สัญชาติ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-medium">ไทย</span>{' '}
-                อยู่บ้านเลขที่ <span className="border-b border-dotted border-slate-700/80 px-1 pb-0.5 font-medium">{parsedAddress.houseNo}</span>{' '}
-                {parsedAddress.mooNumber ? (
-                  <>หมู่ที่ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-medium">{parsedAddress.mooNumber}</span>{' '}</>
-                ) : null}
-                {parsedAddress.villageNamePart ? (
-                  <><span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{parsedAddress.villageNamePart}</span>{' '}</>
-                ) : (!parsedAddress.mooNumber && parsedAddress.combinedVillage && parsedAddress.combinedVillage !== '-' ? (
-                  <><span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{parsedAddress.combinedVillage}</span>{' '}</>
-                ) : null)}
-                ตำบล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">โป่งน้ำร้อน</span>{' '}
-                อำเภอ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{districtName.replace('อำเภอ', '')}</span>{' '}
-                จังหวัด <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span>{' '}
-                เพื่อจัดตั้ง{isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหาร'}{' '}
-                ชื่อสถานประกอบกิจการ <span className="font-bold border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 text-blue-950">"{establishment.businessName}"</span>{' '}
-                {isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}{' '}
-                <span className="font-bold border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{displayedFoodType}</span>{' '}
-                ลักษณะของสถานที่ประกอบกิจการ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{displayedPremise}</span>{' '}
-                วิธีการจำหน่าย <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{displayedDistribution}</span>{' '}
-                ช่วงเวลาที่จำหน่าย <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.operatingHours || '07:00 - 19:00 น.'}</span>{' '}
-                มีพื้นที่ <span className="font-bold border-b border-dotted border-slate-700/80 px-1 pb-0.5">{establishment.areaSqm}</span> ตารางเมตร{' '}
-                {isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}{' '}
-                <span className="font-bold border-b border-dotted border-slate-700/80 px-1 pb-0.5">{establishment.workerCount}</span> คน{' '}
-                สถานที่ตั้ง เลขที่ <span className="border-b border-dotted border-slate-700/80 px-1 pb-0.5">{parsedAddress.houseNo}</span>{' '}
-                {parsedAddress.mooNumber ? (
-                  <>หมู่ที่ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-medium">{parsedAddress.mooNumber}</span>{' '}</>
-                ) : null}
-                {parsedAddress.villageNamePart ? (
-                  <><span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{parsedAddress.villageNamePart}</span>{' '}</>
-                ) : (!parsedAddress.mooNumber && parsedAddress.combinedVillage && parsedAddress.combinedVillage !== '-' ? (
-                  <><span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{parsedAddress.combinedVillage}</span>{' '}</>
-                ) : null)}
-                ตำบล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">โป่งน้ำร้อน</span>{' '}
-                อำเภอ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{districtName.replace('อำเภอ', '')}</span>{' '}
-                จังหวัด <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span>{' '}
-                อีเมล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.email || '-'}</span>{' '}
-                Line ID: <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-bold text-emerald-800">{establishment.lineId || '@pnr-food'}</span>
-              </p>
-            </>
+            <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '26pt', margin: 0 }}>
+              เจ้าพนักงานท้องถิ่นออกใบรับแจ้งให้{' '}
+              <span className="font-bold">{establishment.ownerName}</span> อายุ{' '}
+              <span className="font-bold">{resolvedAge}</span> ปี สัญชาติไทย อยู่บ้านเลขที่{' '}
+              <span className="font-bold">{ownerAddr.formatted}</span>{' '}
+              โทรศัพท์ <span className="font-bold">{establishment.phone || '-'}</span>{' '}
+              {establishment.fax && establishment.fax !== '-' ? (
+                <>โทรสาร <span className="font-bold">{establishment.fax}</span>{' '}</>
+              ) : null}
+              เพื่อจัดตั้ง{isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหาร'}{' '}
+              ชื่อสถานประกอบกิจการ <span className="font-bold">"{establishment.businessName}"</span>{' '}
+              {isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}{' '}
+              <span className="font-bold">{displayedFoodType}</span>{' '}
+              ลักษณะของสถานที่ประกอบกิจการ <span className="font-bold">{displayedPremise}</span>{' '}
+              วิธีการจำหน่าย <span className="font-bold">{displayedDistribution}</span>{' '}
+              ช่วงเวลาที่จำหน่าย <span className="font-bold">{establishment.operatingHours || '07:00 - 19:00 น.'}</span>{' '}
+              มีพื้นที่ <span className="font-bold">{establishment.areaSqm}</span> ตารางเมตร{' '}
+              {isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}{' '}
+              <span className="font-bold">{establishment.workerCount}</span> คน{' '}
+              สถานที่ตั้ง เลขที่ <span className="font-bold">{premiseAddr.formatted}</span>{' '}
+              โทรศัพท์ <span className="font-bold">{establishment.phone || '-'}</span>
+            </p>
           )}
 
-          <div className="pt-2 border-t border-slate-200 mt-4 space-y-1.5 text-xs text-slate-800">
+          <div className="pt-3 border-t border-slate-300 mt-4 space-y-1 text-[15pt] text-black">
             <div>
               ได้รับเรื่องเมื่อวันที่{' '}
-              <span className="font-bold border-b border-dotted border-slate-700 px-2">
+              <span className="font-bold">
                 {formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, false)}
               </span>
             </div>
             <div>
               ออกให้เมื่อวันที่{' '}
-              <span className="font-bold border-b border-dotted border-slate-700 px-2">
+              <span className="font-bold">
                 {formatThaiDate(establishment.temporarySlipIssuedDate || establishment.applicationSubmissionDate || establishment.issueDate, false)}
               </span>{' '}
-              <span className="text-[11px] text-emerald-700 font-bold">(ออกภายในวันเดียวกัน)</span>
+              <span className="text-[13pt] text-emerald-800 font-bold">(ออกภายในวันเดียวกัน)</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Signature & Official Notes */}
-      <div className="signatures-container relative z-10 pt-4">
-        <div className="flex justify-between items-end">
+      <div className="signatures-container relative z-10" style={{ marginTop: '20pt' }}>
+        <div className="grid grid-cols-2 gap-8 items-end">
           {/* Receiving Officer with e-sig */}
-          <div className="text-center w-72 relative">
-            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
-              <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
-              <div className="relative flex-1 mx-2 border-b border-dotted border-slate-700 h-8 flex items-end justify-center">
+          <div className="text-center w-full max-w-[280px] mx-auto relative">
+            <div className="relative flex items-end justify-center min-h-[48px] mb-1">
+              <span className="text-[15pt] text-black shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="relative flex-1 mx-2 border-b border-dotted border-black h-8 flex items-end justify-center">
                 {officerSig && (
                   <img
                     src={officerSig}
                     alt="e-sig ผู้รับเรื่อง"
-                    className="absolute -bottom-1.5 h-10 object-contain filter contrast-125 pointer-events-none"
+                    className="absolute -bottom-2 h-12 object-contain filter contrast-125 pointer-events-none"
                   />
                 )}
               </div>
-              <span className="text-xs text-slate-800 shrink-0 whitespace-nowrap pb-0.5">ผู้รับเรื่อง</span>
+              <span className="text-[14pt] text-black shrink-0 whitespace-nowrap pb-0.5">ผู้รับเรื่อง</span>
             </div>
-            <div className="font-bold text-sm text-slate-900">
+            <div className="font-bold text-[15pt] text-black">
               ( {sig.officerName || 'นางสาวรุ่งทิวา อุปนันท์'} )
             </div>
-            <div className="text-xs text-slate-700 mt-0.5">
+            <div className="text-[13pt] text-slate-700 mt-0.5">
               {sig.officerPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'}
             </div>
           </div>
 
           {/* Local Mayor */}
-          <div className="text-center w-72">
-            <div className="relative flex items-end justify-center min-h-[44px] mb-1">
-              <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
-              <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
+          <div className="text-center w-full max-w-[280px] mx-auto">
+            <div className="relative flex items-end justify-center min-h-[48px] mb-1">
+              <span className="text-[15pt] text-black shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
+              <div className="flex-1 mx-2 border-b border-dotted border-black h-8"></div>
+              <span className="text-[14pt] text-black shrink-0 whitespace-nowrap pb-0.5">เจ้าพนักงาน</span>
             </div>
-            <div className="font-bold text-sm text-slate-900">
+            <div className="font-bold text-[15pt] text-black">
               ( {sig.mayorName && !sig.mayorName.includes('สมหมาย') ? sig.mayorName : 'นายสมคิด พงษ์สุข'} )
             </div>
-            <div className="text-xs text-slate-700 mt-0.5">
-              {sig.mayorPosition}
+            <div className="text-[13pt] text-slate-700 mt-0.5">
+              {sig.mayorPosition || 'นายกองค์การบริหารส่วนตำบลโป่งน้ำร้อน'}
             </div>
-            <div className="text-[11px] font-semibold text-slate-800">
-              {sig.mayorRoleTitle}
+            <div className="text-[12pt] font-semibold text-black">
+              {sig.mayorRoleTitle || 'เจ้าพนักงานท้องถิ่น'}
             </div>
           </div>
         </div>
 
         {/* Notes */}
-        <div className="mt-4 pt-3 border-t border-slate-300 text-[10.5px] text-slate-700 leading-snug space-y-1.5">
-          <div className="font-bold text-slate-900">หมายเหตุ</div>
+        <div className="border-t border-slate-300 text-[11pt] text-slate-700 leading-snug space-y-1" style={{ marginTop: '14pt', paddingTop: '6pt' }}>
+          <div className="font-bold text-black">หมายเหตุ</div>
           <p>
-            1. แบบฟอร์มนี้ทำในระบบและปริ้นเสนอผู้มีอำนาจลงนาม และให้ระบบแจ้งเตือนผู้ยื่นคำขอทราบว่าเจ้าหน้าที่ได้ออก{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ให้แล้วภายในวันที่ยื่น โดยประชาชนหรือผู้ประกอบการสามารถดาวน์โหลด{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ไว้เป็นหลักฐานแสดงให้เจ้าหน้าที่ตรวจสอบได้เป็นการชั่วคราว จนกว่าเจ้าพนักงานท้องถิ่นจะออก{isHazardous ? 'ใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ (แบบ อภ.2)' : 'หนังสือรับรองการแจ้ง'}ภายในกำหนดเวลาตามกฎหมาย
+            ๑. แบบฟอร์มนี้ทำในระบบและพิมพ์เสนอผู้มีอำนาจลงนาม และให้ระบบแจ้งเตือนผู้ยื่นคำขอทราบว่าเจ้าหน้าที่ได้ออก{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ให้แล้วภายในวันที่ยื่น โดยประชาชนหรือผู้ประกอบการสามารถใช้เป็นหลักฐานแสดงให้เจ้าหน้าที่ตรวจสอบได้เป็นการชั่วคราว จนกว่าเจ้าพนักงานท้องถิ่นจะออก{isHazardous ? 'ใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพ (แบบ อภ. ๒)' : 'หนังสือรับรองการแจ้ง (แบบ นจ. ๓)'}
           </p>
           <p>
-            2. วันที่รับเรื่องและวันที่ออก{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ต้องออกให้ภายในวันเดียวกัน
+            ๒. วันที่รับเรื่องและวันที่ออก{isHazardous ? 'ใบรับคำขอ' : 'ใบรับแจ้ง'}ต้องออกให้ภายในวันเดียวกัน
           </p>
         </div>
       </div>

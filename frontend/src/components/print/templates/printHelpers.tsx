@@ -133,6 +133,58 @@ export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) =>
 };
 
 /**
+ * Convert Arabic numbers to authentic Thai numerals (e.g. 1 -> ๑)
+ */
+export const toThaiDigits = (input: string | number): string => {
+  const thaiDigits = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+  return String(input).replace(/\d/g, (d) => thaiDigits[parseInt(d, 10)]);
+};
+
+/**
+ * Format address into continuous, official Thai administrative phrasing without awkward spaces
+ */
+export const formatOfficialAddress = (
+  rawAddress?: string,
+  rawVillage?: string,
+  district = 'อำเภอฝาง',
+  province = 'จังหวัดเชียงใหม่'
+) => {
+  const parsed = parseAddressDetails(rawAddress, rawVillage);
+  const parts: string[] = [];
+
+  if (parsed.houseNo && parsed.houseNo !== '-') {
+    parts.push(parsed.houseNo);
+  }
+
+  if (parsed.mooNumber) {
+    parts.push(`หมู่ที่ ${parsed.mooNumber}`);
+  }
+
+  if (parsed.villageNamePart) {
+    parts.push(parsed.villageNamePart);
+  } else if (!parsed.mooNumber && parsed.combinedVillage && parsed.combinedVillage !== '-') {
+    parts.push(parsed.combinedVillage);
+  }
+
+  const cleanDistrict = district.replace(/^อำเภอ/, '');
+  const cleanProvince = province.replace(/^จังหวัด/, '');
+  parts.push('ตำบลโป่งน้ำร้อน');
+  parts.push(`อำเภอ${cleanDistrict}`);
+  parts.push(`จังหวัด${cleanProvince}`);
+
+  return {
+    parsed,
+    formatted: parts.join(' '),
+    houseNo: parsed.houseNo,
+    mooNumber: parsed.mooNumber,
+    villageName: parsed.villageNamePart,
+    subdistrict: 'ตำบลโป่งน้ำร้อน',
+    district: `อำเภอ${cleanDistrict}`,
+    province: `จังหวัด${cleanProvince}`
+  };
+};
+
+/**
  * Standard Dual-Signatures Block for Thai Administrative Documents with Electronic Signature
  */
 export const OfficialSignaturesBlock: React.FC<{
