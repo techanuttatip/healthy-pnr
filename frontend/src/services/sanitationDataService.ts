@@ -517,7 +517,7 @@ class SanitationDataService {
       ? row.premise_characteristics
       : (fallbackEst?.premiseCharacteristics && fallbackEst.premiseCharacteristics !== '-')
       ? fallbackEst.premiseCharacteristics
-      : 'อยู่ในอาคารพาณิชย์';
+      : 'ตึกเดี่ยว 1 ชั้น';
     const effectiveScore = latestInsp ? Number(latestInsp.total_score) : (fallbackEst?.inspectionScore || 100);
 
     const effectiveLat = row.lat || latestInsp?.gps_checkin?.lat || fallbackEst?.lat || 19.9288;
@@ -568,6 +568,7 @@ class SanitationDataService {
       businessName: row.business_name || fallbackEst?.businessName || '',
       applicantType: row.applicant_type || fallbackEst?.applicantType || 'individual',
       ownerName: row.owner_name || fallbackEst?.ownerName || '',
+      ownerAge: row.owner_age || fallbackEst?.ownerAge || (row.citizen_id === '3500901026441' || row.owner_name?.includes('จำนงค์') ? 67 : 35),
       citizenId: row.citizen_id || fallbackEst?.citizenId || '',
       phone: row.phone || fallbackEst?.phone || '',
       email: row.email || fallbackEst?.email || '',

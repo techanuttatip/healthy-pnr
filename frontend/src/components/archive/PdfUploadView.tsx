@@ -274,7 +274,7 @@ export const PdfUploadView: React.FC<PdfUploadViewProps> = ({
       address: values.address,
       areaSqm: values.areaSqm || 50,
       workerCount: values.workerCount ?? 1,
-      premiseCharacteristics: values.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์',
+      premiseCharacteristics: values.premiseCharacteristics || 'ตึกเดี่ยว 1 ชั้น',
       lat: values.lat,
       lng: values.lng,
       status: 'active',

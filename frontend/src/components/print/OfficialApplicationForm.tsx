@@ -123,7 +123,7 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
       );
       setFoodPlaceType(isStorageEst ? 'storage' : (establishment.foodPlaceType || 'selling'));
       setFoodTypeDetail(establishment.foodTypeDetail || (isStorageEst ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม'));
-      setPremiseCharacteristics(establishment.premiseCharacteristics || (isStorageEst ? 'อยู่ในอาคารพาณิชย์' : 'อยู่ในอาคารพาณิชย์'));
+      setPremiseCharacteristics(establishment.premiseCharacteristics || (isStorageEst ? 'ตึกเดี่ยว 1 ชั้น' : 'ตึกเดี่ยว 1 ชั้น'));
       let initialDist = establishment.distributionMethod;
       if (isStorageEst && (!initialDist || initialDist.includes('โต๊ะเก้าอี้'))) {
         initialDist = 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)';
@@ -164,7 +164,7 @@ export const OfficialApplicationForm: React.FC<OfficialApplicationFormProps> = (
       const isInitialStorage = mode?.includes('สะสม') || false;
       setFoodPlaceType(isInitialStorage ? 'storage' : 'selling');
       setFoodTypeDetail(isInitialStorage ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม');
-      setPremiseCharacteristics('อยู่ในอาคารพาณิชย์');
+      setPremiseCharacteristics('ตึกเดี่ยว 1 ชั้น');
       setDistributionMethod(isInitialStorage ? 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)' : 'มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน');
       setOperatingHours('๐๗:๐๐ - ๑๙:๐๐ น.');
       setLineId('@pnr-food');

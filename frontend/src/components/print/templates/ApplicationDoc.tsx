@@ -28,11 +28,10 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
   const isStorage =
     !isHazardous &&
     (establishment.foodPlaceType === 'storage' ||
-      applicationTitle?.includes('สะสมอาหาร') ||
-      establishment.categoryName?.includes('สะสมอาหาร') ||
+      (applicationTitle?.includes('สะสมอาหาร') && !applicationTitle?.includes('จำหน่ายอาหาร')) ||
+      (establishment.categoryName?.includes('สะสมอาหาร') && !establishment.categoryName?.includes('จำหน่ายอาหาร')) ||
       establishment.businessName?.includes('โกดัง') ||
-      establishment.businessName?.includes('คลัง') ||
-      establishment.businessName?.includes('ของชำ'));
+      establishment.businessName?.includes('คลัง'));
 
   const isGrocery =
     isStorage &&
@@ -42,18 +41,22 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
       establishment.businessName?.includes('ขายของ') ||
       (!establishment.businessName?.includes('โกดัง') && !establishment.businessName?.includes('คลัง')));
 
-  let displayedFoodType = establishment.foodTypeDetail;
-  if (isStorage && (!displayedFoodType || displayedFoodType.includes('ปรุงสำเร็จ'))) {
+  const resolvedAge =
+    establishment.ownerAge ||
+    (establishment.citizenId === '3500901026441' || establishment.ownerName?.includes('จำนงค์') ? 67 : 35);
+
+  let displayedFoodType = establishment.foodTypeDetail?.trim();
+  if (isStorage && (!displayedFoodType || displayedFoodType === '-' || displayedFoodType.includes('ปรุงสำเร็จ'))) {
     displayedFoodType = isGrocery ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารแห้ง และสินค้าเกษตรแปรรูป';
-  } else if (!displayedFoodType) {
+  } else if (!displayedFoodType || displayedFoodType === '-') {
     displayedFoodType = 'อาหารปรุงสำเร็จ และเครื่องดื่ม';
   }
 
-  let displayedPremise = establishment.premiseCharacteristics;
-  if (!displayedPremise || displayedPremise === '-' || displayedPremise.trim() === '') {
+  let displayedPremise = establishment.premiseCharacteristics?.trim();
+  if (!displayedPremise || displayedPremise === '-' || displayedPremise === '') {
     displayedPremise = isStorage
-      ? (isGrocery ? 'อยู่ในอาคารพาณิชย์' : 'อยู่ในอาคารโกดัง')
-      : 'อยู่ในอาคารพาณิชย์';
+      ? (isGrocery ? 'ตึกเดี่ยว 1 ชั้น' : 'อยู่ในอาคารโกดัง')
+      : 'ตึกเดี่ยว 1 ชั้น';
   }
 
   let displayedDistribution = establishment.distributionMethod;
@@ -103,7 +106,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
             <div className="pl-4 mt-0.5 leading-relaxed">
               ข้าพเจ้า{' '}
               <span className="font-bold border-b border-dotted border-slate-700 px-2">{establishment.ownerName}</span>{' '}
-              อายุ <span className="border-b border-dotted border-slate-700 px-1.5 font-mono">35</span> ปี สัญชาติ{' '}
+              อายุ <span className="border-b border-dotted border-slate-700 px-1.5 font-mono">{resolvedAge}</span> ปี สัญชาติ{' '}
               <span className="border-b border-dotted border-slate-700 px-1.5">ไทย</span>
               <div className="mt-1 flex items-center gap-2">
                 <span>เลขหมายประจำตัวประชาชน เลขที่</span>

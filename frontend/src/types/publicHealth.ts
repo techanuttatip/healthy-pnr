@@ -145,6 +145,7 @@ export interface Establishment {
   businessName: string;
   applicantType: 'individual' | 'juristic';
   ownerName: string;
+  ownerAge?: number;
   citizenId: string; // เลขบัตรประชาชน หรือเลขทะเบียนนิติบุคคล 13 หลัก
   phone: string;
   email?: string;

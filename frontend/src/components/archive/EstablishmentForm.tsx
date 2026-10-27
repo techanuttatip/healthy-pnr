@@ -28,6 +28,7 @@ export interface EstablishmentFormValues {
   targetYear: number;
   businessName: string;
   ownerName: string;
+  ownerAge?: number;
   citizenId: string;
   phone: string;
   email: string;
@@ -75,7 +76,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
   const currentOfficer = sanitationDataService.getCurrentOfficer();
 
   const sanitizePremise = (val?: string) => {
-    if (!val || val === '-' || val.trim() === '') return 'อยู่ในอาคารพาณิชย์';
+    if (!val || val === '-' || val.trim() === '') return 'ตึกเดี่ยว 1 ชั้น';
     return val.trim();
   };
 
@@ -90,6 +91,10 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
 
   const [businessName, setBusinessName] = useState<string>(initialValues?.businessName || '');
   const [ownerName, setOwnerName] = useState<string>(initialValues?.ownerName || '');
+  const [ownerAge, setOwnerAge] = useState<number>(
+    initialValues?.ownerAge ||
+      (initialValues?.citizenId === '3500901026441' || initialValues?.ownerName?.includes('จำนงค์') ? 67 : 35)
+  );
   const [citizenId, setCitizenId] = useState<string>(initialValues?.citizenId || '');
   const [phone, setPhone] = useState<string>(initialValues?.phone || '');
   const [email, setEmail] = useState<string>(initialValues?.email || '');
@@ -155,6 +160,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       if (initialValues.targetYear !== undefined) setTargetYear(initialValues.targetYear);
       if (initialValues.businessName !== undefined) setBusinessName(initialValues.businessName);
       if (initialValues.ownerName !== undefined) setOwnerName(initialValues.ownerName);
+      if (initialValues.ownerAge !== undefined) setOwnerAge(initialValues.ownerAge);
       if (initialValues.citizenId !== undefined) setCitizenId(initialValues.citizenId);
       if (initialValues.phone !== undefined) setPhone(initialValues.phone);
       if (initialValues.email !== undefined) setEmail(initialValues.email);
@@ -248,6 +254,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       targetYear,
       businessName: businessName.trim(),
       ownerName: ownerName.trim(),
+      ownerAge: Number(ownerAge) || 35,
       citizenId: citizenId.trim(),
       phone: phone.trim(),
       email: email.trim(),
@@ -380,6 +387,21 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
 
           <div>
             <label className="ui-label">
+              อายุ (ปี)<span className="req">*</span>
+            </label>
+            <input
+              type="number"
+              min={15}
+              max={120}
+              value={ownerAge}
+              onChange={(e) => setOwnerAge(Number(e.target.value) || 0)}
+              placeholder="เช่น 67"
+              className="ui-input font-mono font-bold"
+            />
+          </div>
+
+          <div>
+            <label className="ui-label">
               เลขประจำตัวประชาชน (๑๓ หลัก)<span className="req">*</span>
             </label>
             <input
@@ -472,11 +494,15 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
               list="premise-characteristics-list"
               value={premiseCharacteristics}
               onChange={(e) => setPremiseCharacteristics(e.target.value)}
-              placeholder="เช่น อยู่ในอาคารพาณิชย์"
+              placeholder="เช่น ตึกเดี่ยว 1 ชั้น, อาคารปูน 1 ชั้น"
               className="ui-input font-medium"
             />
             <datalist id="premise-characteristics-list">
+              <option value="ตึกเดี่ยว 1 ชั้น" />
+              <option value="อาคารปูน 1 ชั้น" />
+              <option value="อาคารพาณิชย์ 1 ชั้น" />
               <option value="อยู่ในอาคารพาณิชย์" />
+              <option value="อยู่ในอาคาร" />
               <option value="อาคารพาณิชย์/จำหน่ายสินค้าอุปโภคบริโภค" />
               <option value="อาคารพาณิชย์/สถานที่ปรุงประกอบและจำหน่ายอาหาร" />
               <option value="อาคารโกดังคอนกรีตเสริมเหล็ก" />

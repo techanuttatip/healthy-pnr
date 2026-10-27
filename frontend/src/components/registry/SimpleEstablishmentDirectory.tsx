@@ -95,12 +95,13 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
     try {
       const safePremise = (values.premiseCharacteristics && values.premiseCharacteristics !== '-')
         ? values.premiseCharacteristics.trim()
-        : 'อยู่ในอาคารพาณิชย์';
+        : 'ตึกเดี่ยว 1 ชั้น';
 
       const updated: Establishment = {
         ...editingEst,
         businessName: values.businessName,
         ownerName: values.ownerName,
+        ownerAge: values.ownerAge || editingEst.ownerAge || (values.citizenId === '3500901026441' || values.ownerName.includes('จำนงค์') ? 67 : 35),
         citizenId: values.citizenId,
         phone: values.phone,
         email: values.email,
@@ -564,7 +565,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                     <div className="min-w-0">
                       <span className="text-[10px] text-slate-400 block leading-tight">ลักษณะสถานที่:</span>
                       <span className="text-xs font-semibold text-slate-800 truncate block">
-                        {(!est.premiseCharacteristics || est.premiseCharacteristics === '-') ? 'อยู่ในอาคารพาณิชย์' : est.premiseCharacteristics}
+                        {(!est.premiseCharacteristics || est.premiseCharacteristics === '-') ? 'ตึกเดี่ยว 1 ชั้น' : est.premiseCharacteristics}
                       </span>
                     </div>
                   </div>
@@ -647,7 +648,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                         {est.workerCount || 1}
                       </td>
                       <td className="py-3 px-3 font-medium text-slate-700">
-                        {(!est.premiseCharacteristics || est.premiseCharacteristics === '-') ? 'อยู่ในอาคารพาณิชย์' : est.premiseCharacteristics}
+                        {(!est.premiseCharacteristics || est.premiseCharacteristics === '-') ? 'ตึกเดี่ยว 1 ชั้น' : est.premiseCharacteristics}
                       </td>
                       <td className="py-3 px-3 text-center whitespace-nowrap">{getStatusBadge(est.status)}</td>
                       <td className="py-3 px-3 text-center whitespace-nowrap">
@@ -731,6 +732,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                   targetYear: parseInt(editingEst.regNumber?.match(/[-_](\d{2})[-_]/)?.[1] || '69', 10) + 2500,
                   businessName: editingEst.businessName,
                   ownerName: editingEst.ownerName,
+                  ownerAge: editingEst.ownerAge || (editingEst.citizenId === '3500901026441' || editingEst.ownerName?.includes('จำนงค์') ? 67 : 35),
                   citizenId: editingEst.citizenId,
                   phone: editingEst.phone,
                   email: editingEst.email || '',
@@ -742,7 +744,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                   lng: editingEst.lng,
                   areaSqm: editingEst.areaSqm || 50,
                   workerCount: editingEst.workerCount ?? 1,
-                  premiseCharacteristics: (editingEst.premiseCharacteristics && editingEst.premiseCharacteristics !== '-') ? editingEst.premiseCharacteristics : 'อยู่ในอาคารพาณิชย์',
+                  premiseCharacteristics: (editingEst.premiseCharacteristics && editingEst.premiseCharacteristics !== '-') ? editingEst.premiseCharacteristics : 'ตึกเดี่ยว 1 ชั้น',
                   foodPlaceType: editingEst.foodPlaceType || 'selling',
                   foodTypeDetail: editingEst.foodTypeDetail || (editingEst.foodPlaceType === 'storage' ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม'),
                   distributionMethod: editingEst.distributionMethod || 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)',

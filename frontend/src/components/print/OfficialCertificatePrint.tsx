@@ -134,10 +134,9 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
   const isStorage =
     !isHazardous && (
       activeEstablishment?.foodPlaceType === 'storage' ||
-      activeEstablishment?.categoryName?.includes('สะสมอาหาร') ||
+      (activeEstablishment?.categoryName?.includes('สะสมอาหาร') && !activeEstablishment?.categoryName?.includes('จำหน่ายอาหาร')) ||
       activeEstablishment?.businessName?.includes('โกดัง') ||
-      activeEstablishment?.businessName?.includes('คลัง') ||
-      activeEstablishment?.businessName?.includes('ของชำ')
+      activeEstablishment?.businessName?.includes('คลัง')
     );
 
   let formTitle = 'หนังสือรับรองการแจ้ง\nจัดตั้งสถานที่จำหน่ายอาหาร';
