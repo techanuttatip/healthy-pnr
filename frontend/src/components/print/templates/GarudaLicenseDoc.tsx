@@ -143,7 +143,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
   return (
     <div
       id="printable-certificate"
-      className="printable-doc-root w-full max-w-[210mm] bg-white text-black shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative"
+      className="printable-doc-root w-full max-w-[210mm] bg-white text-black shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-[160mm] print:overflow-hidden print:p-0 print:m-0 flex flex-col justify-between relative"
       style={{
         fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
         textAlign: 'left',
@@ -231,48 +231,48 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 font-bold mr-1">(๑)</span>
                 <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่นออกใบอนุญาตให้</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[100px] truncate">
                   {establishment.ownerName}
                 </div>
-                <span className="shrink-0 mx-1.5">อายุ</span>
-                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อายุ</span>
+                <div className="w-10 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(resolvedAge)}
                 </div>
-                <span className="shrink-0 mx-1.5">ปี</span>
-                <span className="shrink-0 mr-1.5">สัญชาติ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ปี</span>
+                <span className="shrink-0 mr-1">สัญชาติ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   ไทย
                 </div>
               </div>
 
               {/* Line 2: ที่อยู่ตามทะเบียนบ้าน */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">อยู่บ้านเลขที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(ownerAddr.houseNo || '-')}
                 </div>
-                <span className="shrink-0 mx-1.5">หมู่ที่</span>
-                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">หมู่ที่</span>
+                <div className="w-8 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(ownerAddr.mooNumber || '-')}
                 </div>
                 {ownerAddr.villageName ? (
                   <>
-                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                    <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                       {ownerAddr.villageName}
                     </div>
                     <span className="shrink-0 mx-0.5"></span>
                   </>
                 ) : null}
-                <span className="shrink-0 mx-1.5">ตำบล</span>
-                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตำบล</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
                   โป่งน้ำร้อน
                 </div>
-                <span className="shrink-0 mx-1.5">อำเภอ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อำเภอ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {districtName.replace('อำเภอ', '')}
                 </div>
-                <span className="shrink-0 mx-1.5">จังหวัด</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {provinceName.replace('จังหวัด', '')}
                 </div>
               </div>
@@ -315,51 +315,51 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
 
               {/* Line 7: พื้นที่ / คนงาน / เครื่องจักร */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">มีพื้นที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">มีพื้นที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.areaSqm)}
                 </div>
-                <span className="shrink-0 mx-1.5">ตารางเมตร</span>
-                <span className="shrink-0 mx-1.5">จำนวนคนงาน</span>
-                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตารางเมตร</span>
+                <span className="shrink-0 mx-1">จำนวนคนงาน</span>
+                <div className="w-10 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.workerCount)}
                 </div>
-                <span className="shrink-0 mx-1.5">คน</span>
-                <span className="shrink-0 mx-1.5">กำลังเครื่องจักร</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[60px]">
+                <span className="shrink-0 mx-1">คน</span>
+                <span className="shrink-0 mx-1">กำลังเครื่องจักร</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {toThaiDigits(establishment.machineHorsepower || '-')}
                 </div>
-                <span className="shrink-0 ml-1.5">แรงม้า</span>
+                <span className="shrink-0 ml-1">แรงม้า</span>
               </div>
 
               {/* Line 8: สถานที่ตั้งร้าน */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">สถานที่ตั้ง เลขที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(premiseAddr.houseNo || '-')}
                 </div>
-                <span className="shrink-0 mx-1.5">หมู่ที่</span>
-                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">หมู่ที่</span>
+                <div className="w-8 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(premiseAddr.mooNumber || '-')}
                 </div>
                 {premiseAddr.villageName ? (
                   <>
-                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                    <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                       {premiseAddr.villageName}
                     </div>
                     <span className="shrink-0 mx-0.5"></span>
                   </>
                 ) : null}
-                <span className="shrink-0 mx-1.5">ตำบล</span>
-                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตำบล</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
                   โป่งน้ำร้อน
                 </div>
-                <span className="shrink-0 mx-1.5">อำเภอ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อำเภอ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {districtName.replace('อำเภอ', '')}
                 </div>
-                <span className="shrink-0 mx-1.5">จังหวัด</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {provinceName.replace('จังหวัด', '')}
                 </div>
               </div>
@@ -404,7 +404,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: spacing.paragraphLineHeight, margin: 0 }}>
                   <span className="font-bold">(๓)</span> ผู้ได้รับใบอนุญาตต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
                 </p>
-                <div style={{ paddingLeft: '3cm', fontSize: '13.5pt', lineHeight: spacing.subBulletLineHeight, marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
+                <div style={{ paddingLeft: '2.5cm', fontSize: '13.5pt', lineHeight: spacing.subBulletLineHeight, marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
                   <div>
                     <span className="font-semibold">๓.๑)</span> ต้องควบคุม ป้องกัน และระมัดระวังมิให้เกิดอันตราย อัคคีภัย การรั่วไหลของน้ำมันเชื้อเพลิง เสียง หรือมลพิษอื่นใดอันเป็นเหตุรำคาญหรือเป็นอันตรายต่อสุขภาพและความปลอดภัยของประชาชน
                   </div>
@@ -442,48 +442,48 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 font-bold mr-1">(๑)</span>
                 <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่น{isFoodLicense ? 'ออกใบอนุญาตให้' : 'ออกหนังสือรับรองการแจ้งให้'}</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[100px] truncate">
                   {establishment.ownerName}
                 </div>
-                <span className="shrink-0 mx-1.5">อายุ</span>
-                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อายุ</span>
+                <div className="w-10 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(resolvedAge)}
                 </div>
-                <span className="shrink-0 mx-1.5">ปี</span>
-                <span className="shrink-0 mr-1.5">สัญชาติ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ปี</span>
+                <span className="shrink-0 mr-1">สัญชาติ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   ไทย
                 </div>
               </div>
 
               {/* Line 2: ที่อยู่ตามทะเบียนบ้าน */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">อยู่บ้านเลขที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(ownerAddr.houseNo || '-')}
                 </div>
-                <span className="shrink-0 mx-1.5">หมู่ที่</span>
-                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">หมู่ที่</span>
+                <div className="w-8 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(ownerAddr.mooNumber || '-')}
                 </div>
                 {ownerAddr.villageName ? (
                   <>
-                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                    <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                       {ownerAddr.villageName}
                     </div>
                     <span className="shrink-0 mx-0.5"></span>
                   </>
                 ) : null}
-                <span className="shrink-0 mx-1.5">ตำบล</span>
-                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตำบล</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
                   โป่งน้ำร้อน
                 </div>
-                <span className="shrink-0 mx-1.5">อำเภอ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อำเภอ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {districtName.replace('อำเภอ', '')}
                 </div>
-                <span className="shrink-0 mx-1.5">จังหวัด</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {provinceName.replace('จังหวัด', '')}
                 </div>
               </div>
@@ -531,49 +531,49 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               {/* Line 7: เวลา / พื้นที่ / คนงาน */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
-                <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <div className="w-28 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.')}
                 </div>
-                <span className="shrink-0 mx-1.5">มีพื้นที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">มีพื้นที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.areaSqm)}
                 </div>
-                <span className="shrink-0 mx-1.5">ตารางเมตร</span>
-                <span className="shrink-0 mx-1.5">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[50px]">
+                <span className="shrink-0 mx-1">ตารางเมตร</span>
+                <span className="shrink-0 mx-1">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[35px]">
                   {toThaiDigits(establishment.workerCount)}
                 </div>
-                <span className="shrink-0 ml-1.5">คน</span>
+                <span className="shrink-0 ml-1">คน</span>
               </div>
 
               {/* Line 8: สถานที่ตั้งร้าน */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">สถานที่ตั้ง เลขที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(premiseAddr.houseNo || '-')}
                 </div>
-                <span className="shrink-0 mx-1.5">หมู่ที่</span>
-                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">หมู่ที่</span>
+                <div className="w-8 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(premiseAddr.mooNumber || '-')}
                 </div>
                 {premiseAddr.villageName ? (
                   <>
-                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                    <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                       {premiseAddr.villageName}
                     </div>
                     <span className="shrink-0 mx-0.5"></span>
                   </>
                 ) : null}
-                <span className="shrink-0 mx-1.5">ตำบล</span>
-                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตำบล</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
                   โป่งน้ำร้อน
                 </div>
-                <span className="shrink-0 mx-1.5">อำเภอ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อำเภอ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {districtName.replace('อำเภอ', '')}
                 </div>
-                <span className="shrink-0 mx-1.5">จังหวัด</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {provinceName.replace('จังหวัด', '')}
                 </div>
               </div>
@@ -652,9 +652,9 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
 
       {/* Official Signatures Section */}
       <div className="signatures-container relative z-10" style={{ marginTop: spacing.sigMt }}>
-        <div className="flex justify-end items-end">
+        <div className="flex justify-end items-end mr-1">
           {/* Local Mayor Signature */}
-          <div className="text-center w-72 relative">
+          <div className="text-center w-60 relative">
             <img
               src="/pnr_logo.png"
               alt="ตราประทับ อบต.โป่งน้ำร้อน"

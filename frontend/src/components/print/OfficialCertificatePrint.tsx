@@ -458,7 +458,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
 
 
       {/* A4 Paper Viewport */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 flex justify-center bg-slate-900/10 backdrop-blur-xs rounded-2xl print:!p-0 print:!m-0 print:!border-none print:bg-white print:overflow-visible border border-white/60">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 flex justify-center bg-slate-900/10 backdrop-blur-xs rounded-2xl print:!p-0 print:!m-0 print:!border-none print:!block print:!w-full print:bg-white print:overflow-visible border border-white/60">
         {(printViewMode === 'garuda' || printViewMode === 'replacement_cert') && activeEstablishment && (
           <GarudaLicenseDoc
             establishment={activeEstablishment}

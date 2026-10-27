@@ -796,6 +796,7 @@ select {
     position: static !important;
     width: 100% !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
     min-height: 0 !important;
     height: auto !important;
     margin: 0 !important;

@@ -100,7 +100,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
   return (
     <div
       id="printable-temp-notice"
-      className="printable-doc-root w-full max-w-[210mm] bg-white text-black shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative"
+      className="printable-doc-root w-full max-w-[210mm] bg-white text-black shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-[160mm] print:overflow-hidden print:p-0 print:m-0 flex flex-col justify-between relative"
       style={{
         fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
         textAlign: 'left',
@@ -168,48 +168,48 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               {/* Line 1 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่นได้รับคำขอรับใบอนุญาตจาก</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[100px] truncate">
                   {establishment.ownerName}
                 </div>
-                <span className="shrink-0 mx-1.5">อายุ</span>
-                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อายุ</span>
+                <div className="w-10 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(resolvedAge)}
                 </div>
-                <span className="shrink-0 mx-1.5">ปี</span>
-                <span className="shrink-0 mr-1.5">สัญชาติ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ปี</span>
+                <span className="shrink-0 mr-1">สัญชาติ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   ไทย
                 </div>
               </div>
 
               {/* Line 2 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">อยู่บ้านเลขที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.houseNo || '-')}
                 </div>
-                <span className="shrink-0 mx-1.5">หมู่ที่</span>
-                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">หมู่ที่</span>
+                <div className="w-8 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.mooNumber || '-')}
                 </div>
                 {parsedAddress.villageName ? (
                   <>
-                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                    <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                       {parsedAddress.villageName}
                     </div>
                     <span className="shrink-0 mx-0.5"></span>
                   </>
                 ) : null}
-                <span className="shrink-0 mx-1.5">ตำบล</span>
-                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตำบล</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
                   โป่งน้ำร้อน
                 </div>
-                <span className="shrink-0 mx-1.5">อำเภอ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อำเภอ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {districtName.replace('อำเภอ', '')}
                 </div>
-                <span className="shrink-0 mx-1.5">จังหวัด</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {provinceName.replace('จังหวัด', '')}
                 </div>
               </div>
@@ -252,51 +252,51 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
 
               {/* Line 7 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">มีพื้นที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">มีพื้นที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.areaSqm)}
                 </div>
-                <span className="shrink-0 mx-1.5">ตารางเมตร</span>
-                <span className="shrink-0 mx-1.5">จำนวนคนงาน</span>
-                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตารางเมตร</span>
+                <span className="shrink-0 mx-1">จำนวนคนงาน</span>
+                <div className="w-10 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.workerCount)}
                 </div>
-                <span className="shrink-0 mx-1.5">คน</span>
-                <span className="shrink-0 mx-1.5">กำลังเครื่องจักร</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[60px]">
+                <span className="shrink-0 mx-1">คน</span>
+                <span className="shrink-0 mx-1">กำลังเครื่องจักร</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {toThaiDigits(establishment.machineHorsepower || '-')}
                 </div>
-                <span className="shrink-0 ml-1.5">แรงม้า</span>
+                <span className="shrink-0 ml-1">แรงม้า</span>
               </div>
 
               {/* Line 8 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">สถานที่ตั้ง เลขที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.houseNo || '-')}
                 </div>
-                <span className="shrink-0 mx-1.5">หมู่ที่</span>
-                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">หมู่ที่</span>
+                <div className="w-8 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.mooNumber || '-')}
                 </div>
                 {parsedAddress.villageName ? (
                   <>
-                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                    <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                       {parsedAddress.villageName}
                     </div>
                     <span className="shrink-0 mx-0.5"></span>
                   </>
                 ) : null}
-                <span className="shrink-0 mx-1.5">ตำบล</span>
-                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตำบล</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
                   โป่งน้ำร้อน
                 </div>
-                <span className="shrink-0 mx-1.5">อำเภอ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อำเภอ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {districtName.replace('อำเภอ', '')}
                 </div>
-                <span className="shrink-0 mx-1.5">จังหวัด</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {provinceName.replace('จังหวัด', '')}
                 </div>
               </div>
@@ -319,48 +319,48 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               {/* Line 1 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่นออกใบรับแจ้งให้</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[100px] truncate">
                   {establishment.ownerName}
                 </div>
-                <span className="shrink-0 mx-1.5">อายุ</span>
-                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อายุ</span>
+                <div className="w-10 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(resolvedAge)}
                 </div>
-                <span className="shrink-0 mx-1.5">ปี</span>
-                <span className="shrink-0 mr-1.5">สัญชาติ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ปี</span>
+                <span className="shrink-0 mr-1">สัญชาติ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   ไทย
                 </div>
               </div>
 
               {/* Line 2 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">อยู่บ้านเลขที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.houseNo || '-')}
                 </div>
-                <span className="shrink-0 mx-1.5">หมู่ที่</span>
-                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">หมู่ที่</span>
+                <div className="w-8 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.mooNumber || '-')}
                 </div>
                 {parsedAddress.villageName ? (
                   <>
-                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                    <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                       {parsedAddress.villageName}
                     </div>
                     <span className="shrink-0 mx-0.5"></span>
                   </>
                 ) : null}
-                <span className="shrink-0 mx-1.5">ตำบล</span>
-                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตำบล</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
                   โป่งน้ำร้อน
                 </div>
-                <span className="shrink-0 mx-1.5">อำเภอ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อำเภอ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {districtName.replace('อำเภอ', '')}
                 </div>
-                <span className="shrink-0 mx-1.5">จังหวัด</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {provinceName.replace('จังหวัด', '')}
                 </div>
               </div>
@@ -408,49 +408,49 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               {/* Line 7 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
-                <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <div className="w-28 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.operatingHours || '07:00 - 19:00 น.')}
                 </div>
-                <span className="shrink-0 mx-1.5">มีพื้นที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">มีพื้นที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.areaSqm)}
                 </div>
-                <span className="shrink-0 mx-1.5">ตารางเมตร</span>
-                <span className="shrink-0 mx-1.5">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[50px]">
+                <span className="shrink-0 mx-1">ตารางเมตร</span>
+                <span className="shrink-0 mx-1">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[35px]">
                   {toThaiDigits(establishment.workerCount)}
                 </div>
-                <span className="shrink-0 ml-1.5">คน</span>
+                <span className="shrink-0 ml-1">คน</span>
               </div>
 
               {/* Line 8 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mr-1">สถานที่ตั้ง เลขที่</span>
+                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.houseNo || '-')}
                 </div>
-                <span className="shrink-0 mx-1.5">หมู่ที่</span>
-                <div className="w-14 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">หมู่ที่</span>
+                <div className="w-8 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.mooNumber || '-')}
                 </div>
                 {parsedAddress.villageName ? (
                   <>
-                    <div className="w-32 border-b border-dotted border-black text-center font-bold px-1 relative">
+                    <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                       {parsedAddress.villageName}
                     </div>
                     <span className="shrink-0 mx-0.5"></span>
                   </>
                 ) : null}
-                <span className="shrink-0 mx-1.5">ตำบล</span>
-                <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">ตำบล</span>
+                <div className="w-16 border-b border-dotted border-black text-center font-bold px-1 relative">
                   โป่งน้ำร้อน
                 </div>
-                <span className="shrink-0 mx-1.5">อำเภอ</span>
-                <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">อำเภอ</span>
+                <div className="w-11 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {districtName.replace('อำเภอ', '')}
                 </div>
-                <span className="shrink-0 mx-1.5">จังหวัด</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <span className="shrink-0 mx-1">จังหวัด</span>
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[45px]">
                   {provinceName.replace('จังหวัด', '')}
                 </div>
               </div>
@@ -491,7 +491,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
       <div className={`relative z-10 ${spacing.sigPt}`}>
         <div className="flex justify-between items-end">
           {/* Receiving Officer with e-sig */}
-          <div className="text-center w-72 relative">
+          <div className="text-center w-60 relative">
             <div className="relative flex items-end justify-center min-h-[44px] mb-1">
               <span className="text-[14pt] text-black shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
               <div className="relative flex-1 mx-2 border-b border-dotted border-black h-8 flex items-end justify-center">
@@ -514,7 +514,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
           </div>
 
           {/* Local Mayor */}
-          <div className="text-center w-72">
+          <div className="text-center w-60">
             <div className="relative flex items-end justify-center min-h-[44px] mb-1">
               <span className="text-[14pt] text-black shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
               <div className="flex-1 mx-2 border-b border-dotted border-black h-8"></div>

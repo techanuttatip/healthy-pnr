@@ -93,7 +93,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
   return (
     <div
       id="printable-application-form"
-      className="printable-doc-root w-full max-w-[210mm] bg-white text-black shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative"
+      className="printable-doc-root w-full max-w-[210mm] bg-white text-black shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-[160mm] print:overflow-hidden print:p-0 print:m-0 flex flex-col justify-between relative"
       style={{
         fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
         textAlign: 'left',
@@ -332,7 +332,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
       <div className="relative z-10 pt-2">
         <div className="flex justify-between items-end">
           {/* Officer Signature with e-sig */}
-          <div className="text-center w-72 relative">
+          <div className="text-center w-60 relative">
             <div className="relative flex items-end justify-center min-h-[44px] mb-1">
               <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
               <div className="relative flex-1 mx-2 border-b border-dotted border-slate-700 h-8 flex items-end justify-center">
@@ -355,7 +355,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
           </div>
 
           {/* Applicant Signature */}
-          <div className="text-center w-72">
+          <div className="text-center w-60">
             <div className="relative flex items-end justify-center min-h-[44px] mb-1">
               <span className="text-xs text-slate-800 shrink-0 select-none pb-0.5">(ลงชื่อ)</span>
               <div className="flex-1 mx-2 border-b border-dotted border-slate-700 h-8"></div>
