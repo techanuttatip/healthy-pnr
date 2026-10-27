@@ -245,8 +245,11 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
       <style>{`
         @media print {
           @page {
-            size: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? 'landscape' : 'portrait'};
-            margin: 8mm;
+            size: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? 'A4 landscape' : 'A4 portrait'};
+            margin-top: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '3cm'};
+            margin-right: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '2cm'};
+            margin-bottom: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '2cm'};
+            margin-left: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '3cm'};
           }
         }
       `}</style>
@@ -345,7 +348,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
                 >
                   {allList.map((est) => (
                     <option key={est.id} value={est.id} className="bg-white text-slate-900 py-1 font-medium">
-                      {est.businessName} ({est.regNumber || est.regType})
+                      {est.businessName} ({est.docNo || est.regNumber || est.regType})
                     </option>
                   ))}
                 </select>

@@ -104,14 +104,19 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
   return (
     <div
       id="printable-certificate"
-      className="printable-doc-root w-full max-w-[210mm] bg-white text-black p-6 sm:p-8 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative"
+      className="printable-doc-root w-full max-w-[210mm] bg-white text-black shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between relative"
       style={{
         fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
         textAlign: 'left',
         fontSize: '15pt',
         lineHeight: '1.5',
         color: '#000000',
-        minHeight: '297mm'
+        minHeight: '297mm',
+        paddingTop: '3cm',
+        paddingRight: '2cm',
+        paddingBottom: '2cm',
+        paddingLeft: '3cm',
+        boxSizing: 'border-box'
       }}
     >
       {/* Background Watermark */}

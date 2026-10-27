@@ -661,7 +661,10 @@ select {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 10mm;
+    margin-top: 3cm;
+    margin-right: 2cm;
+    margin-bottom: 2cm;
+    margin-left: 3cm;
   }
 
   /* When printing from a modal (such as FieldRenewalKitModal or FieldInspectionSlipModal), completely hide the underlying web application #root */
@@ -771,16 +774,20 @@ select {
   #printable-certificate,
   #printable-cleanfood-sign,
   #printable-application-form,
+  #printable-temp-notice,
   #printable-register-report,
   #printable-field-kit,
   #printable-field-inspection-slip,
-  .printable-content {
+  .printable-content,
+  .printable-doc-root {
     display: block !important;
     visibility: visible !important;
     position: static !important;
     width: 100% !important;
     max-width: 100% !important;
-    margin: 0 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
     padding: 0 !important;
     background: white !important;
     color: black !important;
