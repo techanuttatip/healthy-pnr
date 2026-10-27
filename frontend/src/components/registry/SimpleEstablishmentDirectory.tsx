@@ -93,6 +93,10 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
     if (!editingEst) return;
     setIsSavingEdit(true);
     try {
+      const safePremise = (values.premiseCharacteristics && values.premiseCharacteristics !== '-')
+        ? values.premiseCharacteristics.trim()
+        : 'อยู่ในอาคารพาณิชย์';
+
       const updated: Establishment = {
         ...editingEst,
         businessName: values.businessName,
@@ -104,24 +108,33 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
         address: values.address,
         areaSqm: values.areaSqm || 50,
         workerCount: values.workerCount ?? 1,
-        premiseCharacteristics: values.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์',
+        premiseCharacteristics: safePremise,
+        foodPlaceType: values.foodPlaceType || editingEst.foodPlaceType || 'selling',
+        foodTypeDetail: values.foodTypeDetail || editingEst.foodTypeDetail || '',
+        distributionMethod: values.distributionMethod || editingEst.distributionMethod || '',
+        operatingHours: values.operatingHours || editingEst.operatingHours || '',
         lat: values.lat,
         lng: values.lng,
         regType: values.regType,
         category: values.category,
         categoryName: values.categoryName,
         feeAmount: values.feeAmount,
-        receiptNo: values.receiptNo,
+        bookNo: values.bookNo || editingEst.bookNo || '๑',
         docNo: values.docNo,
+        receiptBookNo: values.receiptBookNo || editingEst.receiptBookNo || '๑',
+        receiptNo: values.receiptNo,
+        receiptDate: values.receiptDate || editingEst.receiptDate || values.applicationSubmissionDate,
         applicationSubmissionDate: values.applicationSubmissionDate,
         inspectorName: values.inspectorName,
-        inspectorPosition: values.inspectorPosition
+        inspectorPosition: values.inspectorPosition,
+        lineId: values.lineId || editingEst.lineId || '',
+        fax: values.fax || editingEst.fax || ''
       };
 
+      await sanitationDataService.saveEstablishment(updated);
       if (onUpdateEstablishment) {
         onUpdateEstablishment(updated);
       }
-      await sanitationDataService.saveEstablishment(updated);
       showToast('บันทึกการแก้ไขข้อมูลสำเร็จ!', 'success');
       setEditingEst(null);
     } catch (err) {
@@ -551,7 +564,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                     <div className="min-w-0">
                       <span className="text-[10px] text-slate-400 block leading-tight">ลักษณะสถานที่:</span>
                       <span className="text-xs font-semibold text-slate-800 truncate block">
-                        {est.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์'}
+                        {(!est.premiseCharacteristics || est.premiseCharacteristics === '-') ? 'อยู่ในอาคารพาณิชย์' : est.premiseCharacteristics}
                       </span>
                     </div>
                   </div>
@@ -634,7 +647,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                         {est.workerCount || 1}
                       </td>
                       <td className="py-3 px-3 font-medium text-slate-700">
-                        {est.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์'}
+                        {(!est.premiseCharacteristics || est.premiseCharacteristics === '-') ? 'อยู่ในอาคารพาณิชย์' : est.premiseCharacteristics}
                       </td>
                       <td className="py-3 px-3 text-center whitespace-nowrap">{getStatusBadge(est.status)}</td>
                       <td className="py-3 px-3 text-center whitespace-nowrap">
@@ -713,6 +726,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                   regType: editingEst.regType,
                   category: editingEst.category,
                   categoryName: editingEst.categoryName,
+                  bookNo: editingEst.bookNo && editingEst.bookNo !== '-' ? editingEst.bookNo : '๑',
                   docNo: editingEst.docNo || editingEst.regNumber?.split('-').pop() || '001',
                   targetYear: parseInt(editingEst.regNumber?.match(/[-_](\d{2})[-_]/)?.[1] || '69', 10) + 2500,
                   businessName: editingEst.businessName,
@@ -720,15 +734,23 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                   citizenId: editingEst.citizenId,
                   phone: editingEst.phone,
                   email: editingEst.email || '',
+                  lineId: editingEst.lineId || '',
+                  fax: editingEst.fax || '',
                   village: editingEst.village,
                   address: editingEst.address,
                   lat: editingEst.lat,
                   lng: editingEst.lng,
                   areaSqm: editingEst.areaSqm || 50,
                   workerCount: editingEst.workerCount ?? 1,
-                  premiseCharacteristics: editingEst.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์',
+                  premiseCharacteristics: (editingEst.premiseCharacteristics && editingEst.premiseCharacteristics !== '-') ? editingEst.premiseCharacteristics : 'อยู่ในอาคารพาณิชย์',
+                  foodPlaceType: editingEst.foodPlaceType || 'selling',
+                  foodTypeDetail: editingEst.foodTypeDetail || (editingEst.foodPlaceType === 'storage' ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม'),
+                  distributionMethod: editingEst.distributionMethod || 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)',
+                  operatingHours: editingEst.operatingHours || '07:00 - 19:00 น.',
                   feeAmount: editingEst.feeAmount || 100,
-                  receiptNo: editingEst.receiptNo || '',
+                  receiptBookNo: editingEst.receiptBookNo && editingEst.receiptBookNo !== '-' ? editingEst.receiptBookNo : (editingEst.bookNo && editingEst.bookNo !== '-' ? editingEst.bookNo : '๑'),
+                  receiptNo: editingEst.receiptNo || editingEst.docNo || '',
+                  receiptDate: editingEst.receiptDate || editingEst.applicationSubmissionDate || editingEst.issueDate || new Date().toISOString().split('T')[0],
                   applicationSubmissionDate: editingEst.applicationSubmissionDate || editingEst.issueDate || new Date().toISOString().split('T')[0],
                   inspectorName: editingEst.inspectorName || '',
                   inspectorPosition: editingEst.inspectorPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'

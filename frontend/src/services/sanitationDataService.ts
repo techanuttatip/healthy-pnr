@@ -513,7 +513,11 @@ class SanitationDataService {
     const effectiveInspectionDate = latestInsp?.inspection_date || fallbackEst?.inspectionDate || row.issue_date;
     const effectiveInspector = row.inspector_name || fallbackEst?.inspectorName || latestInsp?.inspector_name || 'นางสาวรุ่งทิวา อุปนันท์';
     const effectivePosition = row.inspector_position || fallbackEst?.inspectorPosition || latestInsp?.inspector_position || 'นักวิชาการสาธารณสุขปฏิบัติการ';
-    const effectivePremiseCharacteristics = row.premise_characteristics || fallbackEst?.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์';
+    const effectivePremiseCharacteristics = (row.premise_characteristics && row.premise_characteristics !== '-')
+      ? row.premise_characteristics
+      : (fallbackEst?.premiseCharacteristics && fallbackEst.premiseCharacteristics !== '-')
+      ? fallbackEst.premiseCharacteristics
+      : 'อยู่ในอาคารพาณิชย์';
     const effectiveScore = latestInsp ? Number(latestInsp.total_score) : (fallbackEst?.inspectionScore || 100);
 
     const effectiveLat = row.lat || latestInsp?.gps_checkin?.lat || fallbackEst?.lat || 19.9288;
@@ -838,10 +842,17 @@ class SanitationDataService {
 
       if (existing && existing.length > 0) {
         estId = existing[0].id;
-        await this.supabase
+        const { error: updErr } = await this.supabase
           .from('establishments')
-          .update(dbRow)
+          .update({
+            ...dbRow,
+            updated_at: new Date().toISOString()
+          })
           .eq('id', estId);
+        if (updErr) {
+          console.error('Failed to update establishment in Supabase:', updErr);
+          throw updErr;
+        }
       } else {
         const { data: inserted, error: insErr } = await this.supabase
           .from('establishments')

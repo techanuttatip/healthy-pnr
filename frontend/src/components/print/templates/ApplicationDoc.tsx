@@ -50,7 +50,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
   }
 
   let displayedPremise = establishment.premiseCharacteristics;
-  if (!displayedPremise) {
+  if (!displayedPremise || displayedPremise === '-' || displayedPremise.trim() === '') {
     displayedPremise = isStorage
       ? (isGrocery ? 'อยู่ในอาคารพาณิชย์' : 'อยู่ในอาคารโกดัง')
       : 'อยู่ในอาคารพาณิชย์';

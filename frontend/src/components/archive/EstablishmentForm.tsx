@@ -23,6 +23,7 @@ export interface EstablishmentFormValues {
   regType: RegimeType;
   category: EstablishmentCategory;
   categoryName: string;
+  bookNo?: string;
   docNo: string;
   targetYear: number;
   businessName: string;
@@ -38,11 +39,19 @@ export interface EstablishmentFormValues {
   areaSqm: number;
   workerCount: number;
   premiseCharacteristics: string;
+  foodPlaceType?: 'selling' | 'storage' | 'both';
+  foodTypeDetail?: string;
+  distributionMethod?: string;
+  operatingHours?: string;
   feeAmount: number;
+  receiptBookNo?: string;
   receiptNo: string;
+  receiptDate?: string;
   applicationSubmissionDate: string;
   inspectorName: string;
   inspectorPosition: string;
+  lineId?: string;
+  fax?: string;
 }
 
 interface EstablishmentFormProps {
@@ -65,11 +74,17 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
   const currentSettings = settings || DEFAULT_SYSTEM_SETTINGS;
   const currentOfficer = sanitationDataService.getCurrentOfficer();
 
+  const sanitizePremise = (val?: string) => {
+    if (!val || val === '-' || val.trim() === '') return 'อยู่ในอาคารพาณิชย์';
+    return val.trim();
+  };
+
   const [regType, setRegType] = useState<RegimeType>(initialValues?.regType || 'บทส');
   const [category, setCategory] = useState<EstablishmentCategory>(initialValues?.category || 'hazardous');
   const [categoryName, setCategoryName] = useState<string>(
     initialValues?.categoryName || 'กิจการที่เป็นอันตรายต่อสุขภาพ'
   );
+  const [bookNo, setBookNo] = useState<string>(initialValues?.bookNo || '๑');
   const [docNo, setDocNo] = useState<string>(initialValues?.docNo || '');
   const [targetYear, setTargetYear] = useState<number>(initialValues?.targetYear || 2569);
 
@@ -78,6 +93,8 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
   const [citizenId, setCitizenId] = useState<string>(initialValues?.citizenId || '');
   const [phone, setPhone] = useState<string>(initialValues?.phone || '');
   const [email, setEmail] = useState<string>(initialValues?.email || '');
+  const [lineId, setLineId] = useState<string>(initialValues?.lineId || '');
+  const [fax, setFax] = useState<string>(initialValues?.fax || '');
 
   const [houseNo, setHouseNo] = useState<string>(initialValues?.houseNo || '');
   const [village, setVillage] = useState<string>(initialValues?.village || OFFICIAL_VILLAGES[0]);
@@ -87,11 +104,28 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
   const [areaSqm, setAreaSqm] = useState<number>(initialValues?.areaSqm ?? 50);
   const [workerCount, setWorkerCount] = useState<number>(initialValues?.workerCount ?? 1);
   const [premiseCharacteristics, setPremiseCharacteristics] = useState<string>(
-    initialValues?.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์'
+    sanitizePremise(initialValues?.premiseCharacteristics)
+  );
+
+  const [foodPlaceType, setFoodPlaceType] = useState<'selling' | 'storage' | 'both'>(
+    initialValues?.foodPlaceType || (initialValues?.categoryName?.includes('สะสมอาหาร') ? 'storage' : 'selling')
+  );
+  const [foodTypeDetail, setFoodTypeDetail] = useState<string>(
+    initialValues?.foodTypeDetail || (initialValues?.categoryName?.includes('สะสมอาหาร') ? 'อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม' : 'อาหารปรุงสำเร็จ และเครื่องดื่ม')
+  );
+  const [distributionMethod, setDistributionMethod] = useState<string>(
+    initialValues?.distributionMethod || 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)'
+  );
+  const [operatingHours, setOperatingHours] = useState<string>(
+    initialValues?.operatingHours || '07:00 - 19:00 น.'
   );
 
   const [feeAmount, setFeeAmount] = useState<number>(initialValues?.feeAmount || 100);
+  const [receiptBookNo, setReceiptBookNo] = useState<string>(initialValues?.receiptBookNo || '๑');
   const [receiptNo, setReceiptNo] = useState<string>(initialValues?.receiptNo || '');
+  const [receiptDate, setReceiptDate] = useState<string>(
+    initialValues?.receiptDate || initialValues?.applicationSubmissionDate || new Date().toISOString().split('T')[0]
+  );
   const [applicationSubmissionDate, setApplicationSubmissionDate] = useState<string>(
     initialValues?.applicationSubmissionDate || new Date().toISOString().split('T')[0]
   );
@@ -116,6 +150,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       if (initialValues.regType) setRegType(initialValues.regType);
       if (initialValues.category) setCategory(initialValues.category);
       if (initialValues.categoryName !== undefined) setCategoryName(initialValues.categoryName);
+      if (initialValues.bookNo !== undefined) setBookNo(initialValues.bookNo);
       if (initialValues.docNo !== undefined) setDocNo(initialValues.docNo);
       if (initialValues.targetYear !== undefined) setTargetYear(initialValues.targetYear);
       if (initialValues.businessName !== undefined) setBusinessName(initialValues.businessName);
@@ -123,6 +158,8 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       if (initialValues.citizenId !== undefined) setCitizenId(initialValues.citizenId);
       if (initialValues.phone !== undefined) setPhone(initialValues.phone);
       if (initialValues.email !== undefined) setEmail(initialValues.email);
+      if (initialValues.lineId !== undefined) setLineId(initialValues.lineId);
+      if (initialValues.fax !== undefined) setFax(initialValues.fax);
       if (initialValues.houseNo !== undefined) setHouseNo(initialValues.houseNo);
       if (initialValues.village !== undefined) setVillage(initialValues.village);
       if (initialValues.address !== undefined) setAddress(initialValues.address);
@@ -130,9 +167,17 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       if (initialValues.lng !== undefined) setLng(initialValues.lng);
       if (initialValues.areaSqm !== undefined) setAreaSqm(initialValues.areaSqm);
       if (initialValues.workerCount !== undefined) setWorkerCount(initialValues.workerCount);
-      if (initialValues.premiseCharacteristics !== undefined) setPremiseCharacteristics(initialValues.premiseCharacteristics);
+      if (initialValues.premiseCharacteristics !== undefined) {
+        setPremiseCharacteristics(sanitizePremise(initialValues.premiseCharacteristics));
+      }
+      if (initialValues.foodPlaceType !== undefined) setFoodPlaceType(initialValues.foodPlaceType);
+      if (initialValues.foodTypeDetail !== undefined) setFoodTypeDetail(initialValues.foodTypeDetail);
+      if (initialValues.distributionMethod !== undefined) setDistributionMethod(initialValues.distributionMethod);
+      if (initialValues.operatingHours !== undefined) setOperatingHours(initialValues.operatingHours);
       if (initialValues.feeAmount !== undefined) setFeeAmount(initialValues.feeAmount);
+      if (initialValues.receiptBookNo !== undefined) setReceiptBookNo(initialValues.receiptBookNo);
       if (initialValues.receiptNo !== undefined) setReceiptNo(initialValues.receiptNo);
+      if (initialValues.receiptDate !== undefined) setReceiptDate(initialValues.receiptDate);
       if (initialValues.applicationSubmissionDate !== undefined) {
         setApplicationSubmissionDate(initialValues.applicationSubmissionDate);
       }
@@ -198,6 +243,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       regType,
       category,
       categoryName,
+      bookNo: bookNo.trim() || '๑',
       docNo: docNo.trim(),
       targetYear,
       businessName: businessName.trim(),
@@ -205,6 +251,8 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       citizenId: citizenId.trim(),
       phone: phone.trim(),
       email: email.trim(),
+      lineId: lineId.trim(),
+      fax: fax.trim(),
       houseNo: houseNo.trim(),
       village,
       address: address.trim() || `${houseNo} ${village} ต.โป่งน้ำร้อน อ.ฝาง จ.เชียงใหม่`,
@@ -212,9 +260,15 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       lng,
       areaSqm: Number(areaSqm) || 0,
       workerCount: Number(workerCount) || 0,
-      premiseCharacteristics: premiseCharacteristics.trim() || 'อยู่ในอาคารพาณิชย์',
+      premiseCharacteristics: sanitizePremise(premiseCharacteristics),
+      foodPlaceType,
+      foodTypeDetail: foodTypeDetail.trim(),
+      distributionMethod: distributionMethod.trim(),
+      operatingHours: operatingHours.trim(),
       feeAmount,
+      receiptBookNo: receiptBookNo.trim() || '๑',
       receiptNo: receiptNo.trim(),
+      receiptDate: receiptDate || applicationSubmissionDate,
       applicationSubmissionDate,
       inspectorName: inspectorName.trim(),
       inspectorPosition: inspectorPosition.trim()
@@ -229,7 +283,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       <div className="ui-card ui-card-pad space-y-4">
         <h3 className="ui-section-title">ข้อมูลคำขอและประเภทใบอนุญาต</h3>
 
-        <div className="ui-grid-3">
+        <div className="ui-grid-4">
           <div>
             <label className="ui-label">
               ประเภทคำขอ (Regime)<span className="req">*</span>
@@ -249,13 +303,24 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
           </div>
 
           <div>
+            <label className="ui-label">เล่มที่ใบอนุญาต/รับแจ้ง</label>
+            <input
+              type="text"
+              value={bookNo}
+              onChange={(e) => setBookNo(e.target.value)}
+              placeholder="เช่น ๑ หรือ 01"
+              className="ui-input font-mono"
+            />
+          </div>
+
+          <div>
             <label className="ui-label">เลขที่คำขอ / ใบอนุญาต</label>
             <input
               type="text"
               value={docNo}
               onChange={(e) => setDocNo(e.target.value)}
               placeholder="เช่น 044/2569"
-              className="ui-input"
+              className="ui-input font-mono"
             />
           </div>
 
@@ -265,7 +330,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
               type="number"
               value={targetYear}
               onChange={(e) => setTargetYear(Number(e.target.value))}
-              className="ui-input"
+              className="ui-input font-mono"
             />
           </div>
         </div>
@@ -339,6 +404,28 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
           </div>
 
           <div>
+            <label className="ui-label">Line ID (ถ้ามี)</label>
+            <input
+              type="text"
+              value={lineId}
+              onChange={(e) => setLineId(e.target.value)}
+              placeholder="เช่น @pnr-food"
+              className="ui-input font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="ui-label">โทรสาร / Fax (ถ้ามี)</label>
+            <input
+              type="text"
+              value={fax}
+              onChange={(e) => setFax(e.target.value)}
+              placeholder="เช่น 053-XXXXXX"
+              className="ui-input font-mono"
+            />
+          </div>
+
+          <div>
             <label className="ui-label">
               มีพื้นที่ (ตารางเมตร)<span className="req">*</span>
             </label>
@@ -377,15 +464,80 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
           </div>
 
           <div className="sm:col-span-2">
-            <label className="ui-label">ลักษณะของสถานที่ประกอบกิจการ</label>
+            <label className="ui-label">
+              ลักษณะของสถานที่ประกอบกิจการ<span className="req">*</span>
+            </label>
             <input
               type="text"
+              list="premise-characteristics-list"
               value={premiseCharacteristics}
               onChange={(e) => setPremiseCharacteristics(e.target.value)}
               placeholder="เช่น อยู่ในอาคารพาณิชย์"
               className="ui-input font-medium"
             />
+            <datalist id="premise-characteristics-list">
+              <option value="อยู่ในอาคารพาณิชย์" />
+              <option value="อาคารพาณิชย์/จำหน่ายสินค้าอุปโภคบริโภค" />
+              <option value="อาคารพาณิชย์/สถานที่ปรุงประกอบและจำหน่ายอาหาร" />
+              <option value="อาคารโกดังคอนกรีตเสริมเหล็ก" />
+              <option value="ซุ้ม/แผงลอย" />
+              <option value="ยานพาหนะ Food truck" />
+              <option value="อาคารพาณิชย์/ติดตั้งตู้จ่ายน้ำมันเชื้อเพลิงอัตโนมัติชนิดหยอดเหรียญและธนบัตร" />
+            </datalist>
           </div>
+
+          {/* รายละเอียดเพิ่มเติมสำหรับหมวดอาหาร (นจ. / บทอ.) */}
+          {(regType === 'นจ' || regType === 'บทอ' || category === 'food_notice' || category === 'food_license') && (
+            <>
+              <div>
+                <label className="ui-label">รูปแบบสถานที่อาหาร</label>
+                <select
+                  value={foodPlaceType}
+                  onChange={(e) => setFoodPlaceType(e.target.value as any)}
+                  className="ui-input font-medium"
+                >
+                  <option value="selling">สถานที่จำหน่ายอาหาร (แบบ นจ. 3 / บทอ.)</option>
+                  <option value="storage">สถานที่สะสมอาหาร (แบบ นจ. 3 สะสมอาหาร / บทส.)</option>
+                  <option value="both">ทั้งจำหน่ายและสะสมอาหาร</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="ui-label">ช่วงเวลาทำการ / จำหน่าย</label>
+                <input
+                  type="text"
+                  value={operatingHours}
+                  onChange={(e) => setOperatingHours(e.target.value)}
+                  placeholder="เช่น 07:00 - 19:00 น."
+                  className="ui-input font-mono"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="ui-label">
+                  {foodPlaceType === 'storage' ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}
+                </label>
+                <input
+                  type="text"
+                  value={foodTypeDetail}
+                  onChange={(e) => setFoodTypeDetail(e.target.value)}
+                  placeholder="เช่น อาหารแห้ง อาหารสำเร็จรูป และเครื่องดื่ม"
+                  className="ui-input"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="ui-label">วิธีการจำหน่าย</label>
+                <input
+                  type="text"
+                  value={distributionMethod}
+                  onChange={(e) => setDistributionMethod(e.target.value)}
+                  placeholder="เช่น จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)"
+                  className="ui-input"
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -461,9 +613,43 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
         </div>
       </div>
 
-      {/* การ์ด 4: ข้อมูลการยื่นคำขอและเจ้าหน้าที่ */}
+      {/* การ์ด 4: ข้อมูลการยื่นคำขอและใบเสร็จ */}
       <div className="ui-card ui-card-pad space-y-4">
-        <h3 className="ui-section-title">ข้อมูลการยื่นคำขอ & ค่าธรรมเนียม</h3>
+        <h3 className="ui-section-title">ข้อมูลการเงิน ใบเสร็จรับเงิน & เจ้าหน้าที่</h3>
+
+        <div className="ui-grid-3">
+          <div>
+            <label className="ui-label">เล่มที่ใบเสร็จรับเงิน</label>
+            <input
+              type="text"
+              value={receiptBookNo}
+              onChange={(e) => setReceiptBookNo(e.target.value)}
+              placeholder="เช่น ๑ หรือ 01"
+              className="ui-input font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="ui-label">เลขที่ใบเสร็จรับเงิน</label>
+            <input
+              type="text"
+              value={receiptNo}
+              onChange={(e) => setReceiptNo(e.target.value)}
+              placeholder="เช่น 0045"
+              className="ui-input font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="ui-label">วันที่ตามใบเสร็จรับเงิน</label>
+            <input
+              type="date"
+              value={receiptDate}
+              onChange={(e) => setReceiptDate(e.target.value)}
+              className="ui-input font-mono"
+            />
+          </div>
+        </div>
 
         <div className="ui-grid-2">
           <div>

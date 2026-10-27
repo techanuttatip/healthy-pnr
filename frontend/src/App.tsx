@@ -309,6 +309,13 @@ export const App: React.FC = () => {
                   c &&
                   p.id === c.id &&
                   p.status === c.status &&
+                  p.businessName === c.businessName &&
+                  p.ownerName === c.ownerName &&
+                  p.premiseCharacteristics === c.premiseCharacteristics &&
+                  p.docNo === c.docNo &&
+                  p.foodTypeDetail === c.foodTypeDetail &&
+                  p.distributionMethod === c.distributionMethod &&
+                  p.operatingHours === c.operatingHours &&
                   p.inspectionScore === c.inspectionScore &&
                   p.feeAmount === c.feeAmount &&
                   p.receiptNo === c.receiptNo &&
