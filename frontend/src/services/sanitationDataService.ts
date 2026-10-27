@@ -834,15 +834,32 @@ class SanitationDataService {
       const dbRow = this.mapToDbRow(est);
       let estId: string = est.id;
 
-      // ๑. ตรวจสอบข้อมูลในตาราง establishments
-      const { data: existing } = await this.supabase
-        .from('establishments')
-        .select('id')
-        .eq('reg_number', est.regNumber)
-        .limit(1);
+      // ๑. ตรวจสอบข้อมูลในตาราง establishments (ตรวจสอบด้วย ID ก่อน เพื่อรองรับกรณีผู้ใช้แก้ไขเลขที่คำขอ / reg_number)
+      let existingId: string | null = null;
+      if (est.id && !est.id.startsWith('est-')) {
+        const { data: byId } = await this.supabase
+          .from('establishments')
+          .select('id')
+          .eq('id', est.id)
+          .limit(1);
+        if (byId && byId.length > 0) {
+          existingId = byId[0].id;
+        }
+      }
 
-      if (existing && existing.length > 0) {
-        estId = existing[0].id;
+      if (!existingId) {
+        const { data: existing } = await this.supabase
+          .from('establishments')
+          .select('id')
+          .eq('reg_number', est.regNumber)
+          .limit(1);
+        if (existing && existing.length > 0) {
+          existingId = existing[0].id;
+        }
+      }
+
+      if (existingId) {
+        estId = existingId;
         const { error: updErr } = await this.supabase
           .from('establishments')
           .update({

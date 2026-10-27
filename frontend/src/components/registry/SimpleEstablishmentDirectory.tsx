@@ -99,6 +99,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
 
       const updated: Establishment = {
         ...editingEst,
+        regNumber: values.regNumber?.trim() || editingEst.regNumber,
         businessName: values.businessName,
         ownerName: values.ownerName,
         ownerAge: values.ownerAge || editingEst.ownerAge || (values.citizenId === '3500901026441' || values.ownerName.includes('จำนงค์') ? 67 : 35),
@@ -724,6 +725,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
               <EstablishmentForm
                 key={editingEst.id}
                 initialValues={{
+                  regNumber: editingEst.regNumber,
                   regType: editingEst.regType,
                   category: editingEst.category,
                   categoryName: editingEst.categoryName,
