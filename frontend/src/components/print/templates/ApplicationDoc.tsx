@@ -8,14 +8,38 @@ interface ApplicationDocProps {
   settings: SystemSettings;
   applicationCode: string;
   applicationTitle: string;
+  verticalSpacing?: 'compact' | 'tight' | 'normal';
 }
+
+const SPACING_PRESETS = {
+  tight: {
+    lineHeight: '1.18',
+    spaceClass: 'space-y-1',
+    headerMy: 'my-1',
+    bodyMt: 'mt-1',
+  },
+  compact: {
+    lineHeight: '1.25',
+    spaceClass: 'space-y-1.5',
+    headerMy: 'my-1.5',
+    bodyMt: 'mt-2',
+  },
+  normal: {
+    lineHeight: '1.5',
+    spaceClass: 'space-y-2',
+    headerMy: 'my-2',
+    bodyMt: 'mt-3',
+  }
+};
 
 export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
   establishment,
   settings,
   applicationCode,
-  applicationTitle
+  applicationTitle,
+  verticalSpacing = 'compact'
 }) => {
+  const spacing = SPACING_PRESETS[verticalSpacing];
   const sig = settings.signatories;
   const currentOfficer = sanitationDataService.getCurrentOfficer();
   const officerSig = currentOfficer?.signatureUrl || DEFAULT_OFFICER_SIGNATURE;
@@ -74,7 +98,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
         fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
         textAlign: 'left',
         fontSize: '14pt',
-        lineHeight: '1.5',
+        lineHeight: spacing.lineHeight,
         color: '#000000',
         minHeight: '297mm',
         paddingTop: '3cm',
@@ -99,7 +123,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
         </div>
 
         {/* Title Header */}
-        <div className="text-center my-2">
+        <div className={`text-center ${spacing.headerMy}`}>
           <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 leading-snug whitespace-pre-line">
             {applicationTitle}
           </h1>
@@ -109,7 +133,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
         </div>
 
         {/* Body Content */}
-        <div className="text-[12.5px] leading-relaxed text-slate-900 space-y-2 mt-3">
+        <div className={`text-[12.5px] leading-relaxed text-slate-900 ${spacing.spaceClass} ${spacing.bodyMt}`}>
           {/* 1. Applicant Section */}
           <div>
             <div className="font-bold">

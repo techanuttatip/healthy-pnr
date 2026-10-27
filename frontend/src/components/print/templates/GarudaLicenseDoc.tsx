@@ -13,15 +13,54 @@ interface GarudaLicenseDocProps {
   mode: 'garuda' | 'replacement_cert';
   displayCode: string;
   formTitle: string;
+  verticalSpacing?: 'compact' | 'tight' | 'normal';
 }
+
+const SPACING_PRESETS = {
+  tight: {
+    lineHeight: '1.18',
+    leadingClass: 'leading-[1.18]',
+    spaceClass: 'space-y-0.5',
+    titleMy: 'my-0.5',
+    sectionMt: 'mt-1',
+    paragraphLineHeight: '15pt',
+    subBulletLineHeight: '13.5pt',
+    conditionMt: '2pt',
+    sigMt: '4pt',
+  },
+  compact: {
+    lineHeight: '1.25',
+    leadingClass: 'leading-[1.25]',
+    spaceClass: 'space-y-1',
+    titleMy: 'my-1',
+    sectionMt: 'mt-1.5',
+    paragraphLineHeight: '17pt',
+    subBulletLineHeight: '15pt',
+    conditionMt: '3pt',
+    sigMt: '8pt',
+  },
+  normal: {
+    lineHeight: '1.5',
+    leadingClass: 'leading-[1.6]',
+    spaceClass: 'space-y-1.5',
+    titleMy: 'my-1.5',
+    sectionMt: 'mt-2',
+    paragraphLineHeight: '20pt',
+    subBulletLineHeight: '18pt',
+    conditionMt: '5pt',
+    sigMt: '12pt',
+  }
+};
 
 export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
   establishment,
   settings,
   mode,
   displayCode,
-  formTitle
+  formTitle,
+  verticalSpacing = 'compact'
 }) => {
+  const spacing = SPACING_PRESETS[verticalSpacing];
   const sig = settings.signatories;
   const districtName = settings.district || 'อำเภอฝาง';
   const provinceName = settings.province || 'จังหวัดเชียงใหม่';
@@ -109,7 +148,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
         textAlign: 'left',
         fontSize: '15pt',
-        lineHeight: '1.5',
+        lineHeight: spacing.lineHeight,
         color: '#000000',
         minHeight: '297mm',
         paddingTop: '3cm',
@@ -168,7 +207,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         </div>
 
         {/* Title Header */}
-        <div className="text-center my-1.5">
+        <div className={`text-center ${spacing.titleMy}`}>
           <h1 className="text-[20pt] font-bold tracking-tight text-black leading-snug whitespace-pre-line">
             {formTitle}
           </h1>
@@ -179,17 +218,18 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
 
         {/* Body Content - Form Lines */}
         <div
-          className="doc-body-content text-[15pt] text-black space-y-1.5 mt-2 text-left"
+          className={`doc-body-content text-[15pt] text-black ${spacing.spaceClass} ${spacing.sectionMt} text-left`}
           style={{
             fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
-            textAlign: 'left'
+            textAlign: 'left',
+            lineHeight: spacing.lineHeight
           }}
         >
           {isHazardous ? (
             /* ================== แบบ อภ.๒: กิจการที่เป็นอันตรายต่อสุขภาพ ================== */
             <>
               {/* Line 1: ผู้รับใบอนุญาต */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 font-bold mr-1">(๑)</span>
                 <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่นออกใบอนุญาตให้</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
@@ -207,7 +247,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 2: ที่อยู่ตามทะเบียนบ้าน */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(ownerAddr.houseNo || '-')}
@@ -239,7 +279,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 3: โทรศัพท์ / โทรสาร */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">โทรศัพท์</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
                   {toThaiDigits(establishment.phone || '-')}
@@ -251,7 +291,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 4: ประเภทกิจการ */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เพื่อประกอบกิจการที่เป็นอันตรายต่อสุขภาพ ประเภท</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative truncate text-[14pt]">
                   {toThaiDigits(establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)')}
@@ -259,7 +299,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 5: ชื่อสถานประกอบกิจการ */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ชื่อสถานประกอบกิจการ</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative text-blue-950">
                   "{establishment.businessName}"
@@ -267,7 +307,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 6: ลักษณะสถานที่ */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
                   {toThaiDigits(displayedPremise)}
@@ -275,7 +315,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 7: พื้นที่ / คนงาน / เครื่องจักร */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">มีพื้นที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.areaSqm)}
@@ -294,7 +334,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 8: สถานที่ตั้งร้าน */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(premiseAddr.houseNo || '-')}
@@ -326,7 +366,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 9: ค่าธรรมเนียม */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เสียค่าธรรมเนียมปีละ</span>
                 <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.feeAmount.toLocaleString())}
@@ -340,7 +380,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 10: ใบเสร็จรับเงิน (เว้นว่างไว้เขียนมือตามมาตรฐาน อบต.) */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ตามใบเสร็จรับเงินเล่มที่</span>
                 <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
                   &nbsp;
@@ -356,16 +396,16 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Section 2 */}
-              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '20pt', marginTop: '6pt', marginBottom: 0 }}>
+              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: spacing.paragraphLineHeight, marginTop: spacing.conditionMt, marginBottom: 0 }}>
                 <span className="font-bold">(๒)</span> ผู้ได้รับใบอนุญาตต้องปฏิบัติตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ และที่แก้ไขเพิ่มเติม กฎกระทรวง และประกาศที่ออกตามพระราชบัญญัตินี้
               </p>
 
               {/* Section 3 */}
-              <div style={{ marginTop: '5pt' }}>
-                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '20pt', margin: 0 }}>
+              <div style={{ marginTop: spacing.conditionMt }}>
+                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: spacing.paragraphLineHeight, margin: 0 }}>
                   <span className="font-bold">(๓)</span> ผู้ได้รับใบอนุญาตต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
                 </p>
-                <div style={{ paddingLeft: '3cm', fontSize: '13.5pt', lineHeight: '18pt', marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
+                <div style={{ paddingLeft: '3cm', fontSize: '13.5pt', lineHeight: spacing.subBulletLineHeight, marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
                   <div>
                     <span className="font-semibold">๓.๑)</span> ต้องควบคุม ป้องกัน และระมัดระวังมิให้เกิดอันตราย อัคคีภัย การรั่วไหลของน้ำมันเชื้อเพลิง เสียง หรือมลพิษอื่นใดอันเป็นเหตุรำคาญหรือเป็นอันตรายต่อสุขภาพและความปลอดภัยของประชาชน
                   </div>
@@ -379,7 +419,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Section 4 & 5 */}
-              <div style={{ marginTop: '5pt' }} className="space-y-1">
+              <div style={{ marginTop: spacing.conditionMt }} className="space-y-0.5">
                 <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
                   <span className="shrink-0 font-bold mr-1">(๔)</span>
                   <span className="shrink-0 mr-1.5">ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่</span>
@@ -400,7 +440,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
             /* ================== แบบ นจ.๓ หรือ แบบ บทอ.: จำหน่าย/สะสมอาหาร ================== */
             <>
               {/* Line 1: ผู้รับหนังสือรับรอง */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 font-bold mr-1">(๑)</span>
                 <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่น{isFoodLicense ? 'ออกใบอนุญาตให้' : 'ออกหนังสือรับรองการแจ้งให้'}</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
@@ -418,7 +458,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 2: ที่อยู่ตามทะเบียนบ้าน */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(ownerAddr.houseNo || '-')}
@@ -450,7 +490,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 3: โทรศัพท์ / โทรสาร */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">โทรศัพท์</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
                   {toThaiDigits(establishment.phone || '-')}
@@ -462,7 +502,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 4: เพื่อจัดตั้งสถานที่ */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เพื่อจัดตั้ง{isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหาร'} ชื่อสถานประกอบกิจการ</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative text-blue-950">
                   "{establishment.businessName}"
@@ -470,7 +510,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 5: ประเภทอาหาร */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">{isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
                   {displayedFoodType}
@@ -478,7 +518,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 6: ลักษณะสถานที่ และวิธีการจำหน่าย */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
                 <div className="w-44 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(displayedPremise)}
@@ -490,7 +530,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 7: เวลา / พื้นที่ / คนงาน */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
                 <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.')}
@@ -508,7 +548,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 8: สถานที่ตั้งร้าน */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(premiseAddr.houseNo || '-')}
@@ -540,7 +580,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 9: ค่าธรรมเนียม */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เสียค่าธรรมเนียมปีละ</span>
                 <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.feeAmount.toLocaleString())}
@@ -554,7 +594,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Line 10: ใบเสร็จรับเงิน (เว้นว่างไว้เขียนมือตามมาตรฐาน อบต.) */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ตามใบเสร็จรับเงินเล่มที่</span>
                 <div className="w-24 border-b border-dotted border-black text-center font-bold px-1 relative">
                   &nbsp;
@@ -570,16 +610,16 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Section 2 */}
-              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '20pt', marginTop: '6pt', marginBottom: 0 }}>
+              <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: spacing.paragraphLineHeight, marginTop: spacing.conditionMt, marginBottom: 0 }}>
                 <span className="font-bold">(๒)</span> {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. ๒๕๓๕ และที่แก้ไขเพิ่มเติม กฎกระทรวง และประกาศที่ออกตามพระราชบัญญัตินี้
               </p>
 
               {/* Section 3 */}
-              <div style={{ marginTop: '5pt' }}>
-                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: '20pt', margin: 0 }}>
+              <div style={{ marginTop: spacing.conditionMt }}>
+                <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: spacing.paragraphLineHeight, margin: 0 }}>
                   <span className="font-bold">(๓)</span> {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
                 </p>
-                <div style={{ paddingLeft: '3cm', fontSize: '13.5pt', lineHeight: '18pt', marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
+                <div style={{ paddingLeft: '3cm', fontSize: '13.5pt', lineHeight: spacing.subBulletLineHeight, marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
                   <div>
                     <span className="font-semibold">๓.๑)</span> ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุข และข้อบัญญัติท้องถิ่น
                   </div>
@@ -590,7 +630,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
 
               {/* Section 4 & 5 */}
-              <div style={{ marginTop: '5pt' }} className="space-y-1">
+              <div style={{ marginTop: spacing.conditionMt }} className="space-y-0.5">
                 <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
                   <span className="font-bold mr-1">(๔)</span>
                   <span className="shrink-0 mr-1.5">{isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}</span>
@@ -612,7 +652,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
       </div>
 
       {/* Official Signatures Section */}
-      <div className="signatures-container relative z-10" style={{ marginTop: '12pt' }}>
+      <div className="signatures-container relative z-10" style={{ marginTop: spacing.sigMt }}>
         <div className="flex justify-end items-end">
           {/* Local Mayor Signature */}
           <div className="text-center w-72 relative">

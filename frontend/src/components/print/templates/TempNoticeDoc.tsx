@@ -8,14 +8,44 @@ interface TempNoticeDocProps {
   settings: SystemSettings;
   tempNoticeCode: string;
   tempNoticeTitle: string;
+  verticalSpacing?: 'compact' | 'tight' | 'normal';
 }
+
+const SPACING_PRESETS = {
+  tight: {
+    lineHeight: '1.18',
+    leadingClass: 'leading-[1.18]',
+    spaceClass: 'space-y-0.5',
+    titleMy: 'my-1',
+    sectionMt: 'mt-1',
+    sigPt: 'pt-1.5',
+  },
+  compact: {
+    lineHeight: '1.25',
+    leadingClass: 'leading-[1.25]',
+    spaceClass: 'space-y-1',
+    titleMy: 'my-1.5',
+    sectionMt: 'mt-1.5',
+    sigPt: 'pt-2.5',
+  },
+  normal: {
+    lineHeight: '1.5',
+    leadingClass: 'leading-[1.6]',
+    spaceClass: 'space-y-1.5',
+    titleMy: 'my-3',
+    sectionMt: 'mt-3',
+    sigPt: 'pt-3',
+  }
+};
 
 export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
   establishment,
   settings,
   tempNoticeCode,
-  tempNoticeTitle
+  tempNoticeTitle,
+  verticalSpacing = 'compact'
 }) => {
+  const spacing = SPACING_PRESETS[verticalSpacing];
   const sig = settings.signatories;
   const currentOfficer = sanitationDataService.getCurrentOfficer();
   const officerSig = currentOfficer?.signatureUrl || DEFAULT_OFFICER_SIGNATURE;
@@ -75,7 +105,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
         textAlign: 'left',
         fontSize: '15pt',
-        lineHeight: '1.5',
+        lineHeight: spacing.lineHeight,
         color: '#000000',
         minHeight: '297mm',
         paddingTop: '3cm',
@@ -111,7 +141,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         </div>
 
         {/* Garuda Emblem */}
-        <div className="flex justify-center my-3 relative z-10">
+        <div className={`flex justify-center ${spacing.titleMy} relative z-10`}>
           <img
             src="/garuda.png"
             alt="ตราครุฑประจำแบบพิมพ์ราชการ"
@@ -120,7 +150,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         </div>
 
         {/* Title Header */}
-        <div className="text-center my-3">
+        <div className={`text-center ${spacing.titleMy}`}>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug">
             {tempNoticeTitle}
           </h1>
@@ -131,17 +161,18 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
 
         {/* Body Content - Structured Form Rows */}
         <div
-          className="doc-body-content text-[15pt] text-black space-y-1.5 mt-3 text-left"
+          className={`doc-body-content text-[15pt] text-black ${spacing.spaceClass} ${spacing.sectionMt} text-left`}
           style={{
             fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
-            textAlign: 'left'
+            textAlign: 'left',
+            lineHeight: spacing.lineHeight
           }}
         >
           {isHazardous ? (
             /* ================== ใบรับคำขอ อภ.1 (กิจการที่เป็นอันตรายต่อสุขภาพ) ================== */
             <>
               {/* Line 1 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่นได้รับคำขอรับใบอนุญาตจาก</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
                   {establishment.ownerName}
@@ -158,7 +189,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 2 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.houseNo || '-')}
@@ -190,7 +221,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 3 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">โทรศัพท์</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
                   {toThaiDigits(establishment.phone || '-')}
@@ -202,7 +233,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 4 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เพื่อประกอบกิจการที่เป็นอันตรายต่อสุขภาพ ประเภท</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative truncate text-[14pt]">
                   {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
@@ -210,7 +241,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 5 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ชื่อสถานประกอบกิจการ</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative text-blue-950">
                   "{establishment.businessName}"
@@ -218,7 +249,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 6 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
                   {displayedPremise}
@@ -226,7 +257,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 7 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">มีพื้นที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.areaSqm)}
@@ -245,7 +276,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 8 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.houseNo || '-')}
@@ -277,7 +308,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 9: Contact */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">อีเมล</span>
                 <div className="w-48 border-b border-dotted border-black text-center font-bold px-1 relative truncate">
                   {establishment.email && establishment.email !== '-' ? establishment.email : '-'}
@@ -292,7 +323,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
             /* ================== ใบรับแจ้ง นจ.2 (สถานที่จำหน่าย/สะสมอาหาร) ================== */
             <>
               {/* Line 1 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เจ้าพนักงานท้องถิ่นออกใบรับแจ้งให้</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
                   {establishment.ownerName}
@@ -309,7 +340,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 2 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">อยู่บ้านเลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.houseNo || '-')}
@@ -341,7 +372,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 3 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">โทรศัพท์</span>
                 <div className="flex-1 border-b border-dotted border-black text-center font-bold px-2 relative min-w-[120px]">
                   {toThaiDigits(establishment.phone || '-')}
@@ -353,7 +384,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 4 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">เพื่อจัดตั้ง{isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหาร'} ชื่อสถานประกอบกิจการ</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative text-blue-950">
                   "{establishment.businessName}"
@@ -361,7 +392,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 5 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">{isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}</span>
                 <div className="flex-1 border-b border-dotted border-black text-left font-bold px-2 relative">
                   {displayedFoodType}
@@ -369,7 +400,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 6 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ลักษณะของสถานที่ประกอบกิจการ</span>
                 <div className="w-44 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {displayedPremise}
@@ -381,7 +412,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 7 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
                 <div className="w-36 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(establishment.operatingHours || '07:00 - 19:00 น.')}
@@ -399,7 +430,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 8 */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">สถานที่ตั้ง เลขที่</span>
                 <div className="w-20 border-b border-dotted border-black text-center font-bold px-1 relative">
                   {toThaiDigits(parsedAddress.houseNo || '-')}
@@ -431,7 +462,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               </div>
 
               {/* Line 9: Contact */}
-              <div className="flex items-end w-full leading-[1.6]">
+              <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">อีเมล</span>
                 <div className="w-48 border-b border-dotted border-black text-center font-bold px-1 relative truncate">
                   {establishment.email && establishment.email !== '-' ? establishment.email : '-'}
@@ -463,7 +494,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
       </div>
 
       {/* Signature & Official Notes */}
-      <div className="relative z-10 pt-3">
+      <div className={`relative z-10 ${spacing.sigPt}`}>
         <div className="flex justify-between items-end">
           {/* Receiving Officer with e-sig */}
           <div className="text-center w-72 relative">

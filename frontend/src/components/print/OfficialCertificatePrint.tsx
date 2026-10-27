@@ -59,6 +59,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
   const [reportCategoryFilter, setReportCategoryFilter] = useState<string>(initialReportCategory || 'all');
   const [reportStatusFilter, setReportStatusFilter] = useState<string>('all');
   const [reportYearFilter, setReportYearFilter] = useState<string>(initialReportYear || 'all');
+  const [verticalTightness, setVerticalTightness] = useState<'compact' | 'tight' | 'normal'>('compact');
 
   useEffect(() => {
     if (initialMode) setPrintViewMode(initialMode);
@@ -355,6 +356,22 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
               </div>
             )}
 
+            {printViewMode !== 'register_report' && printViewMode !== 'cleanfood' && (
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5 transition-all shadow-2xs">
+                <span className="text-slate-700 font-bold text-xs shrink-0">📏 บีบแนวตั้ง:</span>
+                <select
+                  value={verticalTightness}
+                  onChange={(e) => setVerticalTightness(e.target.value as 'compact' | 'tight' | 'normal')}
+                  className="bg-transparent text-slate-900 font-bold text-xs focus:outline-none cursor-pointer"
+                  title="ปรับระยะห่างบรรทัดในแนวตั้ง (บีบกระชับ / บีบแน่น / ปกติ)"
+                >
+                  <option value="compact">บีบกระชับ (แนะนำ)</option>
+                  <option value="tight">บีบแน่นพิเศษ (ชิดมาก)</option>
+                  <option value="normal">ระยะปกติ</option>
+                </select>
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handlePrint}
@@ -449,6 +466,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             mode={printViewMode}
             displayCode={displayCode}
             formTitle={formTitle}
+            verticalSpacing={verticalTightness}
           />
         )}
 
@@ -458,6 +476,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             settings={currentSettings}
             tempNoticeCode={tempNoticeCode}
             tempNoticeTitle={tempNoticeTitle}
+            verticalSpacing={verticalTightness}
           />
         )}
 
@@ -467,6 +486,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             settings={currentSettings}
             applicationCode={applicationCode}
             applicationTitle={applicationTitle}
+            verticalSpacing={verticalTightness}
           />
         )}
 
