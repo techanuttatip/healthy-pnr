@@ -108,7 +108,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         lineHeight: spacing.lineHeight,
         color: '#000000',
         minHeight: '297mm',
-        paddingTop: '3cm',
+        paddingTop: '0.6cm',
         paddingRight: '2cm',
         paddingBottom: '2cm',
         paddingLeft: '3cm',
@@ -124,11 +124,18 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         />
       </div>
 
-      {/* Header Section */}
+      {/* Header Section (ระยะรวมจากหัวกระดาษถึงชื่อเรื่อง 3 ซม. พอดี) */}
       <div className="relative z-10">
-        <div className="flex justify-between items-start text-xs text-slate-700 mb-2">
-          <div className="font-bold text-[14pt]">
+        <div className="grid grid-cols-3 items-start text-xs text-slate-700 mb-1 relative min-h-[24mm]">
+          <div className="font-bold text-[14pt] pt-1">
             เลขรับคำขอที่: <span className="font-bold border-b border-dotted border-black px-2">{toThaiDigits(establishment.docNo || establishment.regNumber)}</span>
+          </div>
+          <div className="flex justify-center items-center">
+            <img
+              src="/garuda.png"
+              alt="ตราครุฑประจำแบบพิมพ์ราชการ"
+              className="w-[24mm] h-[24mm] object-contain filter contrast-125"
+            />
           </div>
           <div className="text-right">
             <span className="font-bold border border-black px-2.5 py-0.5 rounded text-[13pt] leading-tight">
@@ -138,15 +145,6 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               ออกให้ ณ วันที่ยื่นเรื่อง (Day-1 Slip)
             </div>
           </div>
-        </div>
-
-        {/* Garuda Emblem */}
-        <div className={`flex justify-center ${spacing.titleMy} relative z-10`}>
-          <img
-            src="/garuda.png"
-            alt="ตราครุฑประจำแบบพิมพ์ราชการ"
-            className="w-22 h-22 sm:w-26 sm:h-26 object-contain filter contrast-125"
-          />
         </div>
 
         {/* Title Header */}

@@ -247,7 +247,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
         @media print {
           @page {
             size: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? 'A4 landscape' : 'A4 portrait'};
-            margin-top: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '3cm'};
+            margin-top: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '0.6cm'};
             margin-right: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '2cm'};
             margin-bottom: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '2cm'};
             margin-left: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '1cm' : '3cm'};

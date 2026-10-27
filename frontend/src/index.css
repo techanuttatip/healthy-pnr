@@ -661,7 +661,7 @@ select {
 @media print {
   @page {
     size: A4 portrait;
-    margin-top: 3cm;
+    margin-top: 0.6cm;
     margin-right: 2cm;
     margin-bottom: 2cm;
     margin-left: 3cm;

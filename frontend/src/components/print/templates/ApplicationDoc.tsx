@@ -101,7 +101,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
         lineHeight: spacing.lineHeight,
         color: '#000000',
         minHeight: '297mm',
-        paddingTop: '3cm',
+        paddingTop: '0.6cm',
         paddingRight: '2cm',
         paddingBottom: '2cm',
         paddingLeft: '3cm',

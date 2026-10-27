@@ -151,7 +151,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         lineHeight: spacing.lineHeight,
         color: '#000000',
         minHeight: '297mm',
-        paddingTop: '3cm',
+        paddingTop: '0.6cm',
         paddingRight: '2cm',
         paddingBottom: '2cm',
         paddingLeft: '3cm',
@@ -167,11 +167,12 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         />
       </div>
 
-      {/* Header Section */}
+      {/* Header Section (ระยะรวมจากหัวกระดาษถึงชื่อเรื่อง 3 ซม. พอดี) */}
       <div className="relative z-10">
-        {/* Top Header: เล่มที่ / เลขที่ / แบบพิมพ์ */}
-        <div className="flex justify-between items-start text-[14pt] text-black mb-1">
-          <div className="font-bold flex items-center">
+        {/* Top Header Row: เล่มที่ (ซ้าย) - ครุฑ (กึ่งกลาง) - แบบพิมพ์/เลขที่ (ขวา) */}
+        <div className="grid grid-cols-3 items-start text-[14pt] text-black mb-1 relative min-h-[24mm]">
+          {/* ซ้าย: เล่มที่ */}
+          <div className="font-bold flex items-center pt-1">
             <span>เล่มที่</span>
             <div className="border-b border-dotted border-black min-w-[70px] text-center font-bold px-2 ml-1">
               {establishment.bookNo && establishment.bookNo !== '-'
@@ -179,6 +180,17 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 : '\u00A0'}
             </div>
           </div>
+
+          {/* กึ่งกลาง: ตราครุฑ (ขนาด 24 มม.) */}
+          <div className="garuda-emblem-container flex justify-center items-center">
+            <img
+              src="/garuda.png"
+              alt="ตราครุฑประจำแบบพิมพ์ราชการ"
+              className="w-[24mm] h-[24mm] object-contain filter contrast-125"
+            />
+          </div>
+
+          {/* ขวา: แบบพิมพ์ & เลขที่ */}
           <div className="text-right flex flex-col items-end">
             {mode === 'replacement_cert' && (
               <span className="font-bold text-red-600 border border-red-600 px-2 py-0.5 rounded text-[12pt] tracking-wider mb-0.5">
@@ -195,15 +207,6 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Garuda Emblem */}
-        <div className="garuda-emblem-container flex justify-center my-0.5 relative z-10">
-          <img
-            src="/garuda.png"
-            alt="ตราครุฑประจำแบบพิมพ์ราชการ"
-            className="w-[28mm] h-[28mm] object-contain filter contrast-125"
-          />
         </div>
 
         {/* Title Header */}
