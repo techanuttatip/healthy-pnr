@@ -78,8 +78,8 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
   return (
     <div
       id="printable-certificate"
-      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-10 sm:p-14 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-6 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
-      style={{ fontFamily: "'Sarabun', 'TH Sarabun New', serif" }}
+      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-8 sm:p-12 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
+      style={{ fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', serif" }}
     >
       {/* Background Watermark */}
       <div className="watermark-container absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden select-none">
@@ -122,7 +122,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
           <img
             src="/garuda.png"
             alt="ตราครุฑประจำแบบพิมพ์ราชการ"
-            className="w-24 h-24 sm:w-28 sm:h-28 object-contain filter contrast-125"
+            className="w-[30mm] h-[30mm] object-contain filter contrast-125"
           />
         </div>
 
@@ -137,7 +137,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         </div>
 
         {/* Body Content */}
-        <div className="doc-body-content text-[14px] leading-[2.2] text-slate-900 space-y-3 mt-4 text-left font-serif">
+        <div className="doc-body-content text-[15px] sm:text-[15.5px] leading-[2.1] text-slate-900 space-y-3 mt-4 text-left font-serif">
           {isHazardous ? (
             /* ================== แบบ อภ.2: กิจการที่เป็นอันตรายต่อสุขภาพ ================== */
             <>

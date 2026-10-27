@@ -70,8 +70,8 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
   return (
     <div
       id="printable-temp-notice"
-      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-10 sm:p-14 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-6 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
-      style={{ fontFamily: "'Sarabun', 'TH Sarabun New', serif" }}
+      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-8 sm:p-12 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
+      style={{ fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', serif" }}
     >
       {/* Background Watermark */}
       <div className="watermark-container absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden select-none">
@@ -103,7 +103,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
           <img
             src="/garuda.png"
             alt="ตราครุฑประจำแบบพิมพ์ราชการ"
-            className="w-22 h-22 sm:w-26 sm:h-26 object-contain filter contrast-125"
+            className="w-[30mm] h-[30mm] object-contain filter contrast-125"
           />
         </div>
 

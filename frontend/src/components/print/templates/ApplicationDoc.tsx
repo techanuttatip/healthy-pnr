@@ -69,8 +69,8 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
   return (
     <div
       id="printable-application-form"
-      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-10 sm:p-14 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-6 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
-      style={{ fontFamily: "'Sarabun', 'TH Sarabun New', serif" }}
+      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-8 sm:p-12 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-0 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
+      style={{ fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', serif" }}
     >
       <div className="relative z-10">
         {/* Form Code Header */}
@@ -145,7 +145,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                   <div>
                     ลักษณะของสถานที่ประกอบกิจการ:{' '}
                     <span className="border-b border-dotted border-slate-700 px-2">
-                      {establishment.premiseCharacteristics || 'อาคารพาณิชย์/ติดตั้งตู้จ่ายน้ำมันเชื้อเพลิงอัตโนมัติชนิดหยอดเหรียญและธนบัตร'}
+                      {displayedPremise || 'อาคารปูน 1 ชั้น'}
                     </span>
                   </div>
                   <div>
@@ -173,19 +173,19 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
               ) : (
                 <>
                   <div>
-                    {isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย (เช่น อาหารสด อาหารแห้ง):' : 'ประเภทของอาหารที่จำหน่าย (เช่น อาหารปรุงสำเร็จ เครื่องดื่ม):'}{' '}
+                    {isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย:' : 'ประเภทของอาหารที่จำหน่าย:'}{' '}
                     <span className="font-bold border-b border-dotted border-slate-700 px-2">
                       {displayedFoodType}
                     </span>
                   </div>
                   <div>
-                    ลักษณะของสถานที่ประกอบกิจการ ({isStorage ? 'เช่น อยู่ในอาคาร ซุ้ม/แผง' : 'เช่น อยู่ในอาคาร บนยานพาหนะ Food truck'}):{' '}
-                    <span className="border-b border-dotted border-slate-700 px-2">
+                    ลักษณะของสถานที่ประกอบกิจการ:{' '}
+                    <span className="border-b border-dotted border-slate-700 px-2 font-medium">
                       {displayedPremise}
                     </span>
                   </div>
                   <div>
-                    วิธีการจำหน่าย ({isStorage ? 'เช่น จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน), มีบริการจัดส่ง' : 'เช่น มีโต๊ะเก้าอี้ไว้ให้บริการ ให้ลูกค้าซื้อกลับไปบริโภคที่บ้าน'}):{' '}
+                    วิธีการจำหน่าย:{' '}
                     <span className="border-b border-dotted border-slate-700 px-2">
                       {displayedDistribution}
                     </span>
