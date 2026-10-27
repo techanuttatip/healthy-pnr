@@ -241,12 +241,12 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
   const totalFees = filteredReportList.reduce((acc, curr) => acc + (curr.feeAmount || 0), 0);
 
   return (
-    <div className="flex flex-col h-full bg-transparent text-slate-800">
+    <div className="flex flex-col h-full bg-transparent text-slate-800 print:block print:h-auto print:overflow-visible">
       <style>{`
         @media print {
           @page {
             size: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? 'landscape' : 'portrait'};
-            margin: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '10mm 12mm 10mm 15mm' : '18mm 18mm 16mm 22mm'};
+            margin: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? '10mm 12mm 10mm 15mm' : '10mm 12mm 10mm 18mm'};
           }
           body {
             margin: 0 !important;
@@ -266,9 +266,8 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
             width: 100% !important;
             max-width: none !important;
             min-height: auto !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-            page-break-after: avoid !important;
+            height: auto !important;
+            overflow: visible !important;
             font-family: 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif !important;
             text-align: left !important;
           }
@@ -475,7 +474,7 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
 
 
       {/* A4 Paper Viewport */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 flex justify-center bg-slate-900/10 backdrop-blur-xs rounded-2xl print:p-0 print:bg-white print:overflow-visible border border-white/60">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 flex justify-center bg-slate-900/10 backdrop-blur-xs rounded-2xl print:block print:p-0 print:bg-white print:overflow-visible print:backdrop-blur-none print:border-none print:rounded-none border border-white/60">
         {(printViewMode === 'garuda' || printViewMode === 'replacement_cert') && activeEstablishment && (
           <GarudaLicenseDoc
             establishment={activeEstablishment}

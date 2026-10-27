@@ -760,7 +760,7 @@ export const App: React.FC = () => {
 
               {/* MODULE 4: PRINT CERTIFICATE & REGISTER REPORT */}
               {activeModule === 'print' && (
-                <div className="flex-1 h-full overflow-hidden bg-transparent flex flex-col print:overflow-visible print:h-auto print:bg-white p-3 md:p-5">
+                <div className="flex-1 h-full overflow-hidden bg-transparent flex flex-col print:block print:overflow-visible print:h-auto print:bg-white print:p-0 p-3 md:p-5">
                   <OfficialCertificatePrint
                     establishment={selectedEstablishment || establishments[0]}
                     establishments={establishments}
