@@ -53,18 +53,22 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
   }
 
   let displayedPremise = establishment.premiseCharacteristics;
-  if (!displayedPremise) {
+  if (!displayedPremise || displayedPremise === '-' || displayedPremise.trim() === '') {
     displayedPremise = isStorage
       ? (isGrocery ? 'อยู่ในอาคารพาณิชย์' : 'อยู่ในอาคารโกดังคอนกรีตเสริมเหล็ก')
       : 'อยู่ในอาคารพาณิชย์';
   }
 
   let displayedDistribution = establishment.distributionMethod;
-  if (isStorage && (!displayedDistribution || displayedDistribution.includes('โต๊ะเก้าอี้'))) {
+  if (isStorage && (!displayedDistribution || displayedDistribution === '-' || displayedDistribution.includes('โต๊ะเก้าอี้'))) {
     displayedDistribution = isGrocery ? 'จำหน่ายปลีกหน้าร้าน (ซื้อกลับบ้าน)' : 'จำหน่ายส่งและมีบริการจัดส่ง';
-  } else if (!displayedDistribution) {
+  } else if (!displayedDistribution || displayedDistribution === '-') {
     displayedDistribution = 'มีโต๊ะเก้าอี้ไว้ให้บริการและซื้อกลับบ้าน';
   }
+
+  const receiptBookDisplay = establishment.receiptBookNo && establishment.receiptBookNo !== '-' ? establishment.receiptBookNo : (establishment.bookNo && establishment.bookNo !== '-' ? establishment.bookNo : '-');
+  const receiptNoDisplay = establishment.receiptNo && establishment.receiptNo !== '-' ? establishment.receiptNo : (establishment.docNo || '-');
+  const receiptDateDisplay = establishment.receiptDate ? formatThaiDate(establishment.receiptDate, false) : (establishment.applicationSubmissionDate ? formatThaiDate(establishment.applicationSubmissionDate, false) : formatThaiDate(establishment.issueDate, false));
 
   const parsedAddress = parseAddressDetails(establishment.address, establishment.village);
 
@@ -88,8 +92,8 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         <div className="flex justify-between items-start text-xs text-slate-700 mb-2">
           <div className="font-bold">
             เล่มที่{' '}
-            <span className="font-mono text-sm border-b border-dotted border-slate-600 px-6 inline-block min-w-[70px] text-center">
-              &nbsp;
+            <span className="font-mono text-sm border-b border-dotted border-slate-600 px-4 inline-block min-w-[70px] text-center font-bold text-slate-900">
+              {establishment.bookNo && establishment.bookNo !== '-' ? establishment.bookNo : (establishment.receiptBookNo && establishment.receiptBookNo !== '-' ? establishment.receiptBookNo : '-')}
             </span>
           </div>
           <div className="text-right flex flex-col items-end">
@@ -98,13 +102,13 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 [ ใบแทน ]
               </span>
             )}
-            <span className="font-bold border border-slate-600 px-2 py-0.5 rounded-xs text-xs">
+            <span className="font-bold border border-slate-600 px-2.5 py-0.5 rounded-xs text-xs">
               {displayCode}
             </span>
-            <div className="mt-1">
+            <div className="mt-1 font-bold">
               เลขที่{' '}
-              <span className="font-mono font-bold text-sm border-b border-dotted border-slate-600 px-8 inline-block min-w-[110px] text-center">
-                &nbsp;
+              <span className="font-mono font-bold text-sm border-b border-dotted border-slate-600 px-4 inline-block min-w-[110px] text-center text-slate-900">
+                {establishment.docNo || establishment.regNumber || '-'}
               </span>
             </div>
           </div>
@@ -130,111 +134,83 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         </div>
 
         {/* Body Content */}
-        <div className="text-[13px] leading-relaxed text-slate-900 space-y-2.5 mt-4">
+        <div className="text-[14px] leading-[2.2] text-slate-900 space-y-3 mt-4 text-left font-serif">
           {isHazardous ? (
             /* ================== แบบ อภ.2: กิจการที่เป็นอันตรายต่อสุขภาพ ================== */
             <>
-              <p className="indent-8 text-justify">
+              <p className="indent-10">
                 (1) เจ้าพนักงานท้องถิ่นออกใบอนุญาตให้{' '}
-                <span className="font-bold border-b border-dotted border-slate-700 px-2">
+                <span className="font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {establishment.ownerName}
                 </span>{' '}
-                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">35</span> ปี สัญชาติ{' '}
-                <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">ไทย</span>{' '}
+                อายุ <span className="font-mono font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">35</span> ปี สัญชาติ{' '}
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-medium">ไทย</span>{' '}
                 อยู่บ้านเลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-medium">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-medium">
                   {parsedAddress.houseNo}
                 </span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบล{' '}
-                <span className="border-b border-dotted border-slate-700 px-1.5">โป่งน้ำร้อน</span>{' '}
-                อำเภอ <span className="border-b border-dotted border-slate-700 px-1.5">{districtName.replace('อำเภอ', '')}</span>{' '}
-                จังหวัด <span className="border-b border-dotted border-slate-700 px-1.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>
-              </p>
-
-              <p className="indent-8 text-justify">
+                <span className="whitespace-nowrap">{parsedAddress.fullVillageDisplay}</span>{' '}
+                <span className="whitespace-nowrap">ตำบล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">โป่งน้ำร้อน</span></span>{' '}
+                <span className="whitespace-nowrap">อำเภอ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{districtName.replace('อำเภอ', '')}</span></span>{' '}
+                <span className="whitespace-nowrap">จังหวัด <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{provinceName.replace('จังหวัด', '')}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span></span>{' '}
                 เพื่อประกอบกิจการที่เป็นอันตรายต่อสุขภาพ ประเภท{' '}
-                <span className="font-bold border-b border-dotted border-slate-700 px-2 text-slate-900">
+                <span className="font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5 text-slate-900">
                   {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
                 </span>{' '}
                 ชื่อสถานประกอบกิจการ{' '}
-                <span className="font-bold text-sm border-b border-dotted border-slate-700 px-2 text-blue-950">
+                <span className="font-bold text-[14.5px] border-b border-dotted border-slate-700/80 px-2 pb-0.5 text-blue-950">
                   "{establishment.businessName}"
                 </span>{' '}
                 ลักษณะของสถานที่ประกอบกิจการ{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
-                  {establishment.premiseCharacteristics || 'อาคารพาณิชย์/ติดตั้งตู้จ่ายน้ำมันเชื้อเพลิงอัตโนมัติชนิดหยอดเหรียญและธนบัตร'}
-                </span>
-              </p>
-
-              <p className="indent-8 text-justify">
-                มีพื้นที่{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.areaSqm}
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">
+                  {displayedPremise}
                 </span>{' '}
-                ตารางเมตร <span className="whitespace-nowrap">จำนวนคนงาน{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.workerCount}
-                </span>{' '}
-                คน</span> กำลังเครื่องจักร{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.machineHorsepower || '-'}
-                </span>{' '}
-                แรงม้า
-              </p>
-
-              <p className="indent-8 text-justify">
-                สถานที่ตั้ง เลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
-                  {parsedAddress.houseNo}
-                </span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบลโป่งน้ำร้อน {districtName} {provinceName} โทรศัพท์{' '}
-                <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>
-              </p>
-
-              <p className="indent-8 text-justify">
+                <span className="whitespace-nowrap">มีพื้นที่ <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.areaSqm}</span> ตารางเมตร</span>{' '}
+                <span className="whitespace-nowrap">จำนวนคนงาน <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.workerCount}</span> คน</span>{' '}
+                <span className="whitespace-nowrap">กำลังเครื่องจักร <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.machineHorsepower || '-'}</span> แรงม้า</span>{' '}
+                <span className="whitespace-nowrap">สถานที่ตั้ง เลขที่ <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">{parsedAddress.houseNo}</span></span>{' '}
+                <span className="whitespace-nowrap">{parsedAddress.fullVillageDisplay}</span>{' '}
+                <span className="whitespace-nowrap">ตำบลโป่งน้ำร้อน</span>{' '}
+                <span className="whitespace-nowrap">{districtName}</span>{' '}
+                <span className="whitespace-nowrap">{provinceName}</span>{' '}
+                <span className="whitespace-nowrap">โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span></span>{' '}
                 เสียค่าธรรมเนียมปีละ{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2 text-emerald-900">
+                <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5 text-slate-950">
                   {establishment.feeAmount.toLocaleString()}
                 </span>{' '}
-                บาท ({thaiBahtText(establishment.feeAmount)}) ตามใบเสร็จรับเงินเล่มที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-6 font-mono inline-block min-w-[70px] text-center">
-                  &nbsp;
-                </span>{' '}
-                เลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-10 font-mono inline-block min-w-[120px] text-center">
-                  &nbsp;
-                </span>{' '}
-                ลงวันที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-8 font-mono inline-block min-w-[100px] text-center">
-                  &nbsp;
-                </span>
+                บาท ({thaiBahtText(establishment.feeAmount)}){' '}
+                <span className="whitespace-nowrap">ตามใบเสร็จรับเงินเล่มที่ <span className="border-b border-dotted border-slate-700/80 px-2 font-mono pb-0.5">{receiptBookDisplay}</span></span>{' '}
+                <span className="whitespace-nowrap">เลขที่ <span className="border-b border-dotted border-slate-700/80 px-2 font-mono pb-0.5">{receiptNoDisplay}</span></span>{' '}
+                <span className="whitespace-nowrap">ลงวันที่ <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">{receiptDateDisplay || '........................'}</span></span>
               </p>
 
-              <p className="text-justify indent-8">
+              <p className="indent-10">
                 (2) ผู้ได้รับใบอนุญาตต้องปฏิบัติตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 และที่แก้ไขเพิ่มเติม กฎกระทรวง และประกาศที่ออกตามพระราชบัญญัตินี้
               </p>
 
-              <p className="text-justify indent-8">
-                (3) ผู้ได้รับใบอนุญาตต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
-              </p>
-              <div className="pl-14 space-y-1 text-xs text-slate-800">
-                <div>3.1) ต้องควบคุม ป้องกัน และระมัดระวังมิให้เกิดอันตราย อัคคีภัย การรั่วไหลของน้ำมันเชื้อเพลิง เสียง หรือมลพิษอื่นใดอันเป็นเหตุรำคาญหรือเป็นอันตรายต่อสุขภาพและความปลอดภัยของประชาชน</div>
-                <div>3.2) ต้องติดตั้งอุปกรณ์ความปลอดภัย ระบบป้องกันและระงับอัคคีภัย ถังดับเพลิงเคมีที่ได้มาตรฐานให้อยู่ในสภาพพร้อมใช้งานได้ตลอดเวลา</div>
-                <div>3.3) ปฏิบัติตามคำแนะนำของเจ้าพนักงานสาธารณสุขและคำสั่งของเจ้าพนักงานท้องถิ่นโดยเคร่งครัด</div>
+              <div>
+                <p className="indent-10">
+                  (3) ผู้ได้รับใบอนุญาตต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
+                </p>
+                <div className="pl-14 space-y-1 text-[13px] text-slate-800 pt-1">
+                  <div>3.1) ต้องควบคุม ป้องกัน และระมัดระวังมิให้เกิดอันตราย อัคคีภัย การรั่วไหลของน้ำมันเชื้อเพลิง เสียง หรือมลพิษอื่นใดอันเป็นเหตุรำคาญหรือเป็นอันตรายต่อสุขภาพและความปลอดภัยของประชาชน</div>
+                  <div>3.2) ต้องติดตั้งอุปกรณ์ความปลอดภัย ระบบป้องกันและระงับอัคคีภัย ถังดับเพลิงเคมีที่ได้มาตรฐานให้อยู่ในสภาพพร้อมใช้งานได้ตลอดเวลา</div>
+                  <div>3.3) ปฏิบัติตามคำแนะนำของเจ้าพนักงานสาธารณสุขและคำสั่งของเจ้าพนักงานท้องถิ่นโดยเคร่งครัด</div>
+                </div>
               </div>
 
-              <div className="space-y-1 text-xs text-slate-800 pt-2 font-medium">
-                <p className="text-justify indent-8">
+              <div className="space-y-1 text-[13px] text-slate-800 pt-1 font-medium">
+                <p className="indent-10">
                   (4) ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่{' '}
-                  <span className="font-mono font-bold border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
+                  <span className="font-mono font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5 whitespace-nowrap text-slate-950">
                     {formatThaiDate(establishment.issueDate, false)}
                   </span>
                 </p>
-                <p className="text-justify indent-8">
+                <p className="indent-10">
                   (5) ใบอนุญาตฉบับนี้สิ้นอายุวันที่{' '}
-                  <span className="font-mono font-bold text-red-900 border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
+                  <span className="font-mono font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5 whitespace-nowrap text-slate-950">
                     {formatThaiDate(establishment.expireDate, false)}
                   </span>
                 </p>
@@ -243,110 +219,86 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
           ) : (
             /* ================== แบบ นจ.3 หรือ บทอ.: จำหน่าย/สะสมอาหาร ================== */
             <>
-              <p className="indent-8 text-justify">
+              <p className="indent-10">
                 (1) เจ้าพนักงานท้องถิ่น{isFoodLicense ? 'ออกใบอนุญาตให้' : 'ออกใบรับแจ้งให้'}{' '}
-                <span className="font-bold border-b border-dotted border-slate-700 px-2">
+                <span className="font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {establishment.ownerName}
                 </span>{' '}
-                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">35</span> ปี สัญชาติ{' '}
-                <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">ไทย</span>{' '}
+                อายุ <span className="font-mono font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">35</span> ปี สัญชาติ{' '}
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-medium">ไทย</span>{' '}
                 อยู่บ้านเลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-medium">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-medium">
                   {parsedAddress.houseNo}
                 </span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบล{' '}
-                <span className="border-b border-dotted border-slate-700 px-1.5">โป่งน้ำร้อน</span>{' '}
-                อำเภอ <span className="border-b border-dotted border-slate-700 px-1.5">{districtName.replace('อำเภอ', '')}</span>{' '}
-                จังหวัด <span className="border-b border-dotted border-slate-700 px-1.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>
-              </p>
-
-              <p className="indent-8 text-justify">
+                <span className="whitespace-nowrap">{parsedAddress.fullVillageDisplay}</span>{' '}
+                <span className="whitespace-nowrap">ตำบล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">โป่งน้ำร้อน</span></span>{' '}
+                <span className="whitespace-nowrap">อำเภอ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{districtName.replace('อำเภอ', '')}</span></span>{' '}
+                <span className="whitespace-nowrap">จังหวัด <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{provinceName.replace('จังหวัด', '')}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span></span>{' '}
+                เพื่อจัดตั้ง{isStorage ? 'สถานที่สะสมอาหาร' : 'สถานที่จำหน่ายอาหาร'}{' '}
                 ชื่อสถานประกอบกิจการ{' '}
-                <span className="font-bold text-sm border-b border-dotted border-slate-700 px-2 text-blue-950">
+                <span className="font-bold text-[14.5px] border-b border-dotted border-slate-700/80 px-2 pb-0.5 text-blue-950">
                   "{establishment.businessName}"
                 </span>{' '}
                 {isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}{' '}
-                <span className="font-bold border-b border-dotted border-slate-700 px-2">
+                <span className="font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {displayedFoodType}
                 </span>{' '}
                 ลักษณะของสถานที่ประกอบกิจการ{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {displayedPremise}
-                </span>
-              </p>
-
-              <p className="indent-8 text-justify">
+                </span>{' '}
                 วิธีการจำหน่าย{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {displayedDistribution}
                 </span>{' '}
                 ช่วงเวลาที่จำหน่าย{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-mono">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-mono">
                   {establishment.operatingHours || '07:00 - 19:00 น.'}
                 </span>{' '}
-                มีพื้นที่{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.areaSqm}
-                </span>{' '}
-                ตารางเมตร <span className="whitespace-nowrap">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.workerCount}
-                </span>{' '}
-                คน</span>
-              </p>
-
-              <p className="indent-8 text-justify">
-                สถานที่ตั้ง เลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
-                  {parsedAddress.houseNo}
-                </span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบลโป่งน้ำร้อน {districtName} {provinceName} โทรศัพท์{' '}
-                <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>
-              </p>
-
-              <p className="indent-8 text-justify leading-relaxed">
+                <span className="whitespace-nowrap">มีพื้นที่ <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.areaSqm}</span> ตารางเมตร</span>{' '}
+                <span className="whitespace-nowrap">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'} <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.workerCount}</span> คน</span>{' '}
+                <span className="whitespace-nowrap">สถานที่ตั้ง เลขที่ <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">{parsedAddress.houseNo}</span></span>{' '}
+                <span className="whitespace-nowrap">{parsedAddress.fullVillageDisplay}</span>{' '}
+                <span className="whitespace-nowrap">ตำบลโป่งน้ำร้อน</span>{' '}
+                <span className="whitespace-nowrap">{districtName}</span>{' '}
+                <span className="whitespace-nowrap">{provinceName}</span>{' '}
+                <span className="whitespace-nowrap">โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span></span>{' '}
                 เสียค่าธรรมเนียมปีละ{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2 text-emerald-900">
+                <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5 text-slate-950">
                   {establishment.feeAmount.toLocaleString()}
                 </span>{' '}
-                บาท ({thaiBahtText(establishment.feeAmount)}) ตามใบเสร็จรับเงินเล่มที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-mono inline-block min-w-[36px] text-center">
-                  {establishment.receiptBookNo || '\u00A0'}
-                </span>{' '}
-                เลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-3 font-mono inline-block min-w-[48px] text-center">
-                  {establishment.receiptNo || '\u00A0'}
-                </span>{' '}
-                ลงวันที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-3 font-mono inline-block min-w-[80px] text-center whitespace-nowrap">
-                  {establishment.receiptDate ? formatThaiDate(establishment.receiptDate, false) : '\u00A0'}
-                </span>
+                บาท ({thaiBahtText(establishment.feeAmount)}){' '}
+                <span className="whitespace-nowrap">ตามใบเสร็จรับเงินเล่มที่ <span className="border-b border-dotted border-slate-700/80 px-2 font-mono pb-0.5">{receiptBookDisplay}</span></span>{' '}
+                <span className="whitespace-nowrap">เลขที่ <span className="border-b border-dotted border-slate-700/80 px-2 font-mono pb-0.5">{receiptNoDisplay}</span></span>{' '}
+                <span className="whitespace-nowrap">ลงวันที่ <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">{receiptDateDisplay || '........................'}</span></span>
               </p>
 
-              <p className="text-justify indent-8">
-                (2) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามหลักเกณฑ์ วิธีการและเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 และที่แก้ไขเพิ่มเติม กฎกระทรวงและประกาศที่ออกตามพระราชบัญญัตินี้
+              <p className="indent-10">
+                (2) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่กำหนดในข้อบัญญัติท้องถิ่น รวมถึงต้องปฏิบัติให้ถูกต้องตามพระราชบัญญัติการสาธารณสุข พ.ศ. 2535 และที่แก้ไขเพิ่มเติม กฎกระทรวง และประกาศที่ออกตามพระราชบัญญัตินี้
               </p>
 
-              <p className="text-justify indent-8">
-                (3) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
-              </p>
-              <div className="pl-14 space-y-1 text-xs text-slate-800">
-                <div>3.1) ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุขและข้อบัญญัติ อปท.</div>
-                <div>3.2) {isStorage ? 'การจัดเก็บต้องวางบนพาเลทหรือยกสูงจากพื้นอย่างน้อย 15 ซม. และมีระบบป้องกันสัตว์แมลงนำโรค' : 'ผู้สัมผัสอาหารทุกคนต้องผ่านการอบรมหลักสูตรสุขาภิบาลอาหาร และมีสุขภาพร่างกายสมบูรณ์ไม่เป็นโรคติดต่อ'}</div>
+              <div>
+                <p className="indent-10">
+                  (3) {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
+                </p>
+                <div className="pl-14 space-y-1 text-[13px] text-slate-800 pt-1">
+                  <div>3.1) ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุข และข้อบัญญัติท้องถิ่น</div>
+                  <div>3.2) {isStorage ? 'การจัดเก็บต้องวางบนพาเลทหรือยกสูงจากพื้นอย่างน้อย 15 ซม. และมีระบบป้องกันสัตว์แมลงนำโรค' : 'ผู้สัมผัสอาหารทุกคนต้องผ่านการอบรมหลักสูตรสุขาภิบาลอาหาร และมีสุขภาพร่างกายสมบูรณ์ไม่เป็นโรคติดต่อ'}</div>
+                </div>
               </div>
 
-              <div className="space-y-1 text-xs text-slate-800 pt-2 font-medium">
-                <p className="text-justify indent-8">
+              <div className="space-y-1 text-[13px] text-slate-800 pt-1 font-medium">
+                <p className="indent-10">
                   (4) {isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}{' '}
-                  <span className="font-mono font-bold border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
+                  <span className="font-mono font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5 whitespace-nowrap text-slate-950">
                     {formatThaiDate(establishment.issueDate, false)}
                   </span>
                 </p>
-                <p className="text-justify indent-8">
+                <p className="indent-10">
                   (5) {isFoodLicense ? 'ใบอนุญาตฉบับนี้สิ้นอายุวันที่' : 'ครบกำหนดวันชำระค่าธรรมเนียม วันที่'}{' '}
-                  <span className="font-mono font-bold text-red-900 border-b border-dotted border-slate-700 px-2 whitespace-nowrap">
+                  <span className="font-mono font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5 whitespace-nowrap text-slate-950">
                     {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate, false)}
                   </span>
                 </p>

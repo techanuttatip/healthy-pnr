@@ -49,10 +49,10 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
   }
 
   let displayedPremise = establishment.premiseCharacteristics;
-  if (!displayedPremise) {
+  if (!displayedPremise || displayedPremise === '-' || displayedPremise.trim() === '') {
     displayedPremise = isStorage
-      ? (isGrocery ? 'อยู่ในอาคารพาณิชย์' : 'อยู่ในอาคารโกดัง')
-      : 'อยู่ในอาคารพาณิชย์';
+      ? (isGrocery ? 'อาคารพาณิชย์/จำหน่ายสินค้าอุปโภคบริโภค' : 'อาคารพาณิชย์/สถานที่จัดเก็บสะสมอาหาร')
+      : 'อาคารพาณิชย์/สถานที่ปรุงประกอบและจำหน่ายอาหาร';
   }
 
   let displayedDistribution = establishment.distributionMethod;
@@ -115,139 +115,104 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         </div>
 
         {/* Body Content */}
-        <div className="text-[13px] leading-relaxed text-slate-900 space-y-3 mt-5">
+        <div className="text-[13px] leading-[2.2] text-slate-900 space-y-3 mt-4 text-left">
           {isHazardous ? (
             /* ================== ใบรับคำขอ อภ.1 (กิจการที่เป็นอันตรายต่อสุขภาพ) ================== */
             <>
-              <p className="indent-8 text-justify">
+              <p className="indent-10">
                 เจ้าพนักงานท้องถิ่นได้รับคำขอรับใบอนุญาตประกอบกิจการที่เป็นอันตรายต่อสุขภาพจาก (นาย, นาง, นางสาว){' '}
-                <span className="font-bold border-b border-dotted border-slate-700 px-2">
+                <span className="font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {establishment.ownerName}
                 </span>{' '}
-                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">35</span> ปี สัญชาติ{' '}
-                <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">ไทย</span>{' '}
+                อายุ <span className="font-mono font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">35</span> ปี สัญชาติ{' '}
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-medium">ไทย</span>{' '}
                 อยู่บ้านเลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-medium">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-medium">
                   {parsedAddress.houseNo}
                 </span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบล{' '}
-                <span className="border-b border-dotted border-slate-700 px-1.5">โป่งน้ำร้อน</span>{' '}
-                อำเภอ <span className="border-b border-dotted border-slate-700 px-1.5">{districtName.replace('อำเภอ', '')}</span>{' '}
-                จังหวัด <span className="border-b border-dotted border-slate-700 px-1.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>
-              </p>
-
-              <p className="text-justify">
+                <span className="whitespace-nowrap">{parsedAddress.fullVillageDisplay}</span>{' '}
+                <span className="whitespace-nowrap">ตำบล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">โป่งน้ำร้อน</span></span>{' '}
+                <span className="whitespace-nowrap">อำเภอ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{districtName.replace('อำเภอ', '')}</span></span>{' '}
+                <span className="whitespace-nowrap">จังหวัด <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{provinceName.replace('จังหวัด', '')}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span></span>{' '}
                 ชื่อสถานประกอบกิจการ{' '}
-                <span className="font-bold text-sm border-b border-dotted border-slate-700 px-2 text-blue-950">
+                <span className="font-bold text-[14.5px] border-b border-dotted border-slate-700/80 px-2 pb-0.5 text-blue-950">
                   "{establishment.businessName}"
                 </span>{' '}
                 ประเภทกิจการที่เป็นอันตรายต่อสุขภาพ{' '}
-                <span className="font-bold border-b border-dotted border-slate-700 px-2 text-slate-900">
+                <span className="font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5 text-slate-900">
                   {establishment.categoryName || 'กิจการที่เกี่ยวกับปิโตรเลียม ถ่านหิน สารเคมี (การจำหน่ายน้ำมันเชื้อเพลิงตู้หยอดเหรียญ)'}
                 </span>{' '}
                 ลักษณะของสถานที่ประกอบกิจการ{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
-                  {establishment.premiseCharacteristics || 'อาคารพาณิชย์/ติดตั้งตู้จ่ายน้ำมันเชื้อเพลิงอัตโนมัติชนิดหยอดเหรียญและธนบัตร'}
-                </span>
-              </p>
-
-              <p className="text-justify">
-                มีพื้นที่{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.areaSqm}
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">
+                  {displayedPremise}
                 </span>{' '}
-                ตารางเมตร จำนวนคนงาน{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.workerCount}
-                </span>{' '}
-                คน กำลังเครื่องจักร{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.machineHorsepower || '-'}
-                </span>{' '}
-                แรงม้า
-              </p>
-
-              <p className="text-justify">
-                สถานที่ตั้งสถานประกอบกิจการ เลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
-                  {parsedAddress.houseNo}
-                </span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบลโป่งน้ำร้อน {districtName} {provinceName} โทรศัพท์{' '}
-                <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>{' '}
-                อีเมล <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.email || '-'}</span>{' '}
-                ID: Line <span className="border-b border-dotted border-slate-700 px-1.5 font-bold text-emerald-800">{establishment.lineId || '-'}</span>
+                <span className="whitespace-nowrap">มีพื้นที่ <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.areaSqm}</span> ตารางเมตร</span>{' '}
+                <span className="whitespace-nowrap">จำนวนคนงาน <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.workerCount}</span> คน</span>{' '}
+                <span className="whitespace-nowrap">กำลังเครื่องจักร <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.machineHorsepower || '-'}</span> แรงม้า</span>{' '}
+                <span className="whitespace-nowrap">สถานที่ตั้งสถานประกอบกิจการ เลขที่ <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">{parsedAddress.houseNo}</span></span>{' '}
+                <span className="whitespace-nowrap">{parsedAddress.fullVillageDisplay}</span>{' '}
+                <span className="whitespace-nowrap">ตำบลโป่งน้ำร้อน</span>{' '}
+                <span className="whitespace-nowrap">{districtName}</span>{' '}
+                <span className="whitespace-nowrap">{provinceName}</span>{' '}
+                <span className="whitespace-nowrap">โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">อีเมล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.email || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">Line ID: <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-bold text-emerald-800">{establishment.lineId || '-'}</span></span>
               </p>
             </>
           ) : (
             /* ================== ใบรับแจ้ง นจ.2 (สถานที่จำหน่าย/สะสมอาหาร) ================== */
             <>
-              <p className="indent-8 text-justify">
+              <p className="indent-10">
                 เจ้าพนักงานท้องถิ่นออกใบรับแจ้งให้ (นาย, นาง, นางสาว){' '}
-                <span className="font-bold border-b border-dotted border-slate-700 px-2">
+                <span className="font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {establishment.ownerName}
                 </span>{' '}
-                อายุ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">35</span> ปี สัญชาติ{' '}
-                <span className="border-b border-dotted border-slate-700 px-1.5 font-medium">ไทย</span>{' '}
+                อายุ <span className="font-mono font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">35</span> ปี สัญชาติ{' '}
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-medium">ไทย</span>{' '}
                 อยู่บ้านเลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-medium">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-medium">
                   {parsedAddress.houseNo}
                 </span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบล{' '}
-                <span className="border-b border-dotted border-slate-700 px-1.5">โป่งน้ำร้อน</span>{' '}
-                อำเภอ <span className="border-b border-dotted border-slate-700 px-1.5">{districtName.replace('อำเภอ', '')}</span>{' '}
-                จังหวัด <span className="border-b border-dotted border-slate-700 px-1.5">{provinceName.replace('จังหวัด', '')}</span>{' '}
-                โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>
-              </p>
-
-              <p className="text-justify">
+                <span className="whitespace-nowrap">{parsedAddress.fullVillageDisplay}</span>{' '}
+                <span className="whitespace-nowrap">ตำบล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">โป่งน้ำร้อน</span></span>{' '}
+                <span className="whitespace-nowrap">อำเภอ <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{districtName.replace('อำเภอ', '')}</span></span>{' '}
+                <span className="whitespace-nowrap">จังหวัด <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{provinceName.replace('จังหวัด', '')}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span></span>{' '}
                 ชื่อสถานประกอบกิจการ{' '}
-                <span className="font-bold text-sm border-b border-dotted border-slate-700 px-2 text-blue-950">
+                <span className="font-bold text-[14.5px] border-b border-dotted border-slate-700/80 px-2 pb-0.5 text-blue-950">
                   "{establishment.businessName}"
                 </span>{' '}
                 {isStorage ? 'ประเภทของอาหารที่สะสมเพื่อจำหน่าย' : 'ประเภทของอาหารที่จำหน่าย'}{' '}
-                <span className="font-bold border-b border-dotted border-slate-700 px-2">
+                <span className="font-bold border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {displayedFoodType}
                 </span>{' '}
                 ลักษณะของสถานที่ประกอบกิจการ{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {displayedPremise}
-                </span>
-              </p>
-
-              <p className="text-justify">
+                </span>{' '}
                 วิธีการจำหน่าย{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">
                   {displayedDistribution}
                 </span>{' '}
                 ช่วงเวลาที่จำหน่าย{' '}
-                <span className="border-b border-dotted border-slate-700 px-2 font-mono">
+                <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5 font-mono">
                   {establishment.operatingHours || '07:00 - 19:00 น.'}
                 </span>{' '}
-                มีพื้นที่{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.areaSqm}
-                </span>{' '}
-                ตารางเมตร {isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}{' '}
-                <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
-                  {establishment.workerCount}
-                </span>{' '}
-                คน
-              </p>
-
-              <p className="text-justify">
-                สถานที่ตั้ง เลขที่{' '}
-                <span className="border-b border-dotted border-slate-700 px-2">
-                  {parsedAddress.houseNo}
-                </span>{' '}
-                {parsedAddress.fullVillageDisplay} ตำบลโป่งน้ำร้อน {districtName} {provinceName} โทรศัพท์{' '}
-                <span className="font-mono border-b border-dotted border-slate-700 px-1.5">{establishment.phone}</span>{' '}
-                โทรสาร <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.fax || '-'}</span>{' '}
-                อีเมล <span className="border-b border-dotted border-slate-700 px-1.5">{establishment.email || '-'}</span>{' '}
-                ID: Line <span className="border-b border-dotted border-slate-700 px-1.5 font-bold text-emerald-800">{establishment.lineId || '@pnr-food'}</span>
+                <span className="whitespace-nowrap">มีพื้นที่ <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.areaSqm}</span> ตารางเมตร</span>{' '}
+                <span className="whitespace-nowrap">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'} <span className="font-bold font-mono border-b border-dotted border-slate-700/80 px-2 pb-0.5">{establishment.workerCount}</span> คน</span>{' '}
+                <span className="whitespace-nowrap">สถานที่ตั้ง เลขที่ <span className="border-b border-dotted border-slate-700/80 px-2 pb-0.5">{parsedAddress.houseNo}</span></span>{' '}
+                <span className="whitespace-nowrap">{parsedAddress.fullVillageDisplay}</span>{' '}
+                <span className="whitespace-nowrap">ตำบลโป่งน้ำร้อน</span>{' '}
+                <span className="whitespace-nowrap">{districtName}</span>{' '}
+                <span className="whitespace-nowrap">{provinceName}</span>{' '}
+                <span className="whitespace-nowrap">โทรศัพท์ <span className="font-mono border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.phone || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">โทรสาร <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.fax || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">อีเมล <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5">{establishment.email || '-'}</span></span>{' '}
+                <span className="whitespace-nowrap">Line ID: <span className="border-b border-dotted border-slate-700/80 px-1.5 pb-0.5 font-bold text-emerald-800">{establishment.lineId || '@pnr-food'}</span></span>
               </p>
             </>
           )}

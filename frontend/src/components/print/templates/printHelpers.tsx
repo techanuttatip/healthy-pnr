@@ -98,17 +98,15 @@ export const parseAddressDetails = (rawAddress?: string, rawVillage?: string) =>
     mooPart = v.startsWith('หมู่') ? v : `หมู่ที่ ${v}`;
   }
 
-  // To fix: prevent "บ้าน" from wrapping separately from the village name (e.g. "บ้านหนองพนัง")
-  // Wrap villageNamePart in a non-breaking span (whitespace-nowrap inline-block)
+  // Wrap combined moo and village name in non-breaking span to prevent awkward line breaks
+  const combinedVillage = mooPart && villageNamePart 
+    ? `${mooPart} ${villageNamePart}` 
+    : (mooPart || villageNamePart || v || '-');
+
   const fullVillageDisplay: React.ReactNode = (
-    <>
-      {mooPart && <span>{mooPart}</span>}
-      {mooPart && villageNamePart && ' '}
-      {villageNamePart && (
-        <span className="whitespace-nowrap inline-block">{villageNamePart}</span>
-      )}
-      {!mooPart && !villageNamePart && (v ? <span>{v}</span> : '-')}
-    </>
+    <span className="whitespace-nowrap inline-block">
+      {combinedVillage}
+    </span>
   );
 
   return {
