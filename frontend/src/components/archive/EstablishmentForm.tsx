@@ -102,9 +102,17 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
     initialValues?.inspectorPosition || currentOfficer?.position || currentSettings.signatories?.officerPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'
   );
 
+  const prevInitialValuesRef = React.useRef<string>(JSON.stringify(initialValues || {}));
+
   // Sync when initialValues changes (e.g. from Auto-fill PDF extract)
   useEffect(() => {
     if (initialValues) {
+      const currentSerialized = JSON.stringify(initialValues);
+      if (prevInitialValuesRef.current === currentSerialized) {
+        return;
+      }
+      prevInitialValuesRef.current = currentSerialized;
+
       if (initialValues.regType) setRegType(initialValues.regType);
       if (initialValues.category) setCategory(initialValues.category);
       if (initialValues.categoryName !== undefined) setCategoryName(initialValues.categoryName);

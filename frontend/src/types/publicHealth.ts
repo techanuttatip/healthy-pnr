@@ -168,6 +168,7 @@ export interface Establishment {
   conditions: string[];
   inspectionPassed?: boolean;
   inspectorName?: string;
+  inspectorPosition?: string;
   inspectionDate?: string;
   inspectionScore?: number;
   correctionDays?: 15 | 30;

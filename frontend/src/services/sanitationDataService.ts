@@ -442,6 +442,21 @@ class SanitationDataService {
       book_no: est.bookNo || '-',
       doc_no: est.docNo || null,
       food_place_type: est.foodPlaceType || 'selling',
+      food_type_detail: est.foodTypeDetail || null,
+      premise_characteristics: est.premiseCharacteristics || null,
+      distribution_method: est.distributionMethod || null,
+      operating_hours: est.operatingHours || null,
+      inspector_name: est.inspectorName || null,
+      inspector_position: est.inspectorPosition || null,
+      receipt_no: est.receiptNo || null,
+      receipt_book_no: est.receiptBookNo || est.bookNo || '-',
+      receipt_date: est.receiptDate || null,
+      application_submission_date: est.applicationSubmissionDate || null,
+      temporary_slip_issued_date: est.temporarySlipIssuedDate || null,
+      line_id: est.lineId || null,
+      fax: est.fax || null,
+      next_fee_due_date: est.nextFeeDueDate || null,
+      clean_food_grade: est.cleanFoodGrade || null,
       notes: est.notes || ''
     };
   }
@@ -496,7 +511,9 @@ class SanitationDataService {
       : (fallbackEst?.inspectionPassed ?? (row.status === 'active'));
 
     const effectiveInspectionDate = latestInsp?.inspection_date || fallbackEst?.inspectionDate || row.issue_date;
-    const effectiveInspector = latestInsp?.inspector_name || fallbackEst?.inspectorName || 'นางสาวรุ่งทิวา อุปนันท์';
+    const effectiveInspector = row.inspector_name || fallbackEst?.inspectorName || latestInsp?.inspector_name || 'นางสาวรุ่งทิวา อุปนันท์';
+    const effectivePosition = row.inspector_position || fallbackEst?.inspectorPosition || latestInsp?.inspector_position || 'นักวิชาการสาธารณสุขปฏิบัติการ';
+    const effectivePremiseCharacteristics = row.premise_characteristics || fallbackEst?.premiseCharacteristics || 'อยู่ในอาคารพาณิชย์';
     const effectiveScore = latestInsp ? Number(latestInsp.total_score) : (fallbackEst?.inspectionScore || 100);
 
     const effectiveLat = row.lat || latestInsp?.gps_checkin?.lat || fallbackEst?.lat || 19.9288;
@@ -569,11 +586,25 @@ class SanitationDataService {
         'แสดงใบอนุญาตไว้ในที่เปิดเผยและเห็นได้ง่าย ณ สถานที่ประกอบการ'
       ],
       foodPlaceType: row.food_place_type || fallbackEst?.foodPlaceType || 'selling',
+      foodTypeDetail: row.food_type_detail || fallbackEst?.foodTypeDetail || '',
+      premiseCharacteristics: effectivePremiseCharacteristics,
+      distributionMethod: row.distribution_method || fallbackEst?.distributionMethod || '',
+      operatingHours: row.operating_hours || fallbackEst?.operatingHours || '',
+      receiptBookNo: row.receipt_book_no || fallbackEst?.receiptBookNo || '-',
+      receiptNo: row.receipt_no || fallbackEst?.receiptNo || '',
+      receiptDate: row.receipt_date || fallbackEst?.receiptDate || '',
+      applicationSubmissionDate: row.application_submission_date || fallbackEst?.applicationSubmissionDate || '',
+      temporarySlipIssuedDate: row.temporary_slip_issued_date || fallbackEst?.temporarySlipIssuedDate || '',
+      lineId: row.line_id || fallbackEst?.lineId || '',
+      fax: row.fax || fallbackEst?.fax || '',
+      nextFeeDueDate: row.next_fee_due_date || fallbackEst?.nextFeeDueDate || '',
+      cleanFoodGrade: row.clean_food_grade || fallbackEst?.cleanFoodGrade || null,
       notes: row.notes || latestInsp?.inspector_notes || fallbackEst?.notes || '',
       inspectionScore: effectiveScore,
       inspectionPassed: hasPassed,
       inspectionDate: effectiveInspectionDate,
       inspectorName: effectiveInspector,
+      inspectorPosition: effectivePosition,
       yearlyArchives: archives
     };
   }

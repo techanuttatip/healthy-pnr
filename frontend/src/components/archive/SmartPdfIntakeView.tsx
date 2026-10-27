@@ -557,6 +557,7 @@ const INTAKE_PRESETS: IntakePreset[] = [
       inspectionPassed: true,
       inspectionDate: issueDate,
       inspectorName: inspectorName,
+      inspectorPosition: inspectorPosition,
       yearlyArchives: [dossier]
     };
 

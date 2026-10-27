@@ -112,7 +112,10 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
         categoryName: values.categoryName,
         feeAmount: values.feeAmount,
         receiptNo: values.receiptNo,
-        inspectorName: values.inspectorName
+        docNo: values.docNo,
+        applicationSubmissionDate: values.applicationSubmissionDate,
+        inspectorName: values.inspectorName,
+        inspectorPosition: values.inspectorPosition
       };
 
       if (onUpdateEstablishment) {
@@ -705,6 +708,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
             {/* Modal Body: EstablishmentForm */}
             <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-50/60">
               <EstablishmentForm
+                key={editingEst.id}
                 initialValues={{
                   regType: editingEst.regType,
                   category: editingEst.category,
@@ -727,7 +731,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                   receiptNo: editingEst.receiptNo || '',
                   applicationSubmissionDate: editingEst.applicationSubmissionDate || editingEst.issueDate || new Date().toISOString().split('T')[0],
                   inspectorName: editingEst.inspectorName || '',
-                  inspectorPosition: 'นักวิชาการสาธารณสุขปฏิบัติการ'
+                  inspectorPosition: editingEst.inspectorPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'
                 }}
                 onSave={(values) => handleSaveEdit(values)}
                 isSaving={isSavingEdit}

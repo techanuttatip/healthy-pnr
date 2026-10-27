@@ -298,6 +298,7 @@ export const PdfUploadView: React.FC<PdfUploadViewProps> = ({
       inspectionPassed: true,
       inspectionDate: values.applicationSubmissionDate,
       inspectorName: values.inspectorName,
+      inspectorPosition: values.inspectorPosition,
       yearlyArchives: [dossier]
     };
 

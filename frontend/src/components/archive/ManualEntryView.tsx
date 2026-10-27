@@ -128,6 +128,7 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
         inspectionPassed: true,
         inspectionDate: issueDate,
         inspectorName: values.inspectorName,
+        inspectorPosition: values.inspectorPosition,
         yearlyArchives: [dossier]
       };
 
