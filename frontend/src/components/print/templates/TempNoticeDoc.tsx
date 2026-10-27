@@ -108,10 +108,6 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
         lineHeight: spacing.lineHeight,
         color: '#000000',
         minHeight: '297mm',
-        paddingTop: '0.6cm',
-        paddingRight: '2cm',
-        paddingBottom: '2cm',
-        paddingLeft: '3cm',
         boxSizing: 'border-box'
       }}
     >
@@ -126,22 +122,22 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
 
       {/* Header Section (ระยะรวมจากหัวกระดาษถึงชื่อเรื่อง 3 ซม. พอดี) */}
       <div className="relative z-10">
-        <div className="grid grid-cols-3 items-start text-xs text-slate-700 mb-1 relative min-h-[24mm]">
-          <div className="font-bold text-[14pt] pt-1">
+        <div className="relative flex justify-between items-start text-xs text-slate-700 mb-1 min-h-[24mm] w-full">
+          <div className="font-bold text-[14pt] pt-1 z-10 shrink-0">
             เลขรับคำขอที่: <span className="font-bold border-b border-dotted border-black px-2">{toThaiDigits(establishment.docNo || establishment.regNumber)}</span>
           </div>
-          <div className="flex justify-center items-center">
+          <div className="garuda-emblem-container absolute left-1/2 -translate-x-1/2 top-0 flex justify-center items-center pointer-events-none z-0">
             <img
               src="/garuda.png"
               alt="ตราครุฑประจำแบบพิมพ์ราชการ"
               className="w-[24mm] h-[24mm] object-contain filter contrast-125"
             />
           </div>
-          <div className="text-right">
-            <span className="font-bold border border-black px-2.5 py-0.5 rounded text-[13pt] leading-tight">
+          <div className="text-right z-10 shrink-0">
+            <span className="font-bold border border-black px-2.5 py-0.5 rounded text-[13pt] leading-tight whitespace-nowrap">
               {toThaiDigits(tempNoticeCode)} (เอกสารชั่วคราว)
             </span>
-            <div className="mt-0.5 text-[11pt] text-slate-600">
+            <div className="mt-0.5 text-[11pt] text-slate-600 whitespace-nowrap">
               ออกให้ ณ วันที่ยื่นเรื่อง (Day-1 Slip)
             </div>
           </div>

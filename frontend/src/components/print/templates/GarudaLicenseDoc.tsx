@@ -151,10 +151,6 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         lineHeight: spacing.lineHeight,
         color: '#000000',
         minHeight: '297mm',
-        paddingTop: '0.6cm',
-        paddingRight: '2cm',
-        paddingBottom: '2cm',
-        paddingLeft: '3cm',
         boxSizing: 'border-box'
       }}
     >
@@ -169,10 +165,10 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
 
       {/* Header Section (ระยะรวมจากหัวกระดาษถึงชื่อเรื่อง 3 ซม. พอดี) */}
       <div className="relative z-10">
-        {/* Top Header Row: เล่มที่ (ซ้าย) - ครุฑ (กึ่งกลาง) - แบบพิมพ์/เลขที่ (ขวา) */}
-        <div className="grid grid-cols-3 items-start text-[14pt] text-black mb-1 relative min-h-[24mm]">
+        {/* Top Header Row: เล่มที่ (ซ้าย) - ครุฑ (กึ่งกลางสัมบูรณ์) - แบบพิมพ์/เลขที่ (ขวา) */}
+        <div className="relative flex justify-between items-start text-[14pt] text-black mb-1 min-h-[24mm] w-full">
           {/* ซ้าย: เล่มที่ */}
-          <div className="font-bold flex items-center pt-1">
+          <div className="font-bold flex items-center pt-1 z-10 shrink-0">
             <span>เล่มที่</span>
             <div className="border-b border-dotted border-black min-w-[70px] text-center font-bold px-2 ml-1">
               {establishment.bookNo && establishment.bookNo !== '-'
@@ -181,8 +177,8 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
             </div>
           </div>
 
-          {/* กึ่งกลาง: ตราครุฑ (ขนาด 24 มม.) */}
-          <div className="garuda-emblem-container flex justify-center items-center">
+          {/* กึ่งกลาง: ตราครุฑ (ขนาด 24 มม. กึ่งกลางหน้ากระดาษพอดี) */}
+          <div className="garuda-emblem-container absolute left-1/2 -translate-x-1/2 top-0 flex justify-center items-center pointer-events-none z-0">
             <img
               src="/garuda.png"
               alt="ตราครุฑประจำแบบพิมพ์ราชการ"
@@ -190,17 +186,17 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
             />
           </div>
 
-          {/* ขวา: แบบพิมพ์ & เลขที่ */}
-          <div className="text-right flex flex-col items-end">
+          {/* ขวา: แบบพิมพ์ & เลขที่ (ไม่บีบตัวอักษร แสดงบรรทัดเดียวสวยงาม) */}
+          <div className="text-right flex flex-col items-end z-10 shrink-0">
             {mode === 'replacement_cert' && (
               <span className="font-bold text-red-600 border border-red-600 px-2 py-0.5 rounded text-[12pt] tracking-wider mb-0.5">
                 [ ใบแทน ]
               </span>
             )}
-            <span className="font-bold border border-black px-2.5 py-0.5 rounded text-[13pt] leading-tight">
+            <span className="font-bold border border-black px-2.5 py-0.5 rounded text-[13pt] leading-tight whitespace-nowrap">
               {officialBadgeCode}
             </span>
-            <div className="mt-0.5 font-bold flex items-center justify-end">
+            <div className="mt-0.5 font-bold flex items-center justify-end whitespace-nowrap">
               <span>เลขที่</span>
               <div className="border-b border-dotted border-black min-w-[90px] text-center font-bold px-2 ml-1">
                 {toThaiDigits(establishment.docNo || establishment.regNumber || '') || '\u00A0'}
@@ -622,7 +618,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                 <p style={{ textIndent: '2.5cm', textAlign: 'left', lineHeight: spacing.paragraphLineHeight, margin: 0 }}>
                   <span className="font-bold">(๓)</span> {isFoodLicense ? 'ผู้ได้รับใบอนุญาต' : 'ผู้รับหนังสือรับรองการแจ้ง'}ต้องปฏิบัติตามเงื่อนไขเฉพาะดังต่อไปนี้อีกด้วย คือ
                 </p>
-                <div style={{ paddingLeft: '3cm', fontSize: '13.5pt', lineHeight: spacing.subBulletLineHeight, marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
+                <div style={{ paddingLeft: '2.5cm', fontSize: '13.5pt', lineHeight: spacing.subBulletLineHeight, marginTop: '2pt' }} className="space-y-0.5 text-slate-800">
                   <div>
                     <span className="font-semibold">๓.๑)</span> ต้องรักษาความสะอาดถูกสุขลักษณะตามเกณฑ์มาตรฐานสุขาภิบาลอาหารของกระทรวงสาธารณสุข และข้อบัญญัติท้องถิ่น
                   </div>

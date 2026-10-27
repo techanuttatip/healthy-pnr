@@ -657,6 +657,17 @@ select {
   transition: all 0.15s ease;
 }
 
+/* Screen Preview padding for official Thai government certificate documents */
+@media screen {
+  .printable-doc-root {
+    padding-top: 0.6cm !important;
+    padding-right: 2cm !important;
+    padding-bottom: 2cm !important;
+    padding-left: 3cm !important;
+    box-sizing: border-box !important;
+  }
+}
+
 /* Print Rules for A4 Thai Government Certificates & Register Reports */
 @media print {
   @page {
@@ -789,6 +800,10 @@ select {
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
+    padding-top: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 0 !important;
     background: white !important;
     color: black !important;
     box-shadow: none !important;
