@@ -78,11 +78,11 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
   return (
     <div
       id="printable-certificate"
-      className="w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-10 sm:p-14 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-6 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
+      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-10 sm:p-14 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-6 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
       style={{ fontFamily: "'Sarabun', 'TH Sarabun New', serif" }}
     >
       {/* Background Watermark */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden select-none">
+      <div className="watermark-container absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden select-none">
         <img
           src="/pnr_logo.png"
           alt="ลายน้ำตราสัญลักษณ์ อบต.โป่งน้ำร้อน"
@@ -118,7 +118,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         </div>
 
         {/* Garuda Emblem */}
-        <div className="flex justify-center my-2 relative z-10">
+        <div className="garuda-emblem-container flex justify-center my-2 relative z-10 transition-transform">
           <img
             src="/garuda.png"
             alt="ตราครุฑประจำแบบพิมพ์ราชการ"
@@ -137,7 +137,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
         </div>
 
         {/* Body Content */}
-        <div className="text-[14px] leading-[2.2] text-slate-900 space-y-3 mt-4 text-left font-serif">
+        <div className="doc-body-content text-[14px] leading-[2.2] text-slate-900 space-y-3 mt-4 text-left font-serif">
           {isHazardous ? (
             /* ================== แบบ อภ.2: กิจการที่เป็นอันตรายต่อสุขภาพ ================== */
             <>
@@ -285,7 +285,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
       </div>
 
       {/* Official Signatures Section (No QR Codes) */}
-      <div className="relative z-10 pt-4">
+      <div className="signatures-container relative z-10 pt-4">
         <div className="flex justify-end items-end">
           {/* Local Mayor Signature */}
           <div className="text-center w-72 relative">

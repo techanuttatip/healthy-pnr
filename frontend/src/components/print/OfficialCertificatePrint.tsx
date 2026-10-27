@@ -20,6 +20,11 @@ import {
   RenewalNoticeDoc,
   FieldRenewalPackDoc
 } from './templates';
+import {
+  DocumentPageStylerToolbar,
+  loadSavedPrintLayout,
+  type PrintLayoutSettings
+} from './DocumentPageStylerToolbar';
 
 interface OfficialCertificatePrintProps {
   establishment?: Establishment | null;
@@ -59,6 +64,9 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
   const [reportCategoryFilter, setReportCategoryFilter] = useState<string>(initialReportCategory || 'all');
   const [reportStatusFilter, setReportStatusFilter] = useState<string>('all');
   const [reportYearFilter, setReportYearFilter] = useState<string>(initialReportYear || 'all');
+
+  const [layoutSettings, setLayoutSettings] = useState<PrintLayoutSettings>(loadSavedPrintLayout);
+  const [contentResetKey, setContentResetKey] = useState<number>(0);
 
   useEffect(() => {
     if (initialMode) setPrintViewMode(initialMode);
@@ -243,10 +251,102 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
   return (
     <div className="flex flex-col h-full bg-transparent text-slate-800">
       <style>{`
+        :root {
+          --doc-font-family: ${layoutSettings.fontFamily};
+          --doc-font-size: ${layoutSettings.fontSizePt}pt;
+          --doc-line-height: ${layoutSettings.lineSpacing};
+          --doc-padding-top: ${layoutSettings.marginTopMm}mm;
+          --doc-padding-bottom: ${layoutSettings.marginBottomMm}mm;
+          --doc-padding-left: ${layoutSettings.marginLeftMm}mm;
+          --doc-padding-right: ${layoutSettings.marginRightMm}mm;
+          --doc-garuda-display: ${layoutSettings.showGaruda ? 'flex' : 'none'};
+          --doc-garuda-transform: translateY(${layoutSettings.garudaOffsetMm}mm) scale(${layoutSettings.garudaScale});
+          --doc-watermark-display: ${layoutSettings.showWatermark ? 'flex' : 'none'};
+          --doc-watermark-opacity: ${layoutSettings.watermarkOpacity};
+          --doc-signature-display: ${layoutSettings.showSignature ? 'flex' : 'none'};
+        }
+
+        .printable-doc-root,
+        #printable-certificate,
+        #printable-temp-notice,
+        #printable-application-form {
+          font-family: var(--doc-font-family) !important;
+          padding-top: var(--doc-padding-top) !important;
+          padding-bottom: var(--doc-padding-bottom) !important;
+          padding-left: var(--doc-padding-left) !important;
+          padding-right: var(--doc-padding-right) !important;
+          transition: padding 0.15s ease;
+        }
+
+        .printable-doc-root .doc-body-content,
+        .printable-doc-root .doc-body-content *,
+        #printable-certificate .doc-body-content,
+        #printable-certificate .doc-body-content * {
+          font-family: var(--doc-font-family) !important;
+          font-size: var(--doc-font-size) !important;
+          line-height: var(--doc-line-height) !important;
+        }
+
+        .printable-doc-root .garuda-emblem-container,
+        #printable-certificate .garuda-emblem-container {
+          display: var(--doc-garuda-display) !important;
+          transform: var(--doc-garuda-transform) !important;
+        }
+
+        .printable-doc-root .watermark-container,
+        #printable-certificate .watermark-container {
+          display: var(--doc-watermark-display) !important;
+          opacity: var(--doc-watermark-opacity) !important;
+        }
+
+        .printable-doc-root .signatures-container,
+        #printable-certificate .signatures-container {
+          display: var(--doc-signature-display) !important;
+        }
+
         @media print {
           @page {
             size: ${printViewMode === 'cleanfood' || printViewMode === 'register_report' ? 'landscape' : 'portrait'};
-            margin: 8mm;
+            margin: 0mm;
+          }
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .printable-doc-root,
+          #printable-certificate,
+          #printable-temp-notice,
+          #printable-application-form {
+            padding-top: var(--doc-padding-top) !important;
+            padding-bottom: var(--doc-padding-bottom) !important;
+            padding-left: var(--doc-padding-left) !important;
+            padding-right: var(--doc-padding-right) !important;
+            box-shadow: none !important;
+            border: none !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+          }
+          .printable-doc-root .doc-body-content,
+          .printable-doc-root .doc-body-content *,
+          #printable-certificate .doc-body-content,
+          #printable-certificate .doc-body-content * {
+            font-size: var(--doc-font-size) !important;
+            line-height: var(--doc-line-height) !important;
+          }
+          .printable-doc-root .garuda-emblem-container,
+          #printable-certificate .garuda-emblem-container {
+            display: var(--doc-garuda-display) !important;
+            transform: var(--doc-garuda-transform) !important;
+          }
+          .printable-doc-root .watermark-container,
+          #printable-certificate .watermark-container {
+            display: var(--doc-watermark-display) !important;
+            opacity: var(--doc-watermark-opacity) !important;
+          }
+          .printable-doc-root .signatures-container,
+          #printable-certificate .signatures-container {
+            display: var(--doc-signature-display) !important;
           }
         }
       `}</style>
@@ -442,84 +542,102 @@ export const OfficialCertificatePrint: React.FC<OfficialCertificatePrintProps> =
       </div>
 
 
+      {/* Word / Google Docs Style Layout Toolbar (Shown for Certificates and Applications) */}
+      {printViewMode !== 'register_report' && (
+        <DocumentPageStylerToolbar
+          settings={layoutSettings}
+          onChange={setLayoutSettings}
+          onResetContent={() => setContentResetKey((k) => k + 1)}
+        />
+      )}
+
       {/* A4 Paper Viewport */}
       <div className="flex-1 overflow-y-auto p-4 md:p-6 flex justify-center bg-slate-900/10 backdrop-blur-xs rounded-2xl print:p-0 print:bg-white print:overflow-visible border border-white/60">
-        {(printViewMode === 'garuda' || printViewMode === 'replacement_cert') && activeEstablishment && (
-          <GarudaLicenseDoc
-            establishment={activeEstablishment}
-            settings={currentSettings}
-            mode={printViewMode}
-            displayCode={displayCode}
-            formTitle={formTitle}
-          />
-        )}
+        <div
+          key={contentResetKey}
+          contentEditable={layoutSettings.isLiveEdit}
+          suppressContentEditableWarning={true}
+          className={`w-full flex justify-center transition-all ${
+            layoutSettings.isLiveEdit ? 'ring-2 ring-amber-400 ring-offset-4 rounded-xl bg-amber-50/10 cursor-text' : ''
+          }`}
+        >
+          {(printViewMode === 'garuda' || printViewMode === 'replacement_cert') && activeEstablishment && (
+            <GarudaLicenseDoc
+              establishment={activeEstablishment}
+              settings={currentSettings}
+              mode={printViewMode}
+              displayCode={displayCode}
+              formTitle={formTitle}
+            />
+          )}
 
-        {printViewMode === 'temp_notice' && activeEstablishment && (
-          <TempNoticeDoc
-            establishment={activeEstablishment}
-            settings={currentSettings}
-            tempNoticeCode={tempNoticeCode}
-            tempNoticeTitle={tempNoticeTitle}
-          />
-        )}
+          {printViewMode === 'temp_notice' && activeEstablishment && (
+            <TempNoticeDoc
+              establishment={activeEstablishment}
+              settings={currentSettings}
+              tempNoticeCode={tempNoticeCode}
+              tempNoticeTitle={tempNoticeTitle}
+            />
+          )}
 
-        {printViewMode === 'application' && activeEstablishment && (
-          <ApplicationDoc
-            establishment={activeEstablishment}
-            settings={currentSettings}
-            applicationCode={applicationCode}
-            applicationTitle={applicationTitle}
-          />
-        )}
+          {printViewMode === 'application' && activeEstablishment && (
+            <ApplicationDoc
+              establishment={activeEstablishment}
+              settings={currentSettings}
+              applicationCode={applicationCode}
+              applicationTitle={applicationTitle}
+            />
+          )}
 
-        {printViewMode === 'register_report' && (
-          <RegisterReportDoc
-            establishments={filteredReportList}
-            settings={currentSettings}
-            totalPassed={totalPassed}
-            totalFees={totalFees}
-            selectedYear={reportYearFilter}
-            selectedCategory={reportCategoryFilter}
-          />
-        )}
+          {printViewMode === 'register_report' && (
+            <RegisterReportDoc
+              establishments={filteredReportList}
+              settings={currentSettings}
+              totalPassed={totalPassed}
+              totalFees={totalFees}
+              selectedYear={reportYearFilter}
+              selectedCategory={reportCategoryFilter}
+            />
+          )}
 
-        {printViewMode === 'cleanfood' && activeEstablishment && (
-          <CleanFoodBannerDoc
-            establishment={activeEstablishment}
-            settings={currentSettings}
-            municipalityName={orgName}
-          />
-        )}
+          {printViewMode === 'cleanfood' && activeEstablishment && (
+            <CleanFoodBannerDoc
+              establishment={activeEstablishment}
+              settings={currentSettings}
+              municipalityName={orgName}
+            />
+          )}
 
-        {printViewMode === 'receipt' && activeEstablishment && (
-          <ReceiptDoc
-            establishment={activeEstablishment}
-            settings={currentSettings}
-            formTitle={formTitle}
-          />
-        )}
+          {printViewMode === 'receipt' && activeEstablishment && (
+            <ReceiptDoc
+              establishment={activeEstablishment}
+              settings={currentSettings}
+              formTitle={formTitle}
+            />
+          )}
 
-        {printViewMode === 'food_card' && activeEstablishment && (
-          <FoodHandlerCardDoc
-            establishment={activeEstablishment}
-            settings={currentSettings}
-          />
-        )}
+          {printViewMode === 'food_card' && activeEstablishment && (
+            <FoodHandlerCardDoc
+              establishment={activeEstablishment}
+              settings={currentSettings}
+            />
+          )}
 
-        {printViewMode === 'renewal_notice' && activeEstablishment && (
-          <RenewalNoticeDoc
-            establishment={activeEstablishment}
-            settings={currentSettings}
-            formTitle={formTitle}
-          />
-        )}
+          {printViewMode === 'renewal_notice' && activeEstablishment && (
+            <RenewalNoticeDoc
+              establishment={activeEstablishment}
+              settings={currentSettings}
+              formTitle={formTitle}
+            />
+          )}
 
-        {printViewMode === 'field_pack' && activeEstablishment && (
-          <FieldRenewalPackDoc
-            establishment={activeEstablishment}
-            settings={currentSettings}
-          />
-        )}
+          {printViewMode === 'field_pack' && activeEstablishment && (
+            <FieldRenewalPackDoc
+              establishment={activeEstablishment}
+              settings={currentSettings}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

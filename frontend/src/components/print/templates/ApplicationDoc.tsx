@@ -69,7 +69,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
   return (
     <div
       id="printable-application-form"
-      className="w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-10 sm:p-14 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-6 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
+      className="printable-doc-root w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-10 sm:p-14 shadow-2xl border border-slate-300 print:shadow-none print:border-none print:w-full print:max-w-none print:p-6 print:m-0 flex flex-col justify-between font-serif relative overflow-hidden"
       style={{ fontFamily: "'Sarabun', 'TH Sarabun New', serif" }}
     >
       <div className="relative z-10">
@@ -97,7 +97,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
         </div>
 
         {/* Body Content */}
-        <div className="text-[12.5px] leading-relaxed text-slate-900 space-y-2 mt-3">
+        <div className="doc-body-content text-[12.5px] leading-relaxed text-slate-900 space-y-2 mt-3">
           {/* 1. Applicant Section */}
           <div>
             <div className="font-bold">
