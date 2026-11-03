@@ -519,28 +519,37 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               {/* Line 6: ลักษณะสถานที่ และวิธีการจำหน่าย */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1">ลักษณะของสถานที่ประกอบกิจการ</span>
-                <div className="min-w-[112px] shrink-0 border-b border-dotted border-black text-center font-bold px-1.5 relative whitespace-nowrap">
-                  {toThaiDigits(displayedPremise)}
+                <div
+                  className="min-w-[112px] shrink-0 border-b border-dotted border-black text-center font-bold px-1.5 relative whitespace-nowrap"
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {toThaiDigits(displayedPremise).trim().replace(/\s+/g, '\u00A0')}
                 </div>
                 <span className="shrink-0 mx-1.5">วิธีการจำหน่าย</span>
-                <div className="flex-1 border-b border-dotted border-black text-left font-bold px-1.5 relative whitespace-nowrap overflow-visible">
+                <div
+                  className="flex-1 border-b border-dotted border-black text-left font-bold px-1.5 relative whitespace-nowrap overflow-visible"
+                  style={{ whiteSpace: 'nowrap' }}
+                >
                   {displayedDistribution}
                 </div>
               </div>
 
               {/* Line 7: เวลา / พื้นที่ / คนงาน */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
-                <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
-                <div className="min-w-[138px] shrink-0 border-b border-dotted border-black text-center font-bold px-2 relative whitespace-nowrap">
-                  {toThaiDigits(establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.')}
+                <span className="shrink-0 mr-1">ช่วงเวลาที่จำหน่าย</span>
+                <div
+                  className="min-w-[124px] shrink-0 border-b border-dotted border-black text-center font-bold px-1.5 relative whitespace-nowrap"
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {toThaiDigits(establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.').trim().replace(/\s+/g, '\u00A0')}
                 </div>
                 <span className="shrink-0 mx-1">มีพื้นที่</span>
-                <div className="w-12 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <div className="w-10 shrink-0 border-b border-dotted border-black text-center font-bold px-1 relative whitespace-nowrap">
                   {toThaiDigits(establishment.areaSqm)}
                 </div>
                 <span className="shrink-0 mx-1">ตารางเมตร</span>
                 <span className="shrink-0 mx-1">{isStorage ? 'จำนวนคนงาน' : 'จำนวนคนงาน/ผู้สัมผัสอาหาร'}</span>
-                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[35px]">
+                <div className="flex-1 border-b border-dotted border-black text-center font-bold px-1 relative min-w-[28px] whitespace-nowrap">
                   {toThaiDigits(establishment.workerCount)}
                 </div>
                 <span className="shrink-0 ml-1">คน</span>

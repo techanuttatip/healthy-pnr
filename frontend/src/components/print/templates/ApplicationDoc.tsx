@@ -224,8 +224,11 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                   </div>
                   <div>
                     ช่วงเวลาที่จำหน่าย:{' '}
-                    <span className="border-b border-dotted border-slate-700 px-2 font-mono whitespace-nowrap inline-block">
-                      {establishment.operatingHours || '07:00 - 19:00 น.'}
+                    <span
+                      className="border-b border-dotted border-slate-700 px-2 font-mono whitespace-nowrap inline-block"
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      {(establishment.operatingHours || '07:00 - 19:00 น.').trim().replace(/\s+/g, '\u00A0')}
                     </span>{' '}
                     มีพื้นที่:{' '}
                     <span className="font-bold font-mono border-b border-dotted border-slate-700 px-2">
