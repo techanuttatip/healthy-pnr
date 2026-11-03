@@ -70,7 +70,7 @@ export const ReceiptDoc: React.FC<ReceiptDocProps> = ({
                 เลขที่ <span className="font-mono text-sm border-b border-dotted border-slate-600 px-8 inline-block min-w-[90px] text-center">&nbsp;</span>
               </div>
               <div className="text-[11px] text-slate-700">
-                วันที่ <strong>{formatThaiDate(establishment.issueDate, false)}</strong>
+                วันที่ <strong>{formatThaiDate(establishment.receiptDate || establishment.issueDate || establishment.applicationSubmissionDate, false)}</strong>
               </div>
             </div>
           </div>

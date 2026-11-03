@@ -828,23 +828,52 @@ class SanitationDataService {
   }
 
   // ซิงค์สถานประกอบการและแฟ้มประวัติรายปีขึ้น Supabase Cloud
-  private async saveEstablishmentToCloud(est: Establishment) {
-    if (!this.isCloudActive || !this.supabase) return;
+  private async saveEstablishmentToCloud(est: Establishment): Promise<string> {
+    if (!this.isCloudActive || !this.supabase) return est.id;
     try {
       const dbRow = this.mapToDbRow(est);
       let estId: string = est.id;
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(est.id || '');
 
-      // ๑. ตรวจสอบข้อมูลในตาราง establishments โดยใช้ id ก่อน ถ้าไม่มีจึงใช้ reg_number
-      let existingQuery = this.supabase.from('establishments').select('id');
-      if (est.id) {
-        existingQuery = existingQuery.eq('id', est.id);
-      } else {
-        existingQuery = existingQuery.eq('reg_number', est.regNumber);
+      // ๑. ตรวจสอบข้อมูลในตาราง establishments โดยใช้ UUID ก่อน หากไม่ใช่ UUID หรือไม่พบจึงค้นด้วย reg_number และ doc_no
+      let existing: { id: string }[] | null = null;
+
+      if (isUUID) {
+        const { data } = await this.supabase
+          .from('establishments')
+          .select('id')
+          .eq('id', est.id)
+          .limit(1);
+        if (data && data.length > 0) {
+          existing = data;
+        }
       }
-      const { data: existing } = await existingQuery.limit(1);
+
+      if ((!existing || existing.length === 0) && est.regNumber) {
+        const { data } = await this.supabase
+          .from('establishments')
+          .select('id')
+          .eq('reg_number', est.regNumber)
+          .limit(1);
+        if (data && data.length > 0) {
+          existing = data;
+        }
+      }
+
+      if ((!existing || existing.length === 0) && est.docNo) {
+        const { data } = await this.supabase
+          .from('establishments')
+          .select('id')
+          .eq('doc_no', est.docNo)
+          .limit(1);
+        if (data && data.length > 0) {
+          existing = data;
+        }
+      }
 
       if (existing && existing.length > 0) {
         estId = existing[0].id;
+        est.id = estId;
         const { error: updErr } = await this.supabase
           .from('establishments')
           .update({
@@ -863,6 +892,7 @@ class SanitationDataService {
           .select('id');
         if (!insErr && inserted && inserted.length > 0) {
           estId = inserted[0].id;
+          est.id = estId;
         }
       }
 
@@ -955,29 +985,47 @@ class SanitationDataService {
     } catch (cloudErr) {
       console.warn('Cloud sync error:', cloudErr);
     }
+    return est.id;
   }
 
   // ๓. บันทึก / อัปเดตข้อมูลสถานประกอบการ
   async saveEstablishment(est: Establishment): Promise<Establishment> {
-    try {
-      const currentList = await this.getEstablishments();
-      const existingIdx = currentList.findIndex(item => item.id === est.id || item.regNumber === est.regNumber);
-      let updatedList: Establishment[];
+    const prevId = est.id;
 
-      if (existingIdx >= 0) {
-        updatedList = [...currentList];
-        updatedList[existingIdx] = est;
-      } else {
-        updatedList = [est, ...currentList];
+    const updateLocalList = (itemToSave: Establishment, matchPrevId?: string) => {
+      try {
+        const rawLocal = localStorage.getItem('PNR_SANITATION_ESTABLISHMENTS');
+        const currentList: Establishment[] = rawLocal ? JSON.parse(rawLocal) : [];
+        const existingIdx = currentList.findIndex(
+          item =>
+            item.id === itemToSave.id ||
+            (matchPrevId && item.id === matchPrevId) ||
+            (item.regNumber && item.regNumber === itemToSave.regNumber) ||
+            (item.docNo && itemToSave.docNo && item.docNo === itemToSave.docNo)
+        );
+        let updatedList: Establishment[];
+
+        if (existingIdx >= 0) {
+          updatedList = [...currentList];
+          updatedList[existingIdx] = itemToSave;
+        } else {
+          updatedList = [itemToSave, ...currentList];
+        }
+
+        localStorage.setItem('PNR_SANITATION_ESTABLISHMENTS', JSON.stringify(updatedList));
+      } catch (e) {
+        console.error('Error saving local establishment:', e);
       }
+    };
 
-      localStorage.setItem('PNR_SANITATION_ESTABLISHMENTS', JSON.stringify(updatedList));
-    } catch (e) {
-      console.error('Error saving local establishment:', e);
-    }
+    // ๑. อัปเดต Local Cache ทันทีโดยไม่ดึงข้อมูลเก่าจาก Cloud มาทับ
+    updateLocalList(est, prevId);
 
-    // ซิงค์ขึ้น Supabase Cloud
+    // ๒. ซิงค์ขึ้น Supabase Cloud และรับ UUID จริงกลับมา
     await this.saveEstablishmentToCloud(est);
+
+    // ๓. อัปเดต Local Cache อีกครั้งกรณีที่ได้ UUID จาก Supabase
+    updateLocalList(est, prevId);
 
     try {
       window.dispatchEvent(new Event('storage'));

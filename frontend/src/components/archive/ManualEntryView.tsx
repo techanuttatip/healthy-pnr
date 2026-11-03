@@ -7,7 +7,7 @@ import type {
 } from '../../types/publicHealth';
 import { sanitationDataService } from '../../services/sanitationDataService';
 import { showToast } from '../../utils/sweetAlert';
-import { EstablishmentForm, type EstablishmentFormValues } from './EstablishmentForm';
+import { EstablishmentForm, addOneYearIso, type EstablishmentFormValues } from './EstablishmentForm';
 import { FileEdit, Sparkles } from 'lucide-react';
 
 interface ManualEntryViewProps {
@@ -64,8 +64,9 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
         : safeDocNo.padStart(4, '0');
       const regNumber = `${values.regType}-${String(values.targetYear).slice(-2)}-${docPrefix}`;
 
-      const issueDate = values.applicationSubmissionDate;
-      const expireDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const issueDate = values.issueDate || values.receiptDate || values.applicationSubmissionDate;
+      const expireDate = values.expireDate || addOneYearIso(issueDate);
+      const receiptDate = values.receiptDate || values.applicationSubmissionDate || issueDate;
 
       const docs: ArchivedDocument[] = [
         {
@@ -84,7 +85,11 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
         year: values.targetYear,
         status: 'pending_payment',
         applicationDate: values.applicationSubmissionDate,
+        licenseIssueDate: issueDate,
+        licenseExpireDate: expireDate,
         feeAmount: values.feeAmount,
+        receiptNo: values.receiptNo,
+        licenseNo: safeDocNo,
         documents: docs
       };
 
@@ -97,29 +102,36 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
         businessName: values.businessName,
         applicantType: 'individual',
         ownerName: values.ownerName,
+        ownerAge: values.ownerAge || 35,
         citizenId: values.citizenId,
         phone: values.phone,
         email: values.email,
+        lineId: values.lineId || '',
+        fax: values.fax || '',
         village: values.village,
         address: values.address,
         areaSqm: values.areaSqm || 50,
         workerCount: values.workerCount ?? 1,
         premiseCharacteristics: values.premiseCharacteristics || 'ตึกเดี่ยว 1 ชั้น',
+        foodPlaceType: values.foodPlaceType || 'selling',
+        foodTypeDetail: values.foodTypeDetail || '',
+        distributionMethod: values.distributionMethod || '',
+        operatingHours: values.operatingHours || '07:00 - 19:00 น.',
         lat: values.lat,
         lng: values.lng,
         status: 'pending_inspection',
         issueDate,
         expireDate,
         annualFeeDue: expireDate,
+        nextFeeDueDate: expireDate,
         feeAmount: values.feeAmount,
-        bookNo: '-',
+        bookNo: values.bookNo || '๑',
         docNo: safeDocNo,
-        receiptBookNo: '-',
+        receiptBookNo: values.receiptBookNo || '๑',
         receiptNo: values.receiptNo,
-        receiptDate: values.applicationSubmissionDate,
+        receiptDate,
         applicationSubmissionDate: values.applicationSubmissionDate,
         temporarySlipIssuedDate: values.applicationSubmissionDate,
-        foodPlaceType: 'selling',
         conditions: [
           'ผู้ประกอบการต้องปฏิบัติตามมาตรฐานสุขาภิบาลอย่างเคร่งครัด',
           'แสดงใบอนุญาตไว้ในที่เปิดเผยและเห็นได้ง่าย ณ สถานที่ประกอบการ'
@@ -132,13 +144,13 @@ export const ManualEntryView: React.FC<ManualEntryViewProps> = ({
         yearlyArchives: [dossier]
       };
 
-      onSaveEstablishment(newEst);
-      await sanitationDataService.saveEstablishment(newEst);
+      const savedEst = await sanitationDataService.saveEstablishment(newEst);
       showToast('บันทึกข้อมูลสถานประกอบการสำเร็จ!', 'success');
 
       if (proceedToPrint) {
-        onNavigateToPrint(newEst);
+        onNavigateToPrint(savedEst);
       } else {
+        onSaveEstablishment(savedEst);
         onNavigateToTable();
       }
     } catch (err) {

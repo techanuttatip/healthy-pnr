@@ -396,7 +396,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               {/* Line 6 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1">ลักษณะของสถานที่ประกอบกิจการ</span>
-                <div className="w-28 shrink-0 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <div className="min-w-[112px] shrink-0 border-b border-dotted border-black text-center font-bold px-1.5 relative whitespace-nowrap">
                   {toThaiDigits(displayedPremise)}
                 </div>
                 <span className="shrink-0 mx-1.5">วิธีการจำหน่าย</span>
@@ -408,7 +408,7 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
               {/* Line 7 */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
-                <div className="w-28 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <div className="min-w-[138px] shrink-0 border-b border-dotted border-black text-center font-bold px-2 relative whitespace-nowrap">
                   {toThaiDigits(establishment.operatingHours || '07:00 - 19:00 น.')}
                 </div>
                 <span className="shrink-0 mx-1">มีพื้นที่</span>
@@ -473,13 +473,13 @@ export const TempNoticeDoc: React.FC<TempNoticeDocProps> = ({
             <div className="flex items-end">
               <span>ได้รับเรื่องเมื่อวันที่</span>
               <div className="border-b border-dotted border-black px-3 font-bold ml-1.5">
-                {formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, true)}
+                {formatThaiDate(establishment.applicationSubmissionDate || establishment.receiptDate || establishment.issueDate, true)}
               </div>
             </div>
             <div className="flex items-end">
               <span>ออกให้เมื่อวันที่</span>
               <div className="border-b border-dotted border-black px-3 font-bold ml-1.5">
-                {formatThaiDate(establishment.temporarySlipIssuedDate || establishment.applicationSubmissionDate || establishment.issueDate, true)}
+                {formatThaiDate(establishment.applicationSubmissionDate || establishment.receiptDate || establishment.temporarySlipIssuedDate || establishment.issueDate, true)}
               </div>
               <span className="text-[12pt] text-emerald-800 font-bold ml-2">(ออกภายในวันเดียวกัน)</span>
             </div>

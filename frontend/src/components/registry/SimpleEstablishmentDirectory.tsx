@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { Establishment, PrintDocumentMode } from '../../types/publicHealth';
-import { EstablishmentForm, type EstablishmentFormValues } from '../archive/EstablishmentForm';
+import { EstablishmentForm, addOneYearIso, type EstablishmentFormValues } from '../archive/EstablishmentForm';
 import { sanitationDataService } from '../../services/sanitationDataService';
 import { showToast } from '../../utils/sweetAlert';
 import {
@@ -89,13 +89,39 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
     }
   };
 
-  const handleSaveEdit = async (values: EstablishmentFormValues) => {
+  const handleSaveEdit = async (values: EstablishmentFormValues, proceedToPrint = false) => {
     if (!editingEst) return;
     setIsSavingEdit(true);
     try {
       const safePremise = (values.premiseCharacteristics && values.premiseCharacteristics !== '-')
         ? values.premiseCharacteristics.trim()
         : 'ตึกเดี่ยว 1 ชั้น';
+
+      const resolvedIssueDate =
+        values.issueDate ||
+        values.receiptDate ||
+        values.applicationSubmissionDate ||
+        editingEst.issueDate ||
+        new Date().toISOString().split('T')[0];
+
+      const resolvedExpireDate =
+        values.expireDate || addOneYearIso(resolvedIssueDate);
+
+      const resolvedReceiptDate =
+        values.receiptDate || values.applicationSubmissionDate || resolvedIssueDate;
+
+      const resolvedAppDate =
+        values.applicationSubmissionDate || values.receiptDate || resolvedIssueDate;
+
+      const updatedArchives = editingEst.yearlyArchives?.map((dossier) => ({
+        ...dossier,
+        feeAmount: values.feeAmount,
+        receiptNo: values.receiptNo || dossier.receiptNo,
+        licenseNo: values.docNo.trim() || dossier.licenseNo,
+        applicationDate: resolvedAppDate,
+        licenseIssueDate: resolvedIssueDate,
+        licenseExpireDate: resolvedExpireDate
+      }));
 
       const updated: Establishment = {
         ...editingEst,
@@ -122,23 +148,33 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
         feeAmount: values.feeAmount,
         bookNo: values.bookNo || editingEst.bookNo || '๑',
         docNo: values.docNo.trim(),
-        regNumber: values.docNo.trim() || editingEst.regNumber,
+        regNumber: editingEst.regNumber || values.docNo.trim(),
         receiptBookNo: values.receiptBookNo || editingEst.receiptBookNo || '๑',
         receiptNo: values.receiptNo,
-        receiptDate: values.receiptDate || editingEst.receiptDate || values.applicationSubmissionDate,
-        applicationSubmissionDate: values.applicationSubmissionDate,
+        receiptDate: resolvedReceiptDate,
+        applicationSubmissionDate: resolvedAppDate,
+        temporarySlipIssuedDate: resolvedAppDate,
+        issueDate: resolvedIssueDate,
+        expireDate: resolvedExpireDate,
+        annualFeeDue: resolvedExpireDate,
+        nextFeeDueDate: resolvedExpireDate,
+        inspectionDate: resolvedIssueDate,
         inspectorName: values.inspectorName,
         inspectorPosition: values.inspectorPosition,
         lineId: values.lineId || editingEst.lineId || '',
-        fax: values.fax || editingEst.fax || ''
+        fax: values.fax || editingEst.fax || '',
+        yearlyArchives: updatedArchives || editingEst.yearlyArchives
       };
 
-      await sanitationDataService.saveEstablishment(updated);
+      const savedEst = await sanitationDataService.saveEstablishment(updated);
       if (onUpdateEstablishment) {
-        onUpdateEstablishment(updated);
+        onUpdateEstablishment(savedEst);
       }
       showToast('บันทึกการแก้ไขข้อมูลสำเร็จ!', 'success');
       setEditingEst(null);
+      if (proceedToPrint) {
+        onPrintEstablishment(savedEst, savedEst.regType, 'garuda');
+      }
     } catch (err) {
       console.error(err);
       showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
@@ -735,6 +771,7 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                   email: editingEst.email || '',
                   lineId: editingEst.lineId || '',
                   fax: editingEst.fax || '',
+                  houseNo: editingEst.address?.match(/^(?:เลขที่\s*)?(\d+(?:\/\d+)?)/)?.[1] || '',
                   village: editingEst.village,
                   address: editingEst.address,
                   lat: editingEst.lat,
@@ -751,10 +788,12 @@ export const SimpleEstablishmentDirectory: React.FC<SimpleEstablishmentDirectory
                   receiptNo: editingEst.receiptNo || editingEst.docNo || '',
                   receiptDate: editingEst.receiptDate || editingEst.applicationSubmissionDate || editingEst.issueDate || new Date().toISOString().split('T')[0],
                   applicationSubmissionDate: editingEst.applicationSubmissionDate || editingEst.issueDate || new Date().toISOString().split('T')[0],
+                  issueDate: editingEst.issueDate || editingEst.receiptDate || editingEst.applicationSubmissionDate || new Date().toISOString().split('T')[0],
+                  expireDate: editingEst.expireDate || addOneYearIso(editingEst.issueDate || editingEst.receiptDate || editingEst.applicationSubmissionDate),
                   inspectorName: editingEst.inspectorName || '',
                   inspectorPosition: editingEst.inspectorPosition || 'นักวิชาการสาธารณสุขปฏิบัติการ'
                 }}
-                onSave={(values) => handleSaveEdit(values)}
+                onSave={(values, proceedToPrint) => handleSaveEdit(values, proceedToPrint)}
                 isSaving={isSavingEdit}
                 onCancel={() => setEditingEst(null)}
                 submitLabel="บันทึกการแก้ไขข้อมูล"

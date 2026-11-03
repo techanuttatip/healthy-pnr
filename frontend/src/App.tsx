@@ -311,14 +311,33 @@ export const App: React.FC = () => {
                   p.status === c.status &&
                   p.businessName === c.businessName &&
                   p.ownerName === c.ownerName &&
+                  p.ownerAge === c.ownerAge &&
+                  p.citizenId === c.citizenId &&
+                  p.phone === c.phone &&
+                  p.village === c.village &&
+                  p.address === c.address &&
+                  p.areaSqm === c.areaSqm &&
+                  p.workerCount === c.workerCount &&
                   p.premiseCharacteristics === c.premiseCharacteristics &&
+                  p.bookNo === c.bookNo &&
                   p.docNo === c.docNo &&
+                  p.regNumber === c.regNumber &&
+                  p.foodPlaceType === c.foodPlaceType &&
                   p.foodTypeDetail === c.foodTypeDetail &&
                   p.distributionMethod === c.distributionMethod &&
                   p.operatingHours === c.operatingHours &&
                   p.inspectionScore === c.inspectionScore &&
                   p.feeAmount === c.feeAmount &&
+                  p.receiptBookNo === c.receiptBookNo &&
                   p.receiptNo === c.receiptNo &&
+                  p.receiptDate === c.receiptDate &&
+                  p.applicationSubmissionDate === c.applicationSubmissionDate &&
+                  p.temporarySlipIssuedDate === c.temporarySlipIssuedDate &&
+                  p.issueDate === c.issueDate &&
+                  p.expireDate === c.expireDate &&
+                  p.annualFeeDue === c.annualFeeDue &&
+                  p.inspectorName === c.inspectorName &&
+                  p.inspectorPosition === c.inspectorPosition &&
                   (p.yearlyArchives?.length || 0) === (c.yearlyArchives?.length || 0)
                 );
               })
@@ -531,21 +550,33 @@ export const App: React.FC = () => {
   };
 
   const handleSaveEstablishment = (data: Partial<Establishment>) => {
-    const target = data.id
-      ? establishments.find((e) => e.id === data.id)
-      : data.regNumber
-        ? establishments.find((e) => e.regNumber === data.regNumber)
-        : selectedEstablishment;
+    const target =
+      (data.id ? establishments.find((e) => e.id === data.id) : undefined) ||
+      (data.regNumber ? establishments.find((e) => e.regNumber === data.regNumber) : undefined) ||
+      (data.docNo ? establishments.find((e) => e.docNo === data.docNo) : undefined) ||
+      (selectedEstablishment &&
+      (selectedEstablishment.id === data.id ||
+        selectedEstablishment.regNumber === data.regNumber ||
+        selectedEstablishment.docNo === data.docNo)
+        ? selectedEstablishment
+        : undefined);
 
     if (target) {
       const updatedItem: Establishment = { ...target, ...data } as Establishment;
-      const updated = establishments.map((e) => (e.id === target.id ? updatedItem : e));
-      if (!establishments.some((e) => e.id === target.id)) {
+      const updated = establishments.map((e) =>
+        e.id === target.id || (target.regNumber && e.regNumber === target.regNumber) ? updatedItem : e
+      );
+      if (!establishments.some((e) => e.id === target.id || (target.regNumber && e.regNumber === target.regNumber))) {
         updated.unshift(updatedItem);
       }
       setEstablishments(updated);
-      if (!selectedEstablishment || selectedEstablishment.id === target.id) {
+      if (
+        !selectedEstablishment ||
+        selectedEstablishment.id === target.id ||
+        selectedEstablishment.regNumber === target.regNumber
+      ) {
         setSelectedEstablishment(updatedItem);
+        setSelectedId(updatedItem.id);
       }
       sanitationDataService.saveEstablishment(updatedItem);
       sanitationDataService.logAuditAction({

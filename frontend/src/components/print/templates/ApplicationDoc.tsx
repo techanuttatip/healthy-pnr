@@ -109,7 +109,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
         <div className="flex justify-between items-start text-xs text-slate-700 mb-1">
           <div>
             <div>เลขรับคำขอ: <span className="font-mono font-bold border-b border-dotted border-slate-600 px-2">{toThaiDigits(establishment.docNo || establishment.regNumber)}</span></div>
-            <div className="mt-0.5">วันที่รับเรื่อง: <span className="font-mono border-b border-dotted border-slate-600 px-2">{formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, false)}</span></div>
+            <div className="mt-0.5">วันที่รับเรื่อง: <span className="font-mono border-b border-dotted border-slate-600 px-2">{formatThaiDate(establishment.applicationSubmissionDate || establishment.receiptDate || establishment.issueDate, false)}</span></div>
           </div>
           <div className="text-right">
             <span className="font-bold border border-slate-700 px-2.5 py-0.5 rounded-xs text-xs">
@@ -124,7 +124,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
             {applicationTitle}
           </h1>
           <p className="text-xs text-slate-700 mt-1">
-            วันที่ <span className="border-b border-dotted border-slate-700 px-4 font-mono">{formatThaiDate(establishment.applicationSubmissionDate || establishment.issueDate, false)}</span>
+            วันที่ <span className="border-b border-dotted border-slate-700 px-4 font-mono">{formatThaiDate(establishment.applicationSubmissionDate || establishment.receiptDate || establishment.issueDate, false)}</span>
           </p>
         </div>
 
@@ -224,7 +224,7 @@ export const ApplicationDoc: React.FC<ApplicationDocProps> = ({
                   </div>
                   <div>
                     ช่วงเวลาที่จำหน่าย:{' '}
-                    <span className="border-b border-dotted border-slate-700 px-2 font-mono">
+                    <span className="border-b border-dotted border-slate-700 px-2 font-mono whitespace-nowrap inline-block">
                       {establishment.operatingHours || '07:00 - 19:00 น.'}
                     </span>{' '}
                     มีพื้นที่:{' '}

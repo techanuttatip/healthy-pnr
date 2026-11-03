@@ -19,6 +19,20 @@ const VILLAGE_COORDS: Record<string, { lat: number; lng: number }> = {
   'หมู่ที่ 7 บ้านต้นผึ้งใต้': { lat: 19.9288, lng: 99.1685 }
 };
 
+export const addOneYearIso = (dateStr?: string): string => {
+  const base =
+    dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)
+      ? dateStr
+      : new Date().toISOString().split('T')[0];
+  const [yStr, mStr, dStr] = base.split('-');
+  const nextY = parseInt(yStr, 10) + 1;
+  const m = parseInt(mStr, 10);
+  const d = parseInt(dStr, 10);
+  const maxDays = new Date(nextY, m, 0).getDate();
+  const safeD = String(Math.min(d, maxDays)).padStart(2, '0');
+  return `${nextY}-${String(m).padStart(2, '0')}-${safeD}`;
+};
+
 export interface EstablishmentFormValues {
   regType: RegimeType;
   category: EstablishmentCategory;
@@ -49,6 +63,8 @@ export interface EstablishmentFormValues {
   receiptNo: string;
   receiptDate?: string;
   applicationSubmissionDate: string;
+  issueDate?: string;
+  expireDate?: string;
   inspectorName: string;
   inspectorPosition: string;
   lineId?: string;
@@ -125,14 +141,26 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
     initialValues?.operatingHours || '07:00 - 19:00 น.'
   );
 
+  const defaultBaseDate =
+    initialValues?.receiptDate ||
+    initialValues?.applicationSubmissionDate ||
+    initialValues?.issueDate ||
+    new Date().toISOString().split('T')[0];
+
   const [feeAmount, setFeeAmount] = useState<number>(initialValues?.feeAmount || 100);
   const [receiptBookNo, setReceiptBookNo] = useState<string>(initialValues?.receiptBookNo || '๑');
   const [receiptNo, setReceiptNo] = useState<string>(initialValues?.receiptNo || '');
   const [receiptDate, setReceiptDate] = useState<string>(
-    initialValues?.receiptDate || initialValues?.applicationSubmissionDate || new Date().toISOString().split('T')[0]
+    initialValues?.receiptDate || defaultBaseDate
   );
   const [applicationSubmissionDate, setApplicationSubmissionDate] = useState<string>(
-    initialValues?.applicationSubmissionDate || new Date().toISOString().split('T')[0]
+    initialValues?.applicationSubmissionDate || defaultBaseDate
+  );
+  const [issueDate, setIssueDate] = useState<string>(
+    initialValues?.issueDate || defaultBaseDate
+  );
+  const [expireDate, setExpireDate] = useState<string>(
+    initialValues?.expireDate || addOneYearIso(initialValues?.issueDate || defaultBaseDate)
   );
   const [inspectorName, setInspectorName] = useState<string>(
     initialValues?.inspectorName || currentOfficer?.name || currentSettings.signatories?.officerName || 'นางสาวรุ่งทิวา อุปนันท์'
@@ -187,10 +215,47 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       if (initialValues.applicationSubmissionDate !== undefined) {
         setApplicationSubmissionDate(initialValues.applicationSubmissionDate);
       }
+      if (initialValues.issueDate !== undefined) {
+        setIssueDate(initialValues.issueDate);
+      }
+      if (initialValues.expireDate !== undefined) {
+        setExpireDate(initialValues.expireDate);
+      }
       if (initialValues.inspectorName !== undefined) setInspectorName(initialValues.inspectorName);
       if (initialValues.inspectorPosition !== undefined) setInspectorPosition(initialValues.inspectorPosition);
     }
   }, [initialValues]);
+
+  const handleReceiptDateChange = (newDate: string) => {
+    const prevDate = receiptDate;
+    setReceiptDate(newDate);
+    if (!applicationSubmissionDate || applicationSubmissionDate === prevDate) {
+      setApplicationSubmissionDate(newDate);
+    }
+    if (newDate) {
+      setIssueDate(newDate);
+      setExpireDate(addOneYearIso(newDate));
+    }
+  };
+
+  const handleApplicationDateChange = (newDate: string) => {
+    const prevDate = applicationSubmissionDate;
+    setApplicationSubmissionDate(newDate);
+    if (!receiptDate || receiptDate === prevDate) {
+      setReceiptDate(newDate);
+    }
+    if (newDate) {
+      setIssueDate(newDate);
+      setExpireDate(addOneYearIso(newDate));
+    }
+  };
+
+  const handleIssueDateChange = (newDate: string) => {
+    setIssueDate(newDate);
+    if (newDate) {
+      setExpireDate(addOneYearIso(newDate));
+    }
+  };
 
   const handleVillageChange = (newVillage: string) => {
     setVillage(newVillage);
@@ -275,8 +340,10 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
       feeAmount,
       receiptBookNo: receiptBookNo.trim() || '๑',
       receiptNo: receiptNo.trim(),
-      receiptDate: receiptDate || applicationSubmissionDate,
-      applicationSubmissionDate,
+      receiptDate: receiptDate || applicationSubmissionDate || issueDate,
+      applicationSubmissionDate: applicationSubmissionDate || receiptDate || issueDate,
+      issueDate: issueDate || receiptDate || applicationSubmissionDate,
+      expireDate: expireDate || addOneYearIso(issueDate || receiptDate || applicationSubmissionDate),
       inspectorName: inspectorName.trim(),
       inspectorPosition: inspectorPosition.trim()
     };
@@ -671,7 +738,7 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
             <input
               type="date"
               value={receiptDate}
-              onChange={(e) => setReceiptDate(e.target.value)}
+              onChange={(e) => handleReceiptDateChange(e.target.value)}
               className="ui-input font-mono"
             />
           </div>
@@ -683,8 +750,8 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
             <input
               type="date"
               value={applicationSubmissionDate}
-              onChange={(e) => setApplicationSubmissionDate(e.target.value)}
-              className="ui-input"
+              onChange={(e) => handleApplicationDateChange(e.target.value)}
+              className="ui-input font-mono"
             />
           </div>
 
@@ -694,6 +761,28 @@ export const EstablishmentForm: React.FC<EstablishmentFormProps> = ({
               type="number"
               value={feeAmount}
               onChange={(e) => setFeeAmount(Number(e.target.value))}
+              className="ui-input font-mono"
+            />
+          </div>
+        </div>
+
+        <div className="ui-grid-2">
+          <div>
+            <label className="ui-label">วันที่ออกใบอนุญาต / หนังสือรับรอง (ข้อ ๔)</label>
+            <input
+              type="date"
+              value={issueDate}
+              onChange={(e) => handleIssueDateChange(e.target.value)}
+              className="ui-input font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="ui-label">วันสิ้นอายุ / ครบกำหนดชำระ (ข้อ ๕)</label>
+            <input
+              type="date"
+              value={expireDate}
+              onChange={(e) => setExpireDate(e.target.value)}
               className="ui-input font-mono"
             />
           </div>

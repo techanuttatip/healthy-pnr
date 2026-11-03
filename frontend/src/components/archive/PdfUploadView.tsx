@@ -7,7 +7,7 @@ import type {
 } from '../../types/publicHealth';
 import { sanitationDataService } from '../../services/sanitationDataService';
 import { showToast, showWarningAlert } from '../../utils/sweetAlert';
-import { EstablishmentForm, type EstablishmentFormValues } from './EstablishmentForm';
+import { EstablishmentForm, addOneYearIso, type EstablishmentFormValues } from './EstablishmentForm';
 import {
   UploadCloud,
   Eye,
@@ -250,11 +250,19 @@ export const PdfUploadView: React.FC<PdfUploadViewProps> = ({
       }
     ];
 
+    const resolvedIssueDate = values.issueDate || values.receiptDate || values.applicationSubmissionDate;
+    const resolvedExpireDate = values.expireDate || addOneYearIso(resolvedIssueDate);
+    const resolvedReceiptDate = values.receiptDate || values.applicationSubmissionDate || resolvedIssueDate;
+
     const dossier: YearDossier = {
       year: values.targetYear,
       status: 'pending_payment',
       applicationDate: values.applicationSubmissionDate,
+      licenseIssueDate: resolvedIssueDate,
+      licenseExpireDate: resolvedExpireDate,
       feeAmount: values.feeAmount,
+      receiptNo: values.receiptNo,
+      licenseNo: safeDocNo,
       documents: docs
     };
 
@@ -267,49 +275,56 @@ export const PdfUploadView: React.FC<PdfUploadViewProps> = ({
       businessName: values.businessName,
       applicantType: 'individual',
       ownerName: values.ownerName,
+      ownerAge: values.ownerAge || 35,
       citizenId: values.citizenId,
       phone: values.phone,
       email: values.email,
+      lineId: values.lineId || '',
+      fax: values.fax || '',
       village: values.village,
       address: values.address,
       areaSqm: values.areaSqm || 50,
       workerCount: values.workerCount ?? 1,
       premiseCharacteristics: values.premiseCharacteristics || 'ตึกเดี่ยว 1 ชั้น',
+      foodPlaceType: values.foodPlaceType || 'selling',
+      foodTypeDetail: values.foodTypeDetail || '',
+      distributionMethod: values.distributionMethod || '',
+      operatingHours: values.operatingHours || '07:00 - 19:00 น.',
       lat: values.lat,
       lng: values.lng,
       status: 'active',
-      issueDate: values.applicationSubmissionDate,
-      expireDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      annualFeeDue: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      issueDate: resolvedIssueDate,
+      expireDate: resolvedExpireDate,
+      annualFeeDue: resolvedExpireDate,
+      nextFeeDueDate: resolvedExpireDate,
       feeAmount: values.feeAmount,
-      bookNo: '-',
+      bookNo: values.bookNo || '๑',
       docNo: safeDocNo,
-      receiptBookNo: '-',
+      receiptBookNo: values.receiptBookNo || '๑',
       receiptNo: values.receiptNo,
-      receiptDate: values.applicationSubmissionDate,
+      receiptDate: resolvedReceiptDate,
       applicationSubmissionDate: values.applicationSubmissionDate,
       temporarySlipIssuedDate: values.applicationSubmissionDate,
-      foodPlaceType: 'selling',
       conditions: [
         'ผู้ประกอบการต้องปฏิบัติตามมาตรฐานสุขาภิบาลอย่างเคร่งครัด',
         'แสดงใบอนุญาตไว้ในที่เปิดเผยและเห็นได้ง่าย ณ สถานที่ประกอบการ'
       ],
       inspectionScore: 100,
       inspectionPassed: true,
-      inspectionDate: values.applicationSubmissionDate,
+      inspectionDate: resolvedIssueDate,
       inspectorName: values.inspectorName,
       inspectorPosition: values.inspectorPosition,
       yearlyArchives: [dossier]
     };
 
-    onSaveEstablishment(newEst);
-    await sanitationDataService.saveEstablishment(newEst);
+    const savedEst = await sanitationDataService.saveEstablishment(newEst);
     setIsSaving(false);
     showToast('บันทึกข้อมูลและจัดเก็บไฟล์ PDF เข้าสู่ระบบสำเร็จ!', 'success');
 
     if (proceedToPrint) {
-      onNavigateToPrint(newEst);
+      onNavigateToPrint(savedEst);
     } else {
+      onSaveEstablishment(savedEst);
       onNavigateToTable();
     }
   };

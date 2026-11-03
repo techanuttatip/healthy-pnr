@@ -423,14 +423,14 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                   <span className="shrink-0 font-bold mr-1">(๔)</span>
                   <span className="shrink-0 mr-1.5">ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่</span>
                   <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
-                    {formatThaiDate(establishment.issueDate, true)}
+                    {formatThaiDate(establishment.issueDate || establishment.receiptDate || establishment.applicationSubmissionDate, true)}
                   </div>
                 </div>
                 <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
                   <span className="shrink-0 font-bold mr-1">(๕)</span>
                   <span className="shrink-0 mr-1.5">ใบอนุญาตฉบับนี้สิ้นอายุวันที่</span>
                   <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
-                    {formatThaiDate(establishment.expireDate, true)}
+                    {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate || establishment.annualFeeDue, true)}
                   </div>
                 </div>
               </div>
@@ -519,7 +519,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               {/* Line 6: ลักษณะสถานที่ และวิธีการจำหน่าย */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1">ลักษณะของสถานที่ประกอบกิจการ</span>
-                <div className="w-28 shrink-0 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <div className="min-w-[112px] shrink-0 border-b border-dotted border-black text-center font-bold px-1.5 relative whitespace-nowrap">
                   {toThaiDigits(displayedPremise)}
                 </div>
                 <span className="shrink-0 mx-1.5">วิธีการจำหน่าย</span>
@@ -531,7 +531,7 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
               {/* Line 7: เวลา / พื้นที่ / คนงาน */}
               <div className={`flex items-end w-full ${spacing.leadingClass}`}>
                 <span className="shrink-0 mr-1.5">ช่วงเวลาที่จำหน่าย</span>
-                <div className="w-28 border-b border-dotted border-black text-center font-bold px-1 relative">
+                <div className="min-w-[138px] shrink-0 border-b border-dotted border-black text-center font-bold px-2 relative whitespace-nowrap">
                   {toThaiDigits(establishment.operatingHours || '๐๗:๐๐ - ๑๙:๐๐ น.')}
                 </div>
                 <span className="shrink-0 mx-1">มีพื้นที่</span>
@@ -634,14 +634,14 @@ export const GarudaLicenseDoc: React.FC<GarudaLicenseDocProps> = ({
                   <span className="font-bold mr-1">(๔)</span>
                   <span className="shrink-0 mr-1.5">{isFoodLicense ? 'ใบอนุญาตฉบับนี้ออกให้เมื่อวันที่' : 'หนังสือรับรองการแจ้งฉบับนี้ออกให้เมื่อวันที่'}</span>
                   <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
-                    {formatThaiDate(establishment.issueDate, true)}
+                    {formatThaiDate(establishment.issueDate || establishment.receiptDate || establishment.applicationSubmissionDate, true)}
                   </div>
                 </div>
                 <div className="flex items-end w-full" style={{ paddingLeft: '2.5cm' }}>
                   <span className="font-bold mr-1">(๕)</span>
                   <span className="shrink-0 mr-1.5">{isFoodLicense ? 'ใบอนุญาตฉบับนี้สิ้นอายุวันที่' : 'ครบกำหนดวันชำระค่าธรรมเนียม วันที่'}</span>
                   <div className="w-56 border-b border-dotted border-black text-center font-bold px-2 relative">
-                    {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate, true)}
+                    {formatThaiDate(establishment.expireDate || establishment.nextFeeDueDate || establishment.annualFeeDue, true)}
                   </div>
                 </div>
               </div>
